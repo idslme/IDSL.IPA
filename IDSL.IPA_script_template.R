@@ -17,7 +17,7 @@ spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0003")] <-
 # PARAM0004  :Annotate peaks from individual peaklists using a reference database
 spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0004")] <- "YES"
 
-# PARAMA005 : Plot extracted ion chromatograms (EICs) (Applicable only for the 'IDSL_EIC' module)
+# PARAMA005 : Employ IPA for targeted analysis (Applicable only for the 'IPA_TargetedAnalysis' module)
 spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0005")] <- "NO"
 
 # PARAMA006 : Number of processing threads
