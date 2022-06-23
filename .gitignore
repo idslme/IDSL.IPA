@@ -1,4 +1,5 @@
 # History files
+.gitignore
 .Rhistory
 .Rapp.history
 
