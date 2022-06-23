@@ -1,0 +1,17 @@
+{
+    "sortOrder": [
+        {
+            "columnIndex": 2,
+            "ascending": true
+        },
+        {
+            "columnIndex": 4,
+            "ascending": false
+        },
+        {
+            "columnIndex": 1,
+            "ascending": true
+        }
+    ],
+    "path": "~/IDSLTeam/ABCD_project_SFB/IDSL.IPA"
+}
