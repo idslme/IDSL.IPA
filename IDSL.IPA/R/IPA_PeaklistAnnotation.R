@@ -3,6 +3,9 @@ IPA_PeaklistAnnotation <- function(PARAM) {
   number_processing_cores <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
   Output_Xcol <- paste0(output_path, "/sample_centeric_annotation")
+  ##
+  massDifferenceIsotopes <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
+  ##
   ref_table <- readxl::read_xlsx(PARAM[which(PARAM[, 1] == 'PARAM0042'), 2])
   mass_error <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0043'), 2])   # Mass accuracy to cluster m/z in consecutive scans
   rt_error <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0044'), 2])
@@ -118,7 +121,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
       if(osType == "Linux") {
         chromatography_undetected_list <- mclapply(1:L_HRMS, function(i) {
           ##
-          chromatography_undetected <-c()
+          chromatography_undetected <-NULL
           x_0 <- which(annotated_peak_indices[, (i + 2)] == 0)
           if (length(x_0) > 0) {
             mz_Xcol <- annotated_peak_indices[x_0, 1]
@@ -141,7 +144,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
             nRT <- length(RetentionTime)
             ##
             chromatography_undetected <- do.call(rbind, lapply(1:length(x_0), function(j) {
-              chromatography_undetected_row <- c()
+              chromatography_undetected_row <- NULL
               pa <- 0
               R13C <- 0
               mzCandidate <- mz_Xcol[j]
@@ -174,19 +177,19 @@ IPA_PeaklistAnnotation <- function(PARAM) {
                 t1 <- boundary_left + ScanNumberStart - 1
                 t2 <- boundary_right + ScanNumberStart - 1
                 chromatogram_segment <- do.call(rbind, lapply(t1:t2, function(t) {
-                  Spec_ScN_j <- c()
+                  Spec_ScN_j <- NULL
                   Spec <- spectraList[[t]]
                   if (length(Spec) > 0) {
                     x_mz1 <- which(abs(Spec[, 1] - mzCandidate) <= mass_error)
                     if (length(x_mz1) > 0) {
-                      x_mz2 <- which(abs(Spec[, 1] - (1.00335484 + mzCandidate)) <= mass_error_13c)
+                      x_mz2 <- which(abs(Spec[, 1] - (massDifferenceIsotopes + mzCandidate)) <= mass_error_13c)
                       if (length(x_mz2) > 0) {
                         if (length(x_mz1) > 1) {
                           x_min <- which.min(abs(Spec[x_mz1, 1] - mzCandidate))
                           x_mz1 <- x_mz1[x_min]
                         }
                         if (length(x_mz2) > 1) {
-                          x_min <- which.min(abs(Spec[x_mz2, 1] - (1.00335484 + mzCandidate)))
+                          x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate)))
                           x_mz2 <- x_mz2[x_min]
                         }
                         Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
@@ -218,7 +221,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
         registerDoParallel(clust)
         chromatography_undetected_list <- foreach(i=1:L_HRMS, .verbose = FALSE) %dopar% {
           ##
-          chromatography_undetected <-c()
+          chromatography_undetected <-NULL
           x_0 <- which(annotated_peak_indices[, (i + 2)] == 0)
           if (length(x_0) > 0) {
             mz_Xcol <- annotated_peak_indices[x_0, 1]
@@ -241,7 +244,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
             nRT <- length(RetentionTime)
             ##
             chromatography_undetected <- do.call(rbind, lapply(1:length(x_0), function(j) {
-              chromatography_undetected_row <- c()
+              chromatography_undetected_row <- NULL
               pa <- 0
               R13C <- 0
               mzCandidate <- mz_Xcol[j]
@@ -274,19 +277,19 @@ IPA_PeaklistAnnotation <- function(PARAM) {
                 t1 <- boundary_left + ScanNumberStart - 1
                 t2 <- boundary_right + ScanNumberStart - 1
                 chromatogram_segment <- do.call(rbind, lapply(t1:t2, function(t) {
-                  Spec_ScN_j <- c()
+                  Spec_ScN_j <- NULL
                   Spec <- spectraList[[t]]
                   if (length(Spec) > 0) {
                     x_mz1 <- which(abs(Spec[, 1] - mzCandidate) <= mass_error)
                     if (length(x_mz1) > 0) {
-                      x_mz2 <- which(abs(Spec[, 1] - (1.00335484 + mzCandidate)) <= mass_error_13c)
+                      x_mz2 <- which(abs(Spec[, 1] - (massDifferenceIsotopes + mzCandidate)) <= mass_error_13c)
                       if (length(x_mz2) > 0) {
                         if (length(x_mz1) > 1) {
                           x_min <- which.min(abs(Spec[x_mz1, 1] - mzCandidate))
                           x_mz1 <- x_mz1[x_min]
                         }
                         if (length(x_mz2) > 1) {
-                          x_min <- which.min(abs(Spec[x_mz2, 1] - (1.00335484 + mzCandidate)))
+                          x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate)))
                           x_mz2 <- x_mz2[x_min]
                         }
                         Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])

@@ -369,7 +369,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         massDifferenceIsotopes <- tryCatch(as.numeric(PARAM[x0012, 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
         PARAM[x0012, 2] <- massDifferenceIsotopes
         if (massDifferenceIsotopes <= 1.00336 & massDifferenceIsotopes >= 1.00335) {
-          print("Carbon isotopologues are selected for ion pairing!")
+          print("Carbon isotopes are selected for ion pairing!")
         } else {
           print(paste0("Mass difference to pair isotopes are = '", massDifferenceIsotopes, " Da'!"))
         }

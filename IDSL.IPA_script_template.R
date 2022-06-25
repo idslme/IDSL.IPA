@@ -48,8 +48,8 @@ spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0010")] <-
 # PARAM011 : Intensity cutoff for the monoisotopic mass in each scan also known as instrument noise level
 spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0011")] <- 50000
 
-# PARAM012 : Threshold ratio of the 13C isotopologue relative to monoisotopic isotopologue (12C) in individual scans (%)
-spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0011")] <- 90
+# PARAM012 : Mass difference to pair isotopologues ((Default = DeltaC = 13C - 12C = 1.003354835336))
+spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0012")] <- 1.003354835336
 
 #######################################################
 ######################  Chromatographic peak detection

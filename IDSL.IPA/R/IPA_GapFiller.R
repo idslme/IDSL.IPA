@@ -28,6 +28,9 @@ IPA_GapFiller <- function(PARAM) {
   ##
   peak_Xcol <- loadRdata(paste0(output_path, "/peak_alignment/peak_Xcol.Rdata"))
   corrected_RT_peaklists <- loadRdata(paste0(output_path, "/peak_alignment/corrected_RT_peaklists.Rdata"))
+  ##
+  massDifferenceIsotopes <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
+  ##
   mass_error <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0038'), 2])   # Mass accuracy to cluster m/z in consecutive scans
   mass_error_13c <- 1.5*mass_error
   delta_rt <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0039'), 2])
@@ -97,14 +100,14 @@ IPA_GapFiller <- function(PARAM) {
               if (length(Spec) > 0) {
                 x_mz1 <- which(abs(Spec[, 1] - mzCandidate) <= mass_error)
                 if (length(x_mz1) > 0) {
-                  x_mz2 <- which(abs(Spec[, 1] - (1.00335484 + mzCandidate)) <= mass_error_13c)
+                  x_mz2 <- which(abs(Spec[, 1] - (massDifferenceIsotopes + mzCandidate)) <= mass_error_13c)
                   if (length(x_mz2) > 0) {
                     if (length(x_mz1) > 1) {
                       x_min <- which.min(abs(Spec[x_mz1, 1] - mzCandidate))
                       x_mz1 <- x_mz1[x_min]
                     }
                     if (length(x_mz2) > 1) {
-                      x_min <- which.min(abs(Spec[x_mz2, 1] - (1.00335484 + mzCandidate)))
+                      x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate)))
                       x_mz2 <- x_mz2[x_min]
                     }
                     Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
@@ -193,14 +196,14 @@ IPA_GapFiller <- function(PARAM) {
               if (length(Spec) > 0) {
                 x_mz1 <- which(abs(Spec[, 1] - mzCandidate) <= mass_error)
                 if (length(x_mz1) > 0) {
-                  x_mz2 <- which(abs(Spec[, 1] - (1.00335484 + mzCandidate)) <= mass_error_13c)
+                  x_mz2 <- which(abs(Spec[, 1] - (massDifferenceIsotopes + mzCandidate)) <= mass_error_13c)
                   if (length(x_mz2) > 0) {
                     if (length(x_mz1) > 1) {
                       x_min <- which.min(abs(Spec[x_mz1, 1] - mzCandidate))
                       x_mz1 <- x_mz1[x_min]
                     }
                     if (length(x_mz2) > 1) {
-                      x_min <- which.min(abs(Spec[x_mz2, 1] - (1.00335484 + mzCandidate)))
+                      x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate)))
                       x_mz2 <- x_mz2[x_min]
                     }
                     Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])

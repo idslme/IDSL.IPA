@@ -21,7 +21,7 @@ intensity threshold at each chromatogram scan
 mass error to detect pair isotopologues
 }
   \item{massDifferenceIsotopes}{
-mass difference to pair isotopologues. (Default =  \eqn{\DeltaC} = \out{<sup>13</sup>C} - \out{<sup>12</sup>C} = 1.003354835336), \eqn{\DeltaS} = \out{<sup>34</sup>S} - \out{<sup>32</sup>S} = 3.9950095256, or any numerical value.
+mass difference to pair isotopologues. (Default =  \eqn{\DeltaC} = \out{<sup>13</sup>C} - \out{<sup>12</sup>C} = 1.003354835336), \eqn{\DeltaS} = \out{<sup>34</sup>S} - \out{<sup>32</sup>S} = 1.9957958356, or any numerical value.
 }
 }
 \value{

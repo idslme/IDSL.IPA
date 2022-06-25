@@ -12,7 +12,7 @@ Imports: IDSL.MXP (>= 1.4), xml2, RNetCDF, base64enc, grid, readxl, parallel, do
 Author: Sadjad Fakouri-Baygi [cre, aut] (<https://orcid.org/0000-0002-6864-6911>),
     Dinesh Barupal [aut] (<https://orcid.org/0000-0002-9954-8628>)
 Maintainer: Sadjad Fakouri-Baygi <sadjad.fakouri-baygi@mssm.edu>
-Description: A sophisticated pipeline for processing LC/HRMS data to extract signals of organic compounds. The package performs 12C/13C isotope pairing, peak detection, alignment, RT correction, gap filling, peak annotation and visualization of extracted ion chromatograms and total ion chromatograms.
+Description: A sophisticated pipeline for processing LC/HRMS data to extract signals of organic compounds. The package performs isotope pairing, peak detection, alignment, RT correction, gap filling, peak annotation and visualization of extracted ion chromatograms and total ion chromatograms.
 License: MIT + file LICENSE
 URL: https://ipa.idsl.me,
         https://github.com/idslme/idsl.ipa
