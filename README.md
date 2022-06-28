@@ -1,7 +1,6 @@
-# IDSL.IPA <img src='IPA_educational_files/figures/IDSL.IPA-logo.png' width="150px" align="right" />
+# IDSL.IPA <img src='IPA_educational_files/figures/IDSL.IPA-logo.png' align="right" />
 
 <!-- badges: start -->
-[![R build status](https://github.com/idslme/IDSL.IPA/workflows/R-CMD-check/badge.svg)](https://github.com/idslme/IDSL.IPA/actions)
 [![CRAN status](https://www.r-pkg.org/badges/version/IDSL.IPA)](https://cran.r-project.org/package=IDSL.IPA)
 ![](http://cranlogs.r-pkg.org/badges/IDSL.IPA?color=orange)
 ![](http://cranlogs.r-pkg.org/badges/grand-total/IDSL.IPA?color=brightgreen)
