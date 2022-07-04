@@ -45,7 +45,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
     ##
     osType <- Sys.info()[['sysname']]
     print("Initiated the targeted analysis!")
-    if(osType == "Windows") {
+    if (osType == "Windows") {
       clust <- makeCluster(number_processing_cores)
       registerDoParallel(clust)
       cc_table <- foreach(i = 1:length(file_name_hrms), .combine ='rbind', .verbose = FALSE) %dopar% {
@@ -84,7 +84,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
                     x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate[j])))
                     x_mz2 <- x_mz2[x_min[1]]
                   }
-                  if (Spec[x_mz1, 2]>= Spec[x_mz2, 2]) {
+                  if (Spec[x_mz1, 2] >= Spec[x_mz2, 2]) {
                     Spec_ScN_j <- c(Spec[x_mz1, 1], Spec[x_mz1, 2], t, Spec[x_mz2, 1], Spec[x_mz2, 2])
                   }
                 }
@@ -185,7 +185,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
                     x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate[j])))
                     x_mz2 <- x_mz2[x_min[1]]
                   }
-                  if (Spec[x_mz1, 2]>= Spec[x_mz2, 2]) {
+                  if (Spec[x_mz1, 2] >= Spec[x_mz2, 2]) {
                     Spec_ScN_j <- c(Spec[x_mz1, 1], Spec[x_mz1, 2], t, Spec[x_mz2, 1], Spec[x_mz2, 2])
                   }
                 }

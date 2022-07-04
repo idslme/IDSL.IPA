@@ -65,7 +65,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
       imzRTXcol_main_call(i)
     }))
     ##
-    RT_pl <- c()
+    RT_pl <- NULL
     ##
     imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
     ##
@@ -82,7 +82,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
       FeatureTable_Main_call(q)
     }))
     ##
-    imzRTXcol_main <- c()
+    imzRTXcol_main <- NULL
     ##
     L_FTmain <- dim(FeatureTable_Main)[1]
     x_s <- do.call(c, lapply(1:L_FTmain, function(i) {
@@ -98,7 +98,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
         imzRTXcol_main_call(i)
       }, mc.cores = number_processing_cores))
       ##
-      RT_pl <- c()
+      RT_pl <- NULL
       ##
       imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
       ##
@@ -115,7 +115,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
         FeatureTable_Main_call(q)
       }, mc.cores = number_processing_cores))
       ##
-      imzRTXcol_main <- c()
+      imzRTXcol_main <- NULL
       ##
       L_FTmain <- dim(FeatureTable_Main)[1]
       x_s <- do.call(c, mclapply(1:L_FTmain, function(i) {
@@ -128,10 +128,10 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
       cl <- makeCluster(number_processing_cores)
       registerDoParallel(cl)
       ##
-      imzRTXcol_main <- foreach(i = 1:L_PL, .combine="rbind", .verbose = FALSE) %dopar% {
+      imzRTXcol_main <- foreach(i = 1:L_PL, .combine = 'rbind', .verbose = FALSE) %dopar% {
         imzRTXcol_main_call(i)
       }
-      RT_pl <- c()
+      RT_pl <- NULL
       ##
       imzRTXcol_main <- imzRTXcol_main[(imzRTXcol_main[, 2] > 0), ]
       ##
@@ -146,14 +146,14 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
         MZ_Q_boundaries <- matrix(c(min(imzRTXcol_main[, 2]), max(imzRTXcol_main[, 2])), ncol = 2)
       }
       ##
-      FeatureTable_Main <- foreach(q = 1:n_quantile, .combine="rbind", .verbose = FALSE) %dopar% {
+      FeatureTable_Main <- foreach(q = 1:n_quantile, .combine = 'rbind', .verbose = FALSE) %dopar% {
         FeatureTable_Main_call(q)
       }
       ##
-      imzRTXcol_main <- c()
+      imzRTXcol_main <- NULL
       ##
       L_FTmain <- dim(FeatureTable_Main)[1]
-      x_s <- foreach(i = 1:L_FTmain, .combine="c", .verbose = FALSE) %dopar% {
+      x_s <- foreach(i = 1:L_FTmain, .combine = 'c', .verbose = FALSE) %dopar% {
         length(which(FeatureTable_Main[i, 3:L_PL2] > 0))
       }
       ##
@@ -165,7 +165,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
   FeatureTable_Main <- cbind(x_s, FeatureTable_Main)
   FeatureTable_Main <- FeatureTable_Main[order(FeatureTable_Main[, 1], decreasing = TRUE), ]
   ##
-  progressBARboundaries <- txtProgressBar(min = 1, max = L_FTmain, initial = 1, style = 3)
+  progressBARboundaries <- txtProgressBar(min = 0, max = L_FTmain, initial = 0, style = 3)
   for (i in 1:L_FTmain) {
     setTxtProgressBar(progressBARboundaries, i)
     x_c <- which(abs(FeatureTable_Main[i, 2] - FeatureTable_Main[, 2]) <= mz_error &
@@ -195,10 +195,11 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
     }
   }
   close(progressBARboundaries)
+  ##
   x_non0 <- which(FeatureTable_Main[, 1] != 0)
   FeatureTable_Main <- FeatureTable_Main[x_non0, ]
   FeatureTable_Main <- FeatureTable_Main[, -1]
-  rownames(FeatureTable_Main) <- c()
+  rownames(FeatureTable_Main) <- NULL
   FeatureTable_Main <- FeatureTable_Main[order(FeatureTable_Main[, 1], decreasing = FALSE), ]
   return(FeatureTable_Main)
 }

@@ -42,7 +42,7 @@ spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0010")] <-
 
 
 #######################################################
-######################  Pairing 12C/13C isotopologues in the mass spectra level
+######################  Pairing isotopologues in the mass spectra level
 #######################################################
 
 # PARAM011 : Intensity cutoff for the monoisotopic mass in each scan also known as instrument noise level
@@ -184,4 +184,4 @@ spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0048")] <-
 #######################################################
 
 IDSL.IPA::IPA_Workflow(spreadsheet)
-closeAllConnections()
+

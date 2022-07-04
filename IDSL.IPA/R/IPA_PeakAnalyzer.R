@@ -1,4 +1,4 @@
-IPA_PeakAnalyzer <- function (PARAM) {
+IPA_PeakAnalyzer <- function(PARAM) {
   ##
   number_processing_cores <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
@@ -51,8 +51,8 @@ IPA_PeakAnalyzer <- function (PARAM) {
     outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
     spectraList <- outputer[[1]]
     RetentionTime <- outputer[[2]]
-    ## IPA_isotope_pairing
-    spec_scan <- IPA_isotope_pairing(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes)
+    ## IPA_IsotopePairing
+    spec_scan <- IPA_IsotopePairing(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes)
     ## m/z clustering
     index_xic <- mz_clustering_xic(spec_scan, mass_accuracy_xic, min_peak_height, min_nIsoPair)
     ## spectraList size reduction
@@ -135,7 +135,7 @@ IPA_PeakAnalyzer <- function (PARAM) {
   ##
   if (number_processing_cores == 1) {
     ##
-    progressBARboundaries <- txtProgressBar(min = 0, max = length(file_name_hrms), initial = 1, style = 3)
+    progressBARboundaries <- txtProgressBar(min = 0, max = length(file_name_hrms), initial = 0, style = 3)
     ##
     Null_variable <- do.call(rbind, lapply(1:length(file_name_hrms), function(k) {
       call_carbon_IPA_parallel(k)

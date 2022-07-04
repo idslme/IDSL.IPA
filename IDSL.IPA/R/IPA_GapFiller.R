@@ -238,7 +238,7 @@ IPA_GapFiller <- function(PARAM) {
   peak_height_gapfilled <- peak_height
   peak_area_gapfilled <- peak_area
   peak_R13C_gapfilled <- peak_R13C
-  progressBARboundaries <- txtProgressBar(min = 1, max = L_HRMS, initial = 1, style = 3)
+  progressBARboundaries <- txtProgressBar(min = 0, max = L_HRMS, initial = 0, style = 3)
   for (i in 1:length(chromatography_undetected_list)) {
     setTxtProgressBar(progressBARboundaries, i)
     iSample <- chromatography_undetected_list[[i]]
