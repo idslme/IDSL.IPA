@@ -36,8 +36,8 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
             xii <- which(xi > 1)
             Rx <- as.numeric(names(xii))  # Repeated peaks in the same sample
             A <- cbind(imzRTXcol[x, ], x)
-            xiii <- do.call(c, lapply(1:length(Rx), function(j) {
-              xj <- which(A[, 1] == Rx[j])
+            xiii <- do.call(c, lapply(Rx, function(j) {
+              xj <- which(A[, 1] == j)
               xjj <- which.min(abs(A[xj, 3] - imzRTXcol[i, 3]))
               A[xj[-xjj], 6]
             }))

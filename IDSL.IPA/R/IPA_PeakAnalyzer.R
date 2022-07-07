@@ -137,11 +137,11 @@ IPA_PeakAnalyzer <- function(PARAM) {
     ##
     progressBARboundaries <- txtProgressBar(min = 0, max = length(file_name_hrms), initial = 0, style = 3)
     ##
-    Null_variable <- do.call(rbind, lapply(1:length(file_name_hrms), function(k) {
-      call_carbon_IPA_parallel(k)
+    for (k in 1:length(file_name_hrms)) {
+      Null_variable <- call_carbon_IPA_parallel(k)
       ##
       setTxtProgressBar(progressBARboundaries, k)
-    }))
+    }
     ##
     close(progressBARboundaries)
     ##

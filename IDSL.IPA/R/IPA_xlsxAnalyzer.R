@@ -745,7 +745,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     print("Please visit   https://ipa.idsl.me    for instructions!")
     PARAM <- c()
   } else {
-    print("The IPA spreadsheet is consistent with the IPA workflow!")
+    print("The spreadsheet is consistent with the IDSL.IPA workflow!")
   }
   return(PARAM)
 }
