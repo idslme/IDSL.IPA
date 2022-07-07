@@ -287,7 +287,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         checkpoint_parameter <- FALSE
       } else {
         address_hrms <- PARAM[x0007, 2]
-        address_hrms <- gsub("\\", "/", address_hrms, fixed=TRUE)
+        address_hrms <- gsub("\\", "/", address_hrms, fixed = TRUE)
         PARAM[x0007, 2] <- address_hrms
         if (!dir.exists(address_hrms)) {
           print("ERROR!!! Problem with PARAM0007! Please make sure the full path is provided!")
@@ -337,7 +337,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       print("ERROR!!! Problem with PARAM0010!")
       checkpoint_parameter <- FALSE
     } else {
-      output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed=TRUE)
+      output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed = TRUE)
       PARAM[x0010, 2] <- output_path
       if (!dir.exists(output_path)) {
         tryCatch(dir.create(output_path), warning = function(w){message("WARNING!!! Problem with PARAM0010! R can only create one folder!")})

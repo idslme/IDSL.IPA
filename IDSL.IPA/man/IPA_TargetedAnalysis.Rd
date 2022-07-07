@@ -37,10 +37,10 @@ s_path <- system.file("extdata", package = "IDSL.IPA")
 SSh1 <- paste0(s_path,"/IPA_parameters.xlsx")
 spreadsheet <- readxl::read_xlsx(SSh1, sheet = 'IPA_targeted')
 temp_wd <- tempdir()
-temp_wd_zip <- paste0(temp_wd,"/testfiles.zip")
-download.file(
-  "https://github.com/idslme/IDSL.IPA/blob/main/IPA_educational_files/idsl_ipa_test_files.zip?raw=true",
-  destfile = temp_wd_zip)
+temp_wd_zip <- paste0(temp_wd,"/idsl_ipa_test_files.zip")
+download.file(paste0("https://github.com/idslme/IDSL.IPA/blob/main/",
+"IPA_educational_files/idsl_ipa_test_files.zip?raw=true"),
+destfile = temp_wd_zip)
 unzip(temp_wd_zip, exdir = temp_wd)
 spreadsheet[2, 4] <- temp_wd
 spreadsheet[5, 4] <- temp_wd

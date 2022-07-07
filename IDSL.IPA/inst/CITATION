@@ -11,7 +11,7 @@ citEntry("Article",
          number  = "6",
          pages = "1485-1494",
          PubMedID = "35579321",
-         url      = "https://doi.org/10.1021/acs.jproteome.2c00120",
+         url      = "https://pubs.acs.org/doi/full/10.1021/acs.jproteome.2c00120",
 
          textVersion =
          paste0("Fakouri Baygi et. al.,\n",
