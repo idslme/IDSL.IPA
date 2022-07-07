@@ -25,7 +25,7 @@ temp_wd <- tempdir()
 temp_wd_zip <- paste0(temp_wd,"/testfiles.zip")
 spreadsheet <- readxl::read_xlsx(SSh1)
 download.file(
-  "https://github.com/idslme/IDSL.IPA/blob/main/IPA_educational_files/idsl_ipa_test_files.zip",
+  "https://github.com/idslme/IDSL.IPA/blob/main/IPA_educational_files/idsl_ipa_test_files.zip?raw=true",
   destfile = temp_wd_zip)
 unzip(temp_wd_zip, exdir = temp_wd)
 spreadsheet[7, 4] <- temp_wd
