@@ -44,21 +44,21 @@ IPA_Workflow <- function(spreadsheet) {
       ##
       ipa_eic_tar <- tolower(PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_EIC'), 2])
       if (ipa_eic_tar == "y" | ipa_eic_tar == "yes") {
-        exportEIC_TorF <- TRUE
+        exportEICcheck <- TRUE
       } else if (ipa_eic_tar == "n" | ipa_eic_tar == "no") {
-        exportEIC_TorF <- FALSE
+        exportEICcheck <- FALSE
       }
       ##
       ipa_tab_tar <- tolower(PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_CCT'), 2])
       if (ipa_tab_tar == "y" | ipa_tab_tar == "yes") {
-        exportTable_TorF <- TRUE
+        exportTableCheck <- TRUE
       } else if (ipa_tab_tar == "n" | ipa_tab_tar == "no") {
-        exportTable_TorF <- FALSE
+        exportTableCheck <- FALSE
       }
       ##
-      IPA_TargetedTable <- IPA_TargetedAnalysis(spreadsheet, mzCandidate, rtCandidate, exportEIC = exportEIC_TorF, exportTable = exportTable_TorF)
+      IPA_TargetedTable <- IPA_TargetedAnalysis(spreadsheet, mzCandidate, rtCandidate, exportEIC = exportEICcheck, exportTable = exportTableCheck)
       ##
-      if (exportTable_TorF) {
+      if (exportTableCheck) {
         output_path <- PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM0010'), 2]
         save(IPA_TargetedTable, file = paste0(output_path, "/IPA_TargetedTable.Rdata"))
         write.csv(IPA_TargetedTable, file = paste0(output_path, "/IPA_TargetedTable.csv"))

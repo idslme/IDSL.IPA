@@ -9,7 +9,7 @@ find common peaks among multiple samples.
 }
 \usage{
 peak_alignment(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol,
-n_quantile, number_processing_cores)
+n_quantile, number_processing_threads)
 }
 \arguments{
   \item{input_path_pl}{
@@ -30,8 +30,8 @@ retention time tolerance to detect common peaks.
   \item{n_quantile}{
 number of total m/z quantiles to split the whole table for faster processing.
 }
-  \item{number_processing_cores}{
-number of processing cores.
+  \item{number_processing_threads}{
+number of processing threads
 }
 }
 \value{

@@ -2,7 +2,7 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
                                      min_nIsoPair, min_peak_height, min_ratio_IsoPair, max_rpw, min_snr_baseline,
                                      max_R13C_integrated_peak, max_percentage_missing_scans, mz_target, rt_target = 0,
                                      mass_accuracy_xic, spectraList, RetentionTime, n_spline) {
-  chromatography_characteristics <- c()
+  chromatography_characteristics <- NULL
   ## To create chromatogram builder
   # chromatogram builder <- (scan number, smoothed chromatogram, unprocessed m/z chromatogram, raw chromatogram from 13C filter)
   spec_scan_xic <- spec_scan_xic[order(spec_scan_xic[, 3]), ]             # To sort the array based on the scan number

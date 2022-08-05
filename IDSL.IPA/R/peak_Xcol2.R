@@ -19,6 +19,7 @@ peak_Xcol2 <- function(input_path_peaklist, file_names_peaklist, peak_Xcol) {
     }
   }
   close(progressBARboundaries)
-  H_A_R13C <- list(peak_height, peak_area, peak_R13C)
-  return(H_A_R13C)
+  listHeightAreaR13C <- list(peak_height, peak_area, peak_R13C)
+  names(listHeightAreaR13C) <- c("peak_height", "peak_area", "peak_R13C")
+  return(listHeightAreaR13C)
 }

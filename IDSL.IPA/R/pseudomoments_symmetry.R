@@ -61,7 +61,7 @@ pseudomoments_symmetry <- function(rt, int) {
       }
     }
   }
-  if (is.nan(PeakSymmetry) == 1) {
+  if (is.nan(PeakSymmetry)) {
     a12 <- peak_area(rt1, int1)
     a34 <- peak_area(rt2, int2)
     PeakSymmetry <- a12/a34

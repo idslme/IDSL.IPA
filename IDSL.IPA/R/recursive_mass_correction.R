@@ -13,7 +13,7 @@ recursive_mass_correction <- function(peaklist, spec_scan, scan_tol, spectraList
                         spec_scan[, 3] <= (peaklist[k, 2] + scan_tol))
       if (length(x_Spec) >= min_nIsoPair) {
         spec_scan_rec <- spec_scan[x_Spec, ]
-        spec_scan_rec <- spec_scan_rec[order(spec_scan_rec[,3]), ]
+        spec_scan_rec <- spec_scan_rec[order(spec_scan_rec[, 3]), ]
         t1 <- peaklist[k, 1] - scan_tol
         if (t1 < 1) {
           t1 <- 1
@@ -22,10 +22,10 @@ recursive_mass_correction <- function(peaklist, spec_scan, scan_tol, spectraList
         if (t2 > n_RT) {
           t2 <- n_RT
         }
-        if (length(spec_scan_rec) == 0 || spec_scan_rec[1, 3] != t1) {
+        if (length(spec_scan_rec) == 0 | spec_scan_rec[1, 3] != t1) {
           spec_scan_rec <- rbind(c(mz_target, 0, t1, 0, 0), spec_scan_rec)
         }
-        if (length(spec_scan_rec) == 5 || spec_scan_rec[nrow(spec_scan_rec),3] != t2) {
+        if (length(spec_scan_rec) == 5 | spec_scan_rec[nrow(spec_scan_rec),3] != t2) {
           spec_scan_rec <- rbind(spec_scan_rec, c(mz_target, 0, t2, 0, 0))
         }
         cc_k <- chromatography_analysis(spec_scan_rec, smoothing_window, peak_resolving_power,
@@ -55,10 +55,10 @@ recursive_mass_correction <- function(peaklist, spec_scan, scan_tol, spectraList
         if (t2 > n_RT) {
           t2 <- n_RT
         }
-        if (length(spec_scan_rec) == 0 || spec_scan_rec[1, 3] != t1) {
+        if (length(spec_scan_rec) == 0 | spec_scan_rec[1, 3] != t1) {
           spec_scan_rec <- rbind(c(mz_target, 0, t1, 0, 0), spec_scan_rec)
         }
-        if (length(spec_scan_rec) == 5 || spec_scan_rec[nrow(spec_scan_rec), 3] != t2) {
+        if (length(spec_scan_rec) == 5 | spec_scan_rec[nrow(spec_scan_rec), 3] != t2) {
           spec_scan_rec <- rbind(spec_scan_rec, c(mz_target, 0, t2, 0, 0))
           spec_scan_rec <- matrix(spec_scan_rec, ncol = 5)
         }

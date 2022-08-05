@@ -1,4 +1,4 @@
-peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol, n_quantile, number_processing_cores) {
+peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol, n_quantile, number_processing_threads) {
   ##
   L_PL <- length(file_names_pl)
   L_PL2 <- L_PL + 2
@@ -27,7 +27,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
         FeatureTable[counter, (imzRTXcol[i, 1] + 2)] <- imzRTXcol[i, 5]
         x <- which((abs(imzRTXcol[i, 2] - imzRTXcol[, 2]) <= mz_error) &
                      (abs(imzRTXcol[i, 3] - imzRTXcol[, 3]) <= rt_tol) &
-                     (imzRTXcol[i, 1] != imzRTXcol[, 1]) & (imzRTXcol[, 1] != 0))
+                     (imzRTXcol[i, 1] != imzRTXcol[, 1]))
         ##
         if (length(x) > 0) {
           iSamples <- imzRTXcol[x, 1]
@@ -59,7 +59,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
     return(FeatureTable)
   }
   ##############################################################################
-  if (number_processing_cores == 1) {
+  if (number_processing_threads == 1) {
     ##
     imzRTXcol_main <- do.call(rbind, lapply(1:L_PL, function(i) {
       imzRTXcol_main_call(i)
@@ -96,7 +96,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
       ##
       imzRTXcol_main <- do.call(rbind, mclapply(1:L_PL, function(i) {
         imzRTXcol_main_call(i)
-      }, mc.cores = number_processing_cores))
+      }, mc.cores = number_processing_threads))
       ##
       RT_pl <- NULL
       ##
@@ -113,19 +113,19 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
       ##
       FeatureTable_Main <- do.call(rbind, mclapply(1:n_quantile, function(q) {
         FeatureTable_Main_call(q)
-      }, mc.cores = number_processing_cores))
+      }, mc.cores = number_processing_threads))
       ##
       imzRTXcol_main <- NULL
       ##
       L_FTmain <- dim(FeatureTable_Main)[1]
       x_s <- do.call(c, mclapply(1:L_FTmain, function(i) {
         length(which(FeatureTable_Main[i, 3:L_PL2] > 0))
-      }, mc.cores = number_processing_cores))
+      }, mc.cores = number_processing_threads))
       ##
       closeAllConnections()
       ##
     } else if (osType == "Windows") {
-      cl <- makeCluster(number_processing_cores)
+      cl <- makeCluster(number_processing_threads)
       registerDoParallel(cl)
       ##
       imzRTXcol_main <- foreach(i = 1:L_PL, .combine = 'rbind', .verbose = FALSE) %dopar% {
@@ -168,30 +168,31 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
   progressBARboundaries <- txtProgressBar(min = 0, max = L_FTmain, initial = 0, style = 3)
   for (i in 1:L_FTmain) {
     setTxtProgressBar(progressBARboundaries, i)
-    x_c <- which(abs(FeatureTable_Main[i, 2] - FeatureTable_Main[, 2]) <= mz_error &
-                   abs(FeatureTable_Main[i, 3] - FeatureTable_Main[, 3]) <= rt_tol &
-                   FeatureTable_Main[i, 1] != 0)
-    ##
-    if (length(x_c) > 1) {
-      x_diff <- setdiff(x_c, i)
-      if (FeatureTable_Main[i, 1] < L_PL) {
-        table_c <- do.call(rbind, lapply(x_c, function(j) {
-          FeatureTable_Main[j, 1:L_PL3]
-        }))
-        x_table_main0 <- which(table_c[1, ] == 0)
-        for (j in x_table_main0) {
-          x_non0 <- which(table_c[, j] > 0)
-          if (length(x_non0) > 0) {
-            if (length(x_non0) > 1) {
-              x_min <- which.min(abs(table_c[1, 3] - table_c[x_non0, 3]))
-              x_non0 <- x_non0[x_min[1]]
+    if (FeatureTable_Main[i, 1] != 0) {
+      x_c <- which(abs(FeatureTable_Main[i, 2] - FeatureTable_Main[, 2]) <= mz_error &
+                     abs(FeatureTable_Main[i, 3] - FeatureTable_Main[, 3]) <= rt_tol)
+      ##
+      if (length(x_c) > 1) {
+        x_diff <- setdiff(x_c, i)
+        if (FeatureTable_Main[i, 1] < L_PL) {
+          table_c <- do.call(rbind, lapply(x_c, function(j) {
+            FeatureTable_Main[j, 1:L_PL3]
+          }))
+          x_table_main0 <- which(table_c[1, ] == 0)
+          for (j in x_table_main0) {
+            x_non0 <- which(table_c[, j] > 0)
+            if (length(x_non0) > 0) {
+              if (length(x_non0) > 1) {
+                x_min <- which.min(abs(table_c[1, 3] - table_c[x_non0, 3]))
+                x_non0 <- x_non0[x_min[1]]
+              }
+              table_c[1, j] <- table_c[x_non0, j]
             }
-            table_c[1, j] <- table_c[x_non0, j]
           }
+          FeatureTable_Main[i, 4:L_PL3] <- table_c[1, 4:L_PL3]
         }
-        FeatureTable_Main[i, 4:L_PL3] <- table_c[1, 4:L_PL3]
+        FeatureTable_Main[x_diff, ] <- 0
       }
-      FeatureTable_Main[x_diff, ] <- 0
     }
   }
   close(progressBARboundaries)
@@ -201,5 +202,9 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
   FeatureTable_Main <- FeatureTable_Main[, -1]
   rownames(FeatureTable_Main) <- NULL
   FeatureTable_Main <- FeatureTable_Main[order(FeatureTable_Main[, 1], decreasing = FALSE), ]
+  ##
+  FeatureTable_Main[, 1] <- round(FeatureTable_Main[, 1], digits = 6)
+  FeatureTable_Main[, 2] <- round(FeatureTable_Main[, 2], digits = 4)
+  ##
   return(FeatureTable_Main)
 }

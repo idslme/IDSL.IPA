@@ -1,6 +1,6 @@
 IPA_GapFiller <- function(PARAM) {
   print("Initiated gap-filling!")
-  number_processing_cores <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
+  number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   ##
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
   if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]) == "all") {
@@ -16,12 +16,12 @@ IPA_GapFiller <- function(PARAM) {
   input_path_peaklist <- paste0(output_path, "/peaklists")
   file_names_peaklist1 <- dir(path = input_path_peaklist, pattern = ".Rdata")
   file_names_peaklist2 <- dir(path = input_path_peaklist, pattern = "peaklist_")
-  file_names_peaklist <- file_names_peaklist1[file_names_peaklist1%in%file_names_peaklist2]
+  file_names_peaklist <- file_names_peaklist1[file_names_peaklist1 %in% file_names_peaklist2]
   L_PL <- length(file_names_peaklist)
   ##
   file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
   file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
-  file_names_peaklist_hrms <- file_name_hrms%in%file_names_peaklist_hrms2
+  file_names_peaklist_hrms <- file_name_hrms %in% file_names_peaklist_hrms2
   if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
     stop("Error!!! peaklist files are not available for all selected HRMS files!")
   }
@@ -37,12 +37,12 @@ IPA_GapFiller <- function(PARAM) {
   scan_tol <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0040'), 2])
   ##
   osType <- Sys.info()[['sysname']]
-  if(osType == "Linux") {
+  if (osType == "Linux") {
     progressBARboundaries <- txtProgressBar(min = 1, max = L_HRMS, initial = 1, style = 3)
     chromatography_undetected_list <- lapply(1:L_HRMS, function(i) {
       setTxtProgressBar(progressBARboundaries, i)
       ##
-      chromatography_undetected <-c()
+      chromatography_undetected <- NULL
       x_0 <- which(peak_Xcol[, (i + 2)] == 0)
       L_x_0 <- length(x_0)
       if (L_x_0 > 0) {
@@ -57,12 +57,12 @@ IPA_GapFiller <- function(PARAM) {
         RT_uncorrected_undeteced <- matrix(predict(rtmodel, new.df), ncol = 1)
         ##
         outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
-        spectraList <- outputer[[1]]
-        RetentionTime <- outputer[[2]]
+        spectraList <- outputer[["spectraList"]]
+        RetentionTime <- outputer[["retentionTime"]]
         nRT <- length(RetentionTime)
         ##
         chromatography_undetected <- do.call(rbind, mclapply(1:L_x_0, function(j) {
-          chromatography_undetected_row <- c()
+          chromatography_undetected_row <- NULL
           pa <- 0
           R13C <- 0
           mzCandidate <- mz_Xcol[j]
@@ -83,7 +83,7 @@ IPA_GapFiller <- function(PARAM) {
           }
           boundary_right <- which(rt_loc_min[x_apex:length_chrom] == -1)
           if (length(boundary_right) > 0) {
-            boundary_right <- boundary_right[1] -1 + x_apex
+            boundary_right <- boundary_right[1] - 1 + x_apex
           } else {
             boundary_right <- length_chrom
           }
@@ -95,7 +95,7 @@ IPA_GapFiller <- function(PARAM) {
             t1 <- boundary_left + ScanNumberStart - 1
             t2 <- boundary_right + ScanNumberStart - 1
             chromatogram_segment <- do.call(rbind, lapply(t1:t2, function(t) {
-              Spec_ScN_j <- c()
+              Spec_ScN_j <- NULL
               Spec <- spectraList[[t]]
               if (length(Spec) > 0) {
                 x_mz1 <- which(abs(Spec[, 1] - mzCandidate) <= mass_error)
@@ -110,7 +110,9 @@ IPA_GapFiller <- function(PARAM) {
                       x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate)))
                       x_mz2 <- x_mz2[x_min]
                     }
-                    Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
+                    if (Spec[x_mz1, 2] >= Spec[x_mz2, 2]) {
+                      Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
+                    }
                   }
                 }
               }
@@ -127,19 +129,19 @@ IPA_GapFiller <- function(PARAM) {
             chromatography_undetected_row <- c(x_0[j], height, pa, R13C)
           }
           chromatography_undetected_row
-        }, mc.cores = number_processing_cores))
+        }, mc.cores = number_processing_threads))
       }
       chromatography_undetected
     })
     closeAllConnections()
     close(progressBARboundaries)
     ##
-  } else if(osType == "Windows") {
+  } else if (osType == "Windows") {
     ##
-    clust <- makeCluster(number_processing_cores)
+    clust <- makeCluster(number_processing_threads)
     registerDoParallel(clust)
     chromatography_undetected_list <- foreach(i=1:L_HRMS, .verbose = FALSE) %dopar% {
-      chromatography_undetected <- c()
+      chromatography_undetected <- NULL
       x_0 <- which(peak_Xcol[, (i + 2)] == 0)
       L_x_0 <- length(x_0)
       if (L_x_0 > 0) {
@@ -154,11 +156,11 @@ IPA_GapFiller <- function(PARAM) {
         RT_uncorrected_undeteced <- matrix(predict(rtmodel, new.df), ncol = 1)
         ##
         outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
-        spectraList <- outputer[[1]]
-        RetentionTime <- outputer[[2]]
+        spectraList <- outputer[["spectraList"]]
+        RetentionTime <- outputer[["retentionTime"]]
         nRT <- length(RetentionTime)
         chromatography_undetected <- do.call(rbind, lapply(1:L_x_0, function(j) {
-          chromatography_undetected_row <- c()
+          chromatography_undetected_row <- NULL
           pa <- 0
           R13C <- 0
           mzCandidate <- mz_Xcol[j]
@@ -179,7 +181,7 @@ IPA_GapFiller <- function(PARAM) {
           }
           boundary_right <- which(rt_loc_min[x_apex:length_chrom] == -1)
           if (length(boundary_right) > 0) {
-            boundary_right <- boundary_right[1] -1 + x_apex
+            boundary_right <- boundary_right[1] - 1 + x_apex
           } else {
             boundary_right <- length_chrom
           }
@@ -191,7 +193,7 @@ IPA_GapFiller <- function(PARAM) {
             t1 <- boundary_left + ScanNumberStart - 1
             t2 <- boundary_right + ScanNumberStart - 1
             chromatogram_segment <- do.call(rbind, lapply(t1:t2, function(t) {
-              Spec_ScN_j <- c()
+              Spec_ScN_j <- NULL
               Spec <- spectraList[[t]]
               if (length(Spec) > 0) {
                 x_mz1 <- which(abs(Spec[, 1] - mzCandidate) <= mass_error)
@@ -206,7 +208,9 @@ IPA_GapFiller <- function(PARAM) {
                       x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate)))
                       x_mz2 <- x_mz2[x_min]
                     }
-                    Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
+                    if (Spec[x_mz1, 2] >= Spec[x_mz2, 2]) {
+                      Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
+                    }
                   }
                 }
               }

@@ -1,5 +1,5 @@
 der_5points_stencil <- function(x, y, n) {
-  der_5points <- c()
+  der_5points <- NULL
   L_y <- length(y)
   if (L_y >= 5) {
     K <- matrix(c(-1, -1, 1, 1, 8, 16, -2, -4, 0, -30, 0, 6, -8, 16, 2, -4, 1, -1, -1, 1, 12, 12, 2, 1, 1, 2, 3, 4) , nrow = 4)

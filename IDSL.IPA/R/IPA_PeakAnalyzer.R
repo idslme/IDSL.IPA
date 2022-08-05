@@ -1,6 +1,6 @@
 IPA_PeakAnalyzer <- function(PARAM) {
   ##
-  number_processing_cores <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
+  number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
   if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]) == "all") {
     file_name_hrms <- dir(path = input_path_hrms)
@@ -49,8 +49,8 @@ IPA_PeakAnalyzer <- function(PARAM) {
   call_carbon_IPA_parallel <- function(i) {
     ## To convert mzML/mzXML datafiles
     outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
-    spectraList <- outputer[[1]]
-    RetentionTime <- outputer[[2]]
+    spectraList <- outputer[["spectraList"]]
+    RetentionTime <- outputer[["retentionTime"]]
     ## IPA_IsotopePairing
     spec_scan <- IPA_IsotopePairing(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes)
     ## m/z clustering
@@ -126,14 +126,14 @@ IPA_PeakAnalyzer <- function(PARAM) {
                             "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
                             "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
     ##
-    save(peaklist, file = paste0(output_path_peaklist, "/peaklist_",file_name_hrms[i],".Rdata"))
-    write.csv(peaklist, file = paste0(output_path_peaklist, "/peaklist_",file_name_hrms[i],".csv"))
+    save(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
+    write.csv(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".csv"))
     ##
     return()
   }
   print("Initiated HRMS peak detection!")
   ##
-  if (number_processing_cores == 1) {
+  if (number_processing_threads == 1) {
     ##
     progressBARboundaries <- txtProgressBar(min = 0, max = length(file_name_hrms), initial = 0, style = 3)
     ##
@@ -153,11 +153,11 @@ IPA_PeakAnalyzer <- function(PARAM) {
       ##
       Null_variable <- do.call(rbind, mclapply(1:length(file_name_hrms), function(k) {
         call_carbon_IPA_parallel(k)
-      }, mc.cores = number_processing_cores))
+      }, mc.cores = number_processing_threads))
       ##
       closeAllConnections()
     } else if (osType == "Windows") {
-      clust <- makeCluster(number_processing_cores)
+      clust <- makeCluster(number_processing_threads)
       registerDoParallel(clust)
       ##
       Null_variable <- foreach(k = 1:length(file_name_hrms), .combine = 'rbind', .verbose = FALSE) %dopar% {

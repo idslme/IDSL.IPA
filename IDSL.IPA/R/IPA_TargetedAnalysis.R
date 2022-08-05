@@ -6,7 +6,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
   PARAM <- xlsxAnalyzer_EIC(spreadsheet)
   if (length(PARAM) > 0) {
     ##
-    number_processing_cores <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
+    number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
     input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
     if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]) == "all") {
       file_name_hrms <- dir(path = input_path_hrms)
@@ -46,13 +46,13 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
     osType <- Sys.info()[['sysname']]
     print("Initiated the targeted analysis!")
     if (osType == "Windows") {
-      clust <- makeCluster(number_processing_cores)
+      clust <- makeCluster(number_processing_threads)
       registerDoParallel(clust)
       cc_table <- foreach(i = 1:length(file_name_hrms), .combine ='rbind', .verbose = FALSE) %dopar% {
         ##
         outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
-        spectraList <- outputer[[1]]
-        RetentionTime <- outputer[[2]]
+        spectraList <- outputer[["spectraList"]]
+        RetentionTime <- outputer[["retentionTime"]]
         nRT <- length(RetentionTime)
         ##
         chrome <- do.call(rbind, lapply(1:length(mzCandidate), function(j) {
@@ -152,8 +152,8 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
       cc_table <- do.call(rbind, lapply(1:length(file_name_hrms), function(i) {
         ##
         outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
-        spectraList <- outputer[[1]]
-        RetentionTime <- outputer[[2]]
+        spectraList <- outputer[["spectraList"]]
+        RetentionTime <- outputer[["retentionTime"]]
         nRT <- length(RetentionTime)
         ##
         chrome <- do.call(rbind, mclapply(1:length(mzCandidate), function(j) {
@@ -244,7 +244,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
                    dpi = 100)
           }
           cbind(file_name_hrms[i], round(mzCandidate[j], 5), round(rtCandidate[j], 2), data.frame(matrix(peak_property, nrow = 1)))
-        }, mc.cores = number_processing_cores))
+        }, mc.cores = number_processing_threads))
         chrome
       }))
       closeAllConnections()

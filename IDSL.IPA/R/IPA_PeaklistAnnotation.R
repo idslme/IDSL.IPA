@@ -1,6 +1,6 @@
 IPA_PeaklistAnnotation <- function(PARAM) {
   print("Initiated sample-centric peak annotation!")
-  number_processing_cores <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
+  number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
   Output_Xcol <- paste0(output_path, "/sample_centeric_annotation")
   ##
@@ -20,7 +20,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     input_path_peaklist <- paste0(output_path, "/peaklists")
     file_names_peaklist1 <- dir(path = input_path_peaklist, pattern = ".Rdata")
     file_names_peaklist2 <- dir(path = input_path_peaklist, pattern = "peaklist_")
-    file_names_peaklist <- file_names_peaklist1[file_names_peaklist1%in%file_names_peaklist2]
+    file_names_peaklist <- file_names_peaklist1[file_names_peaklist1 %in% file_names_peaklist2]
     L_PL <- length(file_names_peaklist)
     ##
     input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
@@ -33,7 +33,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     }
     file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
     file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
-    file_names_peaklist_hrms <- file_name_hrms%in%file_names_peaklist_hrms2
+    file_names_peaklist_hrms <- file_name_hrms %in% file_names_peaklist_hrms2
     if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
       stop("Error!!! peaklist files are not available for all selected HRMS files!")
     }
@@ -88,16 +88,16 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     opendir(Output_Xcol)
     save(annotated_peak_indices, file = paste0(Output_Xcol, "/annotated_peak_indices.Rdata"))
     print("Peak index numbers from individual peaklists were stored in 'annotated_peak_indices.Rdata'")
-    H_A_R13C <- peak_Xcol2(input_path_peaklist, file_names_peaklist, annotated_peak_indices)
-    annotated_peak_height <- cbind(name_compounds, H_A_R13C[[1]])
+    listHeightAreaR13C <- peak_Xcol2(input_path_peaklist, file_names_peaklist, annotated_peak_indices)
+    annotated_peak_height <- cbind(name_compounds, listHeightAreaR13C[["peak_height"]])
     colnames(annotated_peak_height) <- c("name", "m/z", "RT", file_names_hrms)
-    annotated_peak_area <- cbind(name_compounds, H_A_R13C[[2]])
+    annotated_peak_area <- cbind(name_compounds, listHeightAreaR13C[["peak_area"]])
     colnames(annotated_peak_area) <- c("name", "m/z", "RT", file_names_hrms)
-    annotated_peak_R13C <- cbind(name_compounds, H_A_R13C[[3]])
+    annotated_peak_R13C <- cbind(name_compounds, listHeightAreaR13C[["peak_R13C"]])
     colnames(annotated_peak_R13C) <- c("name", "m/z", "RT", file_names_hrms)
-    write.csv(annotated_peak_height, file =paste0(Output_Xcol, "/annotated_peak_height.csv"))
-    write.csv(annotated_peak_area, file =paste0(Output_Xcol, "/annotated_peak_area.csv"))
-    write.csv(annotated_peak_R13C, file =paste0(Output_Xcol, "/annotated_peak_R13C.csv"))
+    write.csv(annotated_peak_height, file = paste0(Output_Xcol, "/annotated_peak_height.csv"))
+    write.csv(annotated_peak_area, file = paste0(Output_Xcol, "/annotated_peak_area.csv"))
+    write.csv(annotated_peak_R13C, file = paste0(Output_Xcol, "/annotated_peak_R13C.csv"))
     print("Completed sample-centric peak annotation for peak height, peak area, and R13C!")
     ##
     if (x0048 == TRUE) {
@@ -118,10 +118,10 @@ IPA_PeaklistAnnotation <- function(PARAM) {
       L_HRMS <- length(file_name_hrms)
       ##
       osType <- Sys.info()[['sysname']]
-      if(osType == "Linux") {
+      if (osType == "Linux") {
         chromatography_undetected_list <- mclapply(1:L_HRMS, function(i) {
           ##
-          chromatography_undetected <-NULL
+          chromatography_undetected <- NULL
           x_0 <- which(annotated_peak_indices[, (i + 2)] == 0)
           if (length(x_0) > 0) {
             mz_Xcol <- annotated_peak_indices[x_0, 1]
@@ -139,8 +139,8 @@ IPA_PeaklistAnnotation <- function(PARAM) {
             }
             ##
             outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
-            spectraList <- outputer[[1]]
-            RetentionTime <- outputer[[2]]
+            spectraList <- outputer[["spectraList"]]
+            RetentionTime <- outputer[["retentionTime"]]
             nRT <- length(RetentionTime)
             ##
             chromatography_undetected <- do.call(rbind, lapply(1:length(x_0), function(j) {
@@ -165,7 +165,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
               }
               boundary_right <- which(rt_loc_min[x_apex:length_chrom] == -1)
               if (length(boundary_right) > 0) {
-                boundary_right <- boundary_right[1] -1 + x_apex
+                boundary_right <- boundary_right[1] - 1 + x_apex
               } else {
                 boundary_right <- length_chrom
               }
@@ -192,7 +192,9 @@ IPA_PeaklistAnnotation <- function(PARAM) {
                           x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate)))
                           x_mz2 <- x_mz2[x_min]
                         }
-                        Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
+                        if (Spec[x_mz1, 2] >= Spec[x_mz2, 2]) {
+                          Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
+                        }
                       }
                     }
                   }
@@ -212,16 +214,16 @@ IPA_PeaklistAnnotation <- function(PARAM) {
             }))
           }
           chromatography_undetected
-        }, mc.cores = number_processing_cores)
+        }, mc.cores = number_processing_threads)
         closeAllConnections()
         ##
-      } else if(osType == "Windows") {
+      } else if (osType == "Windows") {
         ##
-        clust <- makeCluster(number_processing_cores)
+        clust <- makeCluster(number_processing_threads)
         registerDoParallel(clust)
         chromatography_undetected_list <- foreach(i=1:L_HRMS, .verbose = FALSE) %dopar% {
           ##
-          chromatography_undetected <-NULL
+          chromatography_undetected <- NULL
           x_0 <- which(annotated_peak_indices[, (i + 2)] == 0)
           if (length(x_0) > 0) {
             mz_Xcol <- annotated_peak_indices[x_0, 1]
@@ -239,8 +241,8 @@ IPA_PeaklistAnnotation <- function(PARAM) {
             }
             ##
             outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
-            spectraList <- outputer[[1]]
-            RetentionTime <- outputer[[2]]
+            spectraList <- outputer[["spectraList"]]
+            RetentionTime <- outputer[["retentionTime"]]
             nRT <- length(RetentionTime)
             ##
             chromatography_undetected <- do.call(rbind, lapply(1:length(x_0), function(j) {
@@ -265,7 +267,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
               }
               boundary_right <- which(rt_loc_min[x_apex:length_chrom] == -1)
               if (length(boundary_right) > 0) {
-                boundary_right <- boundary_right[1] -1 + x_apex
+                boundary_right <- boundary_right[1] - 1 + x_apex
               } else {
                 boundary_right <- length_chrom
               }
@@ -292,7 +294,9 @@ IPA_PeaklistAnnotation <- function(PARAM) {
                           x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate)))
                           x_mz2 <- x_mz2[x_min]
                         }
-                        Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
+                        if (Spec[x_mz1, 2] >= Spec[x_mz2, 2]) {
+                          Spec_ScN_j <- c(Spec[x_mz1, 2], Spec[x_mz2, 2])
+                        }
                       }
                     }
                   }
