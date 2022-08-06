@@ -21,5 +21,13 @@ a matrix of index numbers in individual peaklists for each peak (m/z-RT).
 }
 }
 \value{
-A list of three peak tables for peak height, peaks area, and R13C.
+  \item{peak_height}{
+peak table for height values
+}
+  \item{peak_area}{
+peak table for area values
+}
+  \item{peak_R13C}{
+peak table for R13C values
+}
 }

@@ -1,4 +1,4 @@
-peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol, n_quantile, number_processing_threads) {
+peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol, n_quantile, number_processing_threads = 1) {
   ##
   L_PL <- length(file_names_pl)
   L_PL2 <- L_PL + 2
@@ -48,10 +48,10 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
           for (j in 1:length(iSamples)) {
             FeatureTable[counter, iSamples[j] + 2] <- imzRTXcol[x[j], 5]
           }
-          imzRTXcol[x, 1] <- 0
+          imzRTXcol[x, ] <- 0
         }
         ##
-        imzRTXcol[i, 1] <- 0
+        imzRTXcol[i, ] <- 0
       }
     }
     FeatureTable <- FeatureTable[1:counter, ]

@@ -1,7 +1,7 @@
-chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resolving_power,
-                                     min_nIsoPair, min_peak_height, min_ratio_IsoPair, max_rpw, min_snr_baseline,
-                                     max_R13C_integrated_peak, max_percentage_missing_scans, mz_target, rt_target = 0,
-                                     mass_accuracy_xic, spectraList, RetentionTime, n_spline) {
+chromatography_analysis <- function(spec_scan_xic, smoothing_window, peak_resolving_power,
+                                    min_nIsoPair, min_peak_height, min_ratio_IsoPair, max_rpw, min_snr_baseline,
+                                    max_R13C_integrated_peak, max_percentage_missing_scans, mz_target, rt_target = 0,
+                                    mass_accuracy_xic, spectraList, RetentionTime, n_spline) {
   chromatography_characteristics <- NULL
   ## To create chromatogram builder
   # chromatogram builder <- (scan number, smoothed chromatogram, unprocessed m/z chromatogram, raw chromatogram from 13C filter)
@@ -11,8 +11,8 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
   ScanNumberStart <- spec_scan_xic[1, 3]
   ScanNumberEnd <- spec_scan_xic[nrow(spec_scan_xic), 3]
   filling_window <- floor(0.05*(ScanNumberEnd - ScanNumberStart)) + 1 # Supposedly minimum space between two peaks
-  chrom_builder_temp <- XIC(spectraList[ScanNumberStart:ScanNumberEnd], scan_number_start=ScanNumberStart, mz_target, mass_accuracy_xic)
-  Top_ScN <- (ScanNumberStart - filling_window - 1) : (ScanNumberStart - 1)
+  chrom_builder_temp <- XIC(spectraList[ScanNumberStart:ScanNumberEnd], scan_number_start = ScanNumberStart, mz_target, mass_accuracy_xic)
+  Top_ScN <- (ScanNumberStart - filling_window - 1):(ScanNumberStart - 1)
   x_Top <- which(Top_ScN > 0)
   L_Top <- length(x_Top)
   if (L_Top > 0) {
@@ -20,7 +20,7 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
   } else {
     Top_chrom_builder <- c()
   }
-  Bottom_ScN <- (ScanNumberEnd + 1) : (ScanNumberEnd + filling_window + 1)
+  Bottom_ScN <- (ScanNumberEnd + 1):(ScanNumberEnd + filling_window + 1)
   x_Bottom <- which(Bottom_ScN <= n_RT)
   L_Bottom <- length(x_Bottom)
   if (L_Bottom > 0) {
@@ -38,13 +38,13 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
   x_Tn <- which(t_T > 1)
   L_x_Tn <- length(x_Tn)
   if (L_x_Tn == 0) {
-    index1 <- Chrom_Builder[, 1]%in%spec_scan_xic[, 3]
+    index1 <- Chrom_Builder[, 1] %in% spec_scan_xic[, 3]
     Chrom_Builder[index1, 4] <- spec_scan_xic[, 2]
   } else {
     x_T1 <- which(t_T == 1)
     T1 <- as.numeric(names(x_T1))
-    index_Chrom_T1 <- Chrom_Builder[, 1]%in%T1
-    index_xic_T1 <- spec_scan_xic[, 3]%in%T1
+    index_Chrom_T1 <- Chrom_Builder[, 1] %in% T1
+    index_xic_T1 <- spec_scan_xic[, 3] %in% T1
     Chrom_Builder[index_Chrom_T1, 4] <- spec_scan_xic[index_xic_T1, 2]
     Tn <- as.numeric(names(x_Tn))
     for (t in 1:L_x_Tn) {
@@ -56,7 +56,7 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
   ## Smoothing the chromatogram trace over a smoothing window
   Chrom_Builder <- data.frame(Chrom_Builder)
   colnames(Chrom_Builder) <- c("scan_number", "smooth_chrom", "raw_chrom", "C_pair")
-  loess_SZC <- loess(smooth_chrom ~ scan_number, data=Chrom_Builder, span=smoothing_window/SZC, control = loess.control(surface = "direct"))
+  loess_SZC <- loess(smooth_chrom ~ scan_number, data = Chrom_Builder, span = smoothing_window/SZC, control = loess.control(surface = "direct"))
   Chrom_Builder[, 2] <- predict(loess_SZC)
   x_neg <- which(Chrom_Builder[, 2] < 0)
   Chrom_Builder[x_neg, 2] <- 0
@@ -96,7 +96,7 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
         C_max_RAW <- max(Chrom_Builder[Segment[i, 1]:Segment[i, 2], 3])
         if (C_max_RAW >= min_peak_height) {
           C_max <- max(Chrom_Builder[Segment[i, 1]:Segment[i, 2], 2])
-          Chrom_Builder[(Segment[i, 1] + 1):(Segment[i, 2]-1), 2] <- Chrom_Builder[(Segment[i, 1] + 1):(Segment[i, 2] - 1), 2]*C_max_RAW/C_max
+          Chrom_Builder[(Segment[i, 1] + 1):(Segment[i, 2] - 1), 2] <- Chrom_Builder[(Segment[i, 1] + 1):(Segment[i, 2] - 1), 2]*C_max_RAW/C_max
         } else {
           Segment[i, ] <- c(0, 0)
         }

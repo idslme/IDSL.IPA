@@ -9,7 +9,7 @@ find common peaks among multiple samples.
 }
 \usage{
 peak_alignment(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol,
-n_quantile, number_processing_threads)
+n_quantile, number_processing_threads = 1)
 }
 \arguments{
   \item{input_path_pl}{
