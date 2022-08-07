@@ -24,8 +24,8 @@ mz_clustering_xic <- function(spec_scan, mass_accuracy_xic, min_peak_height, min
             xRemove <- do.call(c, lapply(1:(length(xu) - 1), function(j) {
               xuDiff <- xDiff0[(xu[j] + 1):xu[j + 1]]
               xuR <- c(xuDiff, (xuDiff[length(xuDiff)] + 1))  # Repeated scan numbers
-              xMin <- which.min(abs(A[xuR, 1] - MZ_Int_ScN[i, 1]))[1]
-              xR <- xuR[-xMin]
+              xMin <- which.min(abs(A[xuR, 1] - MZ_Int_ScN[i, 1]))
+              xR <- xuR[-xMin[1]]
               A[xR, 4]
             }))
             x1 <- setdiff(x1, xRemove)
@@ -35,7 +35,7 @@ mz_clustering_xic <- function(spec_scan, mass_accuracy_xic, min_peak_height, min
             Counter <- Counter + 1
             index_xic[[Counter]] <- x1
             mzxic[Counter] <- MZ_Int_ScN[i, 1]
-            MZ_Int_ScN[x1, 1] <- 0
+            MZ_Int_ScN[x1, ] <- 0
           }
         }
       }
@@ -57,8 +57,8 @@ mz_clustering_xic <- function(spec_scan, mass_accuracy_xic, min_peak_height, min
             xRemove <- do.call(c, lapply(1:(length(xu) - 1), function(j) {
               xuDiff <- xDiff0[(xu[j] + 1):xu[j + 1]]
               xuR <- c(xuDiff, (xuDiff[length(xuDiff)] + 1))  # Repeated scan numbers
-              xMin <- which.min(abs(A[xuR, 1] - MZ_Int_ScN[i, 1]))[1]
-              xR <- xuR[-xMin]
+              xMin <- which.min(abs(A[xuR, 1] - MZ_Int_ScN[i, 1]))
+              xR <- xuR[-xMin[1]]
               A[xR, 4]
             }))
             x1 <- setdiff(x1, xRemove)
@@ -67,7 +67,7 @@ mz_clustering_xic <- function(spec_scan, mass_accuracy_xic, min_peak_height, min
           Counter <- Counter + 1
           index_xic[[Counter]] <- x1
           mzxic[Counter] <- MZ_Int_ScN[i, 1]
-          MZ_Int_ScN[x1, 1] <- 0
+          MZ_Int_ScN[x1, ] <- 0
         }
       }
     }

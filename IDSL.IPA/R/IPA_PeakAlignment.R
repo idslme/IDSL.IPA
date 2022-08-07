@@ -42,7 +42,7 @@ IPA_PeakAlignment <- function(PARAM) {
     min_frequency_ref_peaks <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0031'), 2])
     ##
     listReferencePeaks <- reference_peaks_detector(input_path_peaklist, file_names_peaklist_ref, min_frequency_ref_peaks,
-                                                      mz_error, rt_tol, n_quantile, number_processing_threads)
+                                                   mz_error, rt_tol, n_quantile, number_processing_threads)
     reference_mz_rt_peaks <- listReferencePeaks[["referenceMZRTpeaks"]]
     listRefRT <- listReferencePeaks[["listRefRT"]]
     ##
@@ -60,8 +60,8 @@ IPA_PeakAlignment <- function(PARAM) {
     print("Initiated RT correction!")
     ##
     rt_correction_method <- PARAM[which(PARAM[, 1] == 'PARAM0032'), 2]
-    reference_peak_tol <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0033'), 2]), error = function(e) {NA}, warning = function(w) {NA})
-    polynomial_degree <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0034'), 2]), error = function(e) {NA}, warning = function(w) {NA})
+    reference_peak_tol <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0033'), 2]), error = function(e) {5}, warning = function(w) {5})
+    polynomial_degree <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0034'), 2]), error = function(e) {3}, warning = function(w) {3})
     ##
     file_name_peaklist_samples <- setdiff(file_names_peaklist, file_names_peaklist_ref)
     ############################################################################
@@ -114,7 +114,6 @@ IPA_PeakAlignment <- function(PARAM) {
     print("Initiated peak alignment among the entire samples using peak index numbers in the peaklists!")
     peak_Xcol <- peak_alignment(input_path_peaklist, file_names_peaklist, corrected_RT_peaklists, mz_error, rt_tol, n_quantile, number_processing_threads)
     #
-    peak_Xcol <- data.frame(peak_Xcol)
     colnames(peak_Xcol) <- c("m/z", "RT", file_names_hrms)
     save(peak_Xcol, file = paste0(OutputPath_peak_alignment, "/peak_Xcol.Rdata"))
     print("Peak index numbers from individual peaklists were stored in 'peak_Xcol.Rdata'")
