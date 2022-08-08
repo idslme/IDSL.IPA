@@ -1,7 +1,7 @@
 # IDSL.IPA <img src='IPA_educational_files/figures/IDSL.IPA-logo.png' align="right" />
 
 <!-- badges: start -->
-![Maintainer](https://img.shields.io/badge/maintainer-Sadjad_Fakouri_Baygi-blue)(https://github.com/sajfb)
+[![Maintainer](https://img.shields.io/badge/maintainer-Sadjad_Fakouri_Baygi-blue)](https://github.com/sajfb)
 [![CRAN status](https://www.r-pkg.org/badges/version/IDSL.IPA)](https://cran.r-project.org/package=IDSL.IPA)
 ![](http://cranlogs.r-pkg.org/badges/IDSL.IPA?color=orange)
 ![](http://cranlogs.r-pkg.org/badges/grand-total/IDSL.IPA?color=brightgreen)
