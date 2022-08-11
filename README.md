@@ -1,4 +1,4 @@
-# IDSL.IPA <img src='IPA_educational_files/figures/IDSL.IPA-logo.png' align="right" />
+# IDSL.IPA<img src='IPA_educational_files/Figures/IDSL.IPA-logo.png' width="250px" align="right" />
 
 <!-- badges: start -->
 [![Maintainer](https://img.shields.io/badge/maintainer-Sadjad_Fakouri_Baygi-blue)](https://github.com/sajfb)
@@ -10,4 +10,7 @@
 
 Intrinsic Peak Analysis (IPA) by the Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME) is an R pipeline that extracts peaks for organic small molecules from untargeted LC/HRMS data in population scale projects. 
 
+## <img src='IPA_educational_files/Figures/IDSL.IPA-TOC_Art.png' align="right" />
+
+##
 Visit https://ipa.idsl.me/ for the detailed documentation and tutorial.
