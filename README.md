@@ -10,6 +10,8 @@
 
 Intrinsic Peak Analysis (IPA) by the Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME) is an R pipeline that extracts peaks for organic small molecules from untargeted LC/HRMS data in population scale projects. 
 
+	install.packages("IDSL.IPA")
+
 ## <img src='IPA_educational_files/Figures/IDSL.IPA-TOC_Art.png' align="right" />
 
 ##
