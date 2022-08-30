@@ -8,7 +8,7 @@
 [![Dependencies](https://tinyverse.netlify.com/badge/IDSL.IPA)](https://cran.r-project.org/package=IDSL.IPA)
 <!-- badges: end -->
 
-[**Intrinsic Peak Analysis (IPA)**](https://ipa.idsl.me/) by the Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME) is an R pipeline that extracts peaks for organic small molecules from untargeted LC/HRMS data in population scale projects. 
+[**Intrinsic Peak Analysis (IPA)**](https://ipa.idsl.me/) by the Integrated Data Science Laboratory for Metabolomics and Exposomics ([**IDSL.ME**](https://www.idsl.me/)) is an R pipeline that extracts peaks for organic small molecules from untargeted LC/HRMS data in population scale projects. 
 
 	install.packages("IDSL.IPA")
 
