@@ -340,7 +340,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed = TRUE)
       PARAM[x0010, 2] <- output_path
       if (!dir.exists(output_path)) {
-        tryCatch(dir.create(output_path), warning = function(w){message("WARNING!!! Problem with PARAM0010! R can only create one folder!")})
+        tryCatch(dir.create(output_path, recursive = TRUE), warning = function(w){warning("Problem with PARAM0010! R cannot create the folder!")})
         if (!dir.exists(output_path)) {
           checkpoint_parameter <- FALSE
         }
@@ -610,7 +610,6 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     }
     ##############################################################################
     if (tolower(x0004) == "yes") {
-      annotation_folder_available <- 0
       address_ref <- PARAM[which(PARAM[, 1] == 'PARAM0041'), 2] ## x0041
       if (is.na(address_ref)) {
         print("Error!!! PARAM0041 is empty. Please also check PARAM0004!")
@@ -618,34 +617,32 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       } else {
         address_ref <- gsub("\\", "/", address_ref, fixed = TRUE)
         PARAM[which(PARAM[, 1] == 'PARAM0041'), 2] <- address_ref
-        annotation_folder_available <- dir.exists(address_ref)
-        if (annotation_folder_available == 0) {
+        if (!dir.exists(address_ref)) {
           print("ERROR!!! Problem with PARAM0041! Directory not found!")
           checkpoint_parameter <- FALSE
-        }
-      }
-      ##
-      if (annotation_folder_available == 1) {
-        x0042 <- PARAM[which(PARAM[, 1] == 'PARAM0042'), 2]
-        if (is.na(x0042)) {
-          print("Error!!! PARAM0042 is empty. Please also check PARAM0004!")
-          checkpoint_parameter <- FALSE
         } else {
-          ref_xlsx_file <- paste0(address_ref, "/", x0042)
-          if (file.exists(ref_xlsx_file)) {
-            PARAM[which(PARAM[, 1] == 'PARAM0042'), 2] <- ref_xlsx_file
-            ref_table <- readxl::read_xlsx(ref_xlsx_file)
-            col <- colnames(ref_table)
-            x_name <- which(col == 'name')
-            x_mz <- which(col == 'm/z')
-            x_RT <- which(col == 'RT')
-            if (!(length(x_name) > 0 & length(x_mz) > 0 & length(x_RT) > 0)) {
-              print("ERROR!!! Problem with PARAM0042! Incorrect column headers in the annotation spreadsheet -> The following columns should be detected in the spreadsheet : 'm/z', 'RT', 'name' - case sensitive")
+          ##
+          x0042 <- PARAM[which(PARAM[, 1] == 'PARAM0042'), 2]
+          if (is.na(x0042)) {
+            print("Error!!! PARAM0042 is empty! Please also check PARAM0004!")
+            checkpoint_parameter <- FALSE
+          } else {
+            ref_xlsx_file <- paste0(address_ref, "/", x0042)
+            if (file.exists(ref_xlsx_file)) {
+              PARAM[which(PARAM[, 1] == 'PARAM0042'), 2] <- ref_xlsx_file
+              ref_table <- readxl::read_xlsx(ref_xlsx_file)
+              col <- colnames(ref_table)
+              x_name <- which(col == 'name')
+              x_mz <- which(col == 'm/z')
+              x_RT <- which(col == 'RT')
+              if (!(length(x_name) > 0 & length(x_mz) > 0 & length(x_RT) > 0)) {
+                print("ERROR!!! Problem with PARAM0042! Incorrect column headers in the annotation spreadsheet --> The following columns should be detected in the spreadsheet : 'm/z', 'RT', 'name' - case sensitive")
+                checkpoint_parameter <- FALSE
+              }
+            } else {
+              print("ERROR!!! Problem with PARAM0042! The annotation spreadsheet not found!")
               checkpoint_parameter <- FALSE
             }
-          } else {
-            print("ERROR!!! Problem with PARAM0042! The annotation spreadsheet not found!")
-            checkpoint_parameter <- FALSE
           }
         }
       }
@@ -743,7 +740,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
   }
   if (checkpoint_parameter == FALSE) {
     print("Please visit   https://ipa.idsl.me    for instructions!")
-    PARAM <- c()
+    PARAM <- NULL
   } else {
     print("The spreadsheet is consistent with the IDSL.IPA workflow!")
   }

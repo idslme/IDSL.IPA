@@ -4,7 +4,7 @@
 Reference peaks detector
 }
 \description{
-This function detects reocurring reference peaks (m/z-RT) for retention time
+This function detects recurring reference peaks (m/z-RT) for retention time
 correction.
 }
 \usage{
@@ -16,10 +16,10 @@ min_frequency_ref_peaks, mz_error, rt_tol, n_quantile, number_processing_threads
 path to directory of peaklists.
 }
   \item{file_names_peaklist_ref}{
-name of peaklists files to detect reocurring reference peaks (m/z-RT).
+name of peaklists files to detect recurring reference peaks (m/z-RT).
 }
   \item{min_frequency_ref_peaks}{
-minimum frequency of the reocurring reference peaks (m/z-RT) in the reference
+minimum frequency of the recurring reference peaks (m/z-RT) in the reference
 files.
 }
   \item{mz_error}{

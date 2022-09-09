@@ -21,15 +21,15 @@ a vector of candidate m/z values.
 a vector of candidate RT values.
 }
   \item{exportEIC}{
-TRUE by defult. To plot and save EICs.
+TRUE by default. To plot and save EICs.
 }
   \item{exportTable}{
-FALSE by defult. To return the whole peaklists for the m/z and RT vectors,
+FALSE by default. To return the whole peaklists for the m/z and RT vectors,
 select TRUE.
 }
 }
 \value{
-This function saves extracted ion chromatograms in .png format in the "EICs" folder when "exportEIC = TRUE", and it save a table of peak properties when "exportTable = TRUE".
+This function saves extracted ion chromatograms in .png format in the "EICs" folder when "exportEIC = TRUE", and saves a table of peak properties when "exportTable = TRUE".
 }
 \examples{
 \donttest{

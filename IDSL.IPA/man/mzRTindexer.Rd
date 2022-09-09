@@ -4,7 +4,7 @@
 m/z - RT Indexer
 }
 \description{
-This function locate the closeset pair of a reference (m/z - RT) pair in a 2-D grid of `m/z` and `RT` vectors.
+This function locate the closest pair of a reference (m/z - RT) pair in a 2-D grid of `m/z` and `RT` vectors.
 }
 \usage{
 mzRTindexer(MZvec, RTvec, MZref, RTref, MZtolerance, RTtolerance)
@@ -30,7 +30,7 @@ RT tolerance
 }
 }
 \note{
-This function return NULL in case no match is detected.
+This function returns NULL in case no match is detected.
 }
 \value{
 index of closest pair to the reference (m/z - RT) pair

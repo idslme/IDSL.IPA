@@ -1,8 +1,8 @@
-plot_simple_tic <- function(filelist,filelocation,numberOfcores,plotTitle = "Total Ion Chromatogram") {
+plot_simple_tic <- function(filelist,filelocation, number_processing_threads = 1, plotTitle = "Total Ion Chromatogram") {
 
 
 
-  clust <- makeCluster(numberOfcores)
+  clust <- makeCluster(number_processing_threads)
   registerDoParallel(clust)
   dflist.tic <- foreach(mzmlfile = filelist) %dopar% {
     p2l <- IDSL.MXP::peak2list(filelocation, mzmlfile)

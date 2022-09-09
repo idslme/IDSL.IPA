@@ -101,7 +101,7 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
       output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed = TRUE)
       PARAM[x0010, 2] <- output_path
       if (!dir.exists(output_path)) {
-        tryCatch(dir.create(output_path), warning = function(w){message("WARNING!!! Problem with PARAM0010! R can only create one folder!")})
+        tryCatch(dir.create(output_path, recursive = TRUE), warning = function(w){warning("Problem with PARAM0010! R cannot create the folder!")})
         if (!dir.exists(output_path)) {
           checkpoint_parameter <- FALSE
         }

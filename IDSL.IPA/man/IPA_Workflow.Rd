@@ -15,7 +15,7 @@ IPA spreadsheet
 }
 }
 \value{
-This function orgonizes the IPA file processing for a better perofrmance using the template spreadsheet.
+This function organizes the IPA file processing for a better performance using the template spreadsheet.
 }
 \seealso{
 \url{https://ipa.idsl.me/home}

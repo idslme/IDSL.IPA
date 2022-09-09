@@ -5,8 +5,7 @@
 segment
 }
 \description{
-illusterates an output matrix of chromatogram peak dertection module from the
-"chromatogram_builder.rda" object.
+This data illustrates an output matrix of chromatogram peak detection module from the "chromatogram_builder.rda" object.
 }
 \usage{data("segment")}
 \format{

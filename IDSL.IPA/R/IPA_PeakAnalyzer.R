@@ -12,7 +12,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
   output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
   output_path_peaklist <- paste0(output_path, "/peaklists")
   if (!dir.exists(output_path_peaklist)) {
-    dir.create(output_path_peaklist)
+    dir.create(output_path_peaklist, recursive = TRUE)
   }
   opendir(output_path_peaklist)
   ## To select monoisotopic peaks that have 13C isotopologues in the same scan
@@ -118,7 +118,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
     } else {
       peaklist <- matrix(rep(0, 24), ncol = 24)
     }
-    peaklist <- data.frame(peaklist)
+    ##
     colnames(peaklist) <- c("ScanNumberStart","ScanNumberEnd","RetentionTimeApex","PeakHeight","PeakArea",
                             "NumberDetectedScans(nIsoPair)","RCS(%)","m/z MonoIsotopic","CumulatedIntensity",
                             "m/z 13C","Ratio 13C CumulatedIntensity","PeakWidthBaseline","Ratio PeakWidth @ 50%",

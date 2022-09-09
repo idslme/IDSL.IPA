@@ -24,5 +24,5 @@ a mass error to perform XIC analysis.
 }
 }
 \value{
-A matrix of three columns represpenting scan number, m/z, and intensity.
+A matrix of three columns representing scan number, m/z, and intensity.
 }

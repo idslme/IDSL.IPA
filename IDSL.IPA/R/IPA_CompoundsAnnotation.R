@@ -7,6 +7,7 @@ IPA_CompoundsAnnotation <- function(PARAM) {
   rt_error <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0044'), 2])
   x0045 <- PARAM[which(PARAM[, 1] == 'PARAM0045'), 2]
   name_compounds <- ref_table$name
+  name_compounds <- gsub("[[:punct:]]", "", name_compounds, fixed = TRUE)
   L_nc <- length(name_compounds)
   if (L_nc > 0) {
     mz_compounds <- ref_table$'m/z'
@@ -17,21 +18,6 @@ IPA_CompoundsAnnotation <- function(PARAM) {
     file_names_peaklist2 <- dir(path = input_path_peaklist, pattern = "peaklist_")
     file_names_peaklist <- file_names_peaklist1[file_names_peaklist1 %in% file_names_peaklist2]
     L_PL <- length(file_names_peaklist)
-    ##
-    input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
-    if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]) == "all") {
-      file_name_hrms <- dir(path = input_path_hrms)
-      file_name_hrms <- file_name_hrms[grep(paste0(".", tolower(PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]), "$"), file_name_hrms, ignore.case = TRUE)]
-    } else {
-      samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]
-      file_name_hrms <- strsplit(samples_string, ";")[[1]] # files used as reference m/z-RT
-    }
-    file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
-    file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
-    file_names_peaklist_hrms <- file_name_hrms %in% file_names_peaklist_hrms2
-    if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
-      stop("Error!!! peaklist files are not available for all selected HRMS files!")
-    }
     ##
     annotation_list <- lapply(1:L_nc, function(i) {
       MAT <- matrix(rep(0, L_PL*(24 + 1)), nrow = L_PL)
@@ -91,10 +77,15 @@ IPA_CompoundsAnnotation <- function(PARAM) {
       }
     }
     close(progressBARboundaries)
-    dir.create(Output_CSV)
+    ##
+    if (!dir.exists(Output_CSV)) {
+      dir.create(Output_CSV, recursive = TRUE)
+    }
+    opendir(Output_CSV)
+    ##
     for (i in 1:L_nc) {
       A <- annotation_list[[i]]
-      write.csv(A, file = paste0(Output_CSV, "/", i, "_", "annotated_compound__", gsub("/", "_or_", name_compounds[i], fixed = TRUE), ".csv"))
+      write.csv(A, file = paste0(Output_CSV, "/", i, "_", "annotated_compound__", name_compounds[i], ".csv"))
     }
     print("Completed compound-centric peak annotation!")
   }

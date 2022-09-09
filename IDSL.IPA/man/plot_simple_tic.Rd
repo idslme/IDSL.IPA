@@ -7,7 +7,7 @@ plot_simple_tic
 plot_simple_tic
 }
 \usage{
-plot_simple_tic(filelist, filelocation, numberOfcores,
+plot_simple_tic(filelist, filelocation, number_processing_threads = 1,
 plotTitle = "Total Ion Chromatogram")
 }
 \arguments{
@@ -17,8 +17,8 @@ filelist
   \item{filelocation}{
 filelocation
 }
-  \item{numberOfcores}{
-numberOfcores
+  \item{number_processing_threads}{
+number of processing threads
 }
   \item{plotTitle}{
 plotTitle

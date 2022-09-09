@@ -18,12 +18,12 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
     output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
     if (!dir.exists(output_path)) {
       print("Created output directory!")
-      dir.create(output_path)
+      dir.create(output_path, recursive = TRUE)
     }
     if (exportEIC == TRUE) {
       output_path_eic <- paste0(output_path, "/EICs")
       if (!dir.exists(output_path_eic)) {
-        dir.create(output_path_eic)
+        dir.create(output_path_eic, recursive = TRUE)
       }
       opendir(output_path_eic)
       ##

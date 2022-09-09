@@ -8,7 +8,7 @@ plot_mz_eic
 }
 \usage{
 plot_mz_eic(filelist, filelocation, mztarget, mzdelta,
-numberOfcores, rtstart = 0, rtend = 0, plotTitle = "")
+number_processing_threads = 1, rtstart = 0, rtend = 0, plotTitle = "")
 }
 \arguments{
   \item{filelist}{
@@ -23,8 +23,8 @@ mztarget
   \item{mzdelta}{
 mzdelta
 }
-  \item{numberOfcores}{
-numberOfcores
+  \item{number_processing_threads}{
+number of processing threads
 }
   \item{rtstart}{
 rtstart

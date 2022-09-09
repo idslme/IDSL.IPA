@@ -11,7 +11,7 @@ IPA_GapFiller(PARAM)
 }
 \arguments{
   \item{PARAM}{
-a data frame from IPA_xlsxAnalyzer function containing the IPA parameters.
+a data frame from the `IPA_xlsxAnalyzer` function containing the IPA parameters.
 }
 }
 \value{

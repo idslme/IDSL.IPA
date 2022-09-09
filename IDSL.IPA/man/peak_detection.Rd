@@ -4,7 +4,7 @@
 peak detection
 }
 \description{
-This function detects separated chromatographical peaks on the chromatogram.
+This function detects separated chromatographic peaks on the chromatogram.
 }
 \usage{
 peak_detection(int)

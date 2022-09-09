@@ -4,7 +4,7 @@
 Chromatography analysis
 }
 \description{
-This function detect individual chromatographic peaks and measures their peak qualification metrics.
+This function detects individual chromatographic peaks and measures their peak qualification metrics.
 }
 \usage{
 chromatography_analysis(spec_scan_xic, smoothing_window,
@@ -16,9 +16,7 @@ RetentionTime, n_spline)
 }
 \arguments{
   \item{spec_scan_xic}{
-a matrix consists of 5 columns. The column contents are the m/z of 12C
-isotopologues, intensity of 12C isotopologues, scan number (t), m/z of 13C
-isotopologues, and intensity of 13C isotopologues, respectively.
+a matrix consists of 5 columns. The column contents are the m/z of 12C isotopologues, intensity of 12C isotopologues, scan number (t), m/z of 13C isotopologues, and intensity of 13C isotopologues, respectively.
 }
   \item{smoothing_window}{
 number of scans for peak smoothing
@@ -33,12 +31,10 @@ minimum number of nIsoPair for an individual peak
 minimum peak height for an individual peak
 }
   \item{min_ratio_IsoPair}{
-minimum ratio of nIsoPair per number of available scans within an individual
-peak
+minimum ratio of nIsoPair per number of available scans within an individual peak
 }
   \item{max_rpw}{
-maximum allowed value of ratio of peak width at half-height to baseline (RPW)
-for an individual peak
+maximum allowed value of ratio of peak width at half-height to baseline (RPW) for an individual peak
 }
   \item{min_snr_baseline}{
 minimum S/N baseline for an individual peak
@@ -47,16 +43,13 @@ minimum S/N baseline for an individual peak
 maximum allowed value of average R13C for an individual peak
 }
   \item{max_percentage_missing_scans}{
-maximum allowed value of percentage missing scans on the raw chromatogram for
-an individual peak.
+maximum allowed value of percentage missing scans on the raw chromatogram for an individual peak.
 }
   \item{mz_target}{
 m/z value to perform chromatography analysis
 }
   \item{rt_target}{
-retention time value for a targeted peak to calculate the ancillary
-chromatography parameters. When this parameter set at 0, the ancillary
-chromatography parameters are calculated for the entire detected peaks.
+retention time value for a targeted peak to calculate the ancillary chromatography parameters. When this parameter set at 0, the ancillary chromatography parameters are calculated for the entire detected peaks.
 }
   \item{mass_accuracy_xic}{
 mass error to perform chromatography analysis
@@ -68,12 +61,9 @@ a list of mass spectra in each chromatogram scan
 a vector of retention times vs. corresponding scan numbers
 }
   \item{n_spline}{
-number of points for further smoothing using a cubic spline smoothing method to
-calculate ancillary chromatographical parameters
+number of points for further smoothing using a cubic spline smoothing method to calculate ancillary chromatographic parameters
 }
 }
 \value{
-a data frame consisting of 24 columns representing chromatography and mass
-spectrometry parameters. Each row represents an individual seperated
-chromatographic peak.
+a data frame consisting of 24 columns representing chromatography and mass spectrometry parameters. Each row represents an individual separated chromatographic peak.
 }

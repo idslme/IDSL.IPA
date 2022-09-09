@@ -4,11 +4,10 @@
 spectraList filtering
 }
 \description{
-This function reduces the size of the spectraList value by removing m/z values
-with no correspondence to 12C/13C isotopologue pairs.
+This function reduces the size of the spectraList value by removing m/z values with no correspondence to 12C/13C isotopologue pairs.
 }
 \usage{
-spectraList_filtering(spec_scan.xic, spectraList, rounding_digit)
+spectraList_filtering(spec_scan.xic, spectraList, rounding_digit = 1)
 }
 \arguments{
   \item{spec_scan.xic}{

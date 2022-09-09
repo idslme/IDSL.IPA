@@ -23,19 +23,21 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     file_names_peaklist <- file_names_peaklist1[file_names_peaklist1 %in% file_names_peaklist2]
     L_PL <- length(file_names_peaklist)
     ##
-    input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
-    if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]) == "all") {
-      file_name_hrms <- dir(path = input_path_hrms)
-      file_name_hrms <- file_name_hrms[grep(paste0(".", tolower(PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]), "$"), file_name_hrms, ignore.case = TRUE)]
-    } else {
-      samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]
-      file_name_hrms <- strsplit(samples_string, ";")[[1]] # files used as reference m/z-RT
-    }
-    file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
-    file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
-    file_names_peaklist_hrms <- file_name_hrms %in% file_names_peaklist_hrms2
-    if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
-      stop("Error!!! peaklist files are not available for all selected HRMS files!")
+    if (x0048 == TRUE) {
+      input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
+      if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]) == "all") {
+        file_name_hrms <- dir(path = input_path_hrms)
+        file_name_hrms <- file_name_hrms[grep(paste0(".", tolower(PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]), "$"), file_name_hrms, ignore.case = TRUE)]
+      } else {
+        samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]
+        file_name_hrms <- strsplit(samples_string, ";")[[1]] # files used as reference m/z-RT
+      }
+      file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
+      file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
+      file_names_peaklist_hrms <- file_name_hrms %in% file_names_peaklist_hrms2
+      if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
+        stop("Error!!! peaklist files are not available for all selected HRMS files!")
+      }
     }
     ##
     annotated_peak_indices <- matrix(rep(0, L_nc*L_PL), nrow = L_nc)
@@ -84,8 +86,11 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     file_names_hrms <- gsub(".Rdata", "", (gsub("peaklist_", "", file_names_peaklist)))
     colnames(annotated_peak_indices) <- c("m/z", "RT", file_names_hrms)
     ##
-    dir.create(Output_Xcol)
+    if (!dir.exists(Output_Xcol)) {
+      dir.create(Output_Xcol, recursive = TRUE)
+    }
     opendir(Output_Xcol)
+    ##
     save(annotated_peak_indices, file = paste0(Output_Xcol, "/annotated_peak_indices.Rdata"))
     print("Peak index numbers from individual peaklists were stored in 'annotated_peak_indices.Rdata'")
     listHeightAreaR13C <- peak_Xcol2(input_path_peaklist, file_names_peaklist, annotated_peak_indices)

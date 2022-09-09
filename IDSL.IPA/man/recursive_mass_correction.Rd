@@ -18,9 +18,7 @@ max_percentage_missing_scans, n_spline)
 an IPA peaklist from 'primary_peak_analyzer' function.
 }
   \item{spec_scan}{
-a matrix consists of 5 columns. The column contents are the m/z of 12C
-isotopologues, intensity of 12C isotopologues, scan number (t), m/z of 13C
-isotopologues, and intensity of 13C isotopologues.
+a matrix consists of 5 columns. The column contents are the m/z of 12C isotopologues, intensity of 12C isotopologues, scan number (t), m/z of 13C isotopologues, and intensity of 13C isotopologues.
 }
   \item{scan_tol}{
 a scan tolerance to extend the chromatogram for better calculations.
@@ -47,12 +45,10 @@ minimum number of nIsoPair for an individual peak.
 minimum peak height for an individual peak.
 }
   \item{min_ratio_IsoPair}{
-minimum ratio of nIsoPair per number of available scans within an individual
-peak.
+minimum ratio of nIsoPair per number of available scans within an individual peak.
 }
   \item{max_rpw}{
-maximum allowed value of ratio of peak width at half-height to baseline (RPW)
-for an individual peak.
+maximum allowed value of ratio of peak width at half-height to baseline (RPW) for an individual peak.
 }
   \item{min_snr_baseline}{
 minimum S/N baseline for an individual peak.
@@ -64,12 +60,9 @@ maximum allowed value of average R13C for an individual peak.
 maximum allowed value of percentage missing scans on the raw chromatogram for an individual peak.
 }
   \item{n_spline}{
-number of points for further smoothing using a cubic spline smoothing method to
-calculate ancillary chromatographical parameters.
+number of points for further smoothing using a cubic spline smoothing method to calculate ancillary chromatographic parameters.
 }
 }
 \value{
-a data frame consisting of 24 columns representing chromatography and mass
-spectrometry parameters. Each row represents an individual seperated
-chromatographic peak.
+a dataframe consisting of 24 columns representing chromatography and mass spectrometry parameters. Each row represents an individual separated chromatographic peak.
 }

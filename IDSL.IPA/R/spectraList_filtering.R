@@ -1,4 +1,4 @@
-spectraList_filtering <- function(spec_scan.xic, spectraList, rounding_digit) {
+spectraList_filtering <- function(spec_scan.xic, spectraList, rounding_digit = 1) {
   ## To reduce the number of arrays in the spectraList variable
   N_chromatogramScans <- length(spectraList)
   ##

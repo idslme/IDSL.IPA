@@ -16,9 +16,7 @@ n_spline)
 }
 \arguments{
   \item{spec_scan}{
-a matrix consists of 5 columns. The column contents are the m/z of 12C
-isotopologues, intensity of 12C isotopologues, scan number (t), m/z of 13C
-isotopologues, and intensity of 13C isotopologues.
+a matrix consists of 5 columns. The column contents are the m/z of 12C isotopologues, intensity of 12C isotopologues, scan number (t), m/z of 13C isotopologues, and intensity of 13C isotopologues.
 }
   \item{index_xic}{
 a list of indices of candidate 12C m/z values from spec_scan matrix.
@@ -52,8 +50,7 @@ minimum ratio of nIsoPair per number of available scans within an individual
 peak.
 }
   \item{max_rpw}{
-maximum allowed value of ratio of peak width at half-height to baseline (RPW)
-for an individual peak.
+maximum allowed value of ratio of peak width at half-height to baseline (RPW) for an individual peak.
 }
   \item{min_snr_baseline}{
 minimum S/N baseline for an individual peak.
@@ -69,7 +66,5 @@ number of points for further smoothing using a cubic spline smoothing method.
 }
 }
 \value{
-a data frame consisting of 24 columns representing chromatography and mass
-spectrometry parameters. Each row represents an individual seperated
-chromatographic peak.
+a data frame consisting of 24 columns representing chromatography and mass spectrometry parameters. Each row represents an individual separated chromatographic peak.
 }

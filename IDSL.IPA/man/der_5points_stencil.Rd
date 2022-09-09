@@ -4,7 +4,7 @@
 Numerical differentiation by five-point stencil method
 }
 \description{
-This module perofrms numerical differentiation using the five-point stencil method.
+This module performs numerical differentiation using the five-point stencil method.
 }
 \usage{
 der_5points_stencil(x, y, n)

@@ -4,8 +4,7 @@
 Peak alignment
 }
 \description{
-This function aligns peaks from multiple peaklists and produce a peak table to
-find common peaks among multiple samples.
+This function aligns peaks from multiple peaklists and produce a peak table to find common peaks among multiple samples.
 }
 \usage{
 peak_alignment(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol,

@@ -30,7 +30,7 @@ IPA_PeakAlignment <- function(PARAM) {
   ##
   OutputPath_peak_alignment <- paste0(output_path, "/peak_alignment")
   if (!dir.exists(OutputPath_peak_alignment)) {
-    dir.create(OutputPath_peak_alignment)
+    dir.create(OutputPath_peak_alignment, recursive = TRUE)
   }
   ##
   if (RTcorrectionCheck == "yes") {
@@ -138,5 +138,18 @@ IPA_PeakAlignment <- function(PARAM) {
     write.csv(peak_R13C, file = paste0(OutputPath_peak_alignment, "/peak_R13C.csv"))
     ##
     print("Completed peak alignment!!!")
+    ##
+    ############################################################################
+    ##
+    print("Initiated detecting correlating peaks on the peak height table!")
+    ##
+    correlationListHeight <- peak_property_table_correlation(peakPropertyTable = peak_height, RTtolerance = rt_tol, minFreqDetection = 1, method = "pearson", minThresholdCorrelation = 0.50, number_processing_threads)
+    ##
+    save(correlationListHeight, file = paste0(OutputPath_peak_alignment, "/correlationListHeight.Rdata"))
+    ##
+    print("Completed detecting correlating peaks on the peak height table!")
+    ##
+    ############################################################################
+    ##
   }
 }

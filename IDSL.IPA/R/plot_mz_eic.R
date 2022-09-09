@@ -1,7 +1,7 @@
-plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta,numberOfcores,rtstart=0,rtend=0,plotTitle = "") {
+plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta, number_processing_threads = 1, rtstart=0,rtend=0,plotTitle = "") {
 
 
-  clust <- makeCluster(numberOfcores)
+  clust <- makeCluster(number_processing_threads)
   registerDoParallel(clust)
 
 
@@ -11,7 +11,7 @@ plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta,numberOfcores,rts
     scanTable <- p2l[["scanTable"]]
     spectraList <- p2l[["spectraList"]]
     mzdf <- do.call(rbind, lapply(1:length(spectraList),function(l) { cbind(spectraList[[l]],scanTable$retentionTime[l],l) }))
-    df <- data.frame(RT=as.numeric(mzdf[,3]),Intensity=as.numeric(mzdf[,2]), mz =as.numeric(mzdf[,1]), scan = as.numeric(mzdf[,4]) )
+    df <- data.frame(RT = as.numeric(mzdf[, 3]), Intensity = as.numeric(mzdf[, 2]), mz = as.numeric(mzdf[, 1]), scan = as.numeric(mzdf[, 4]))
     df <- df[which(df$mz < mztarget + mzdelta & df$mz > mztarget - mzdelta),]
     df
   }
@@ -34,7 +34,7 @@ plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta,numberOfcores,rts
 
 
 
-  if(rtstart != 0 & rtend != 0) {
+  if (rtstart != 0 & rtend != 0) {
     rtmax = rtend
     rtmin = rtstart
   }
@@ -50,7 +50,7 @@ plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta,numberOfcores,rts
 
 
 
-  if(plotTitle=="") {
+  if (plotTitle == "") {
     ptitle <- paste0(mztarget," (+/- ",mzdelta," Da)")
   }
 

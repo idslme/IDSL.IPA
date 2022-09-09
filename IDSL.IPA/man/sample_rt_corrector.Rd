@@ -15,20 +15,19 @@ rt_correction_method, reference_peak_tol = 1, polynomial_degree = 3)
 a matrix of reference peaks for retention time correction.
 }
   \item{peaklist}{
-an IPA peaklist.
+an IPA peaklist
 }
   \item{mz_error}{
 mass error to detect common reference peaks.
 }
   \item{rt_correction_method}{
-This parameter can be either 'RetentionIndex' or 'Polynomial'.
+c('RetentionIndex','Polynomial')
 }
   \item{reference_peak_tol}{
-number of reference peaks for retention time correction using 'RetentionIndex'
-method.
+number of reference peaks for retention time correction using the 'RetentionIndex' method.
 }
   \item{polynomial_degree}{
-polynomial degree for retention time correction using 'Polynomial' method.
+polynomial degree for retention time correction using the 'Polynomial' method.
 }
 }
 \value{

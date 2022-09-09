@@ -4,7 +4,7 @@
 MS deconvoluter
 }
 \description{
-This function deconvolute mass spectrometry files into a list of mass spectrals and a vector of retention times.
+This function deconvolutes mass spectrometry files into a list of mass spectrals and a vector of retention times.
 }
 \usage{
 IPA_MSdeconvoluter(HRMS_path, MSfile, MS_level = 1)
@@ -14,7 +14,7 @@ IPA_MSdeconvoluter(HRMS_path, MSfile, MS_level = 1)
 address of the mass spectrometry file
 }
   \item{MSfile}{
-mass spectromtery file.
+mass spectrometry file.
 }
   \item{MS_level}{
 MS level to extract information.

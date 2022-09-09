@@ -15,7 +15,7 @@ is a vector of y values.
 }
 }
 \value{
-A vector in the same size of vector 'y'. Local minimum and maximum arrays represented by -1 and +1, respectively.
+A vector in the same size of the vector 'y'. Local minimum and maximum arrays represented by -1 and +1, respectively.
 }
 \examples{
 data(chromatogram_builder)

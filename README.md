@@ -8,14 +8,14 @@
 [![Dependencies](https://tinyverse.netlify.com/badge/IDSL.IPA)](https://cran.r-project.org/package=IDSL.IPA)
 <!-- badges: end -->
 
-[**Intrinsic Peak Analysis (IPA)**](https://ipa.idsl.me/) by the Integrated Data Science Laboratory for Metabolomics and Exposomics ([**IDSL.ME**](https://www.idsl.me/)) is an R pipeline that extracts peaks for organic small molecules from untargeted LC/HRMS data in population scale projects. 
+[**Intrinsic Peak Analysis (IPA)**](https://ipa.idsl.me/) by the [**Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME)**](https://www.idsl.me/) is an R pipeline that extracts peaks for organic small molecules from untargeted LC/HRMS data in population scale projects. 
 
 	install.packages("IDSL.IPA")
 
 ## <img src='IPA_educational_files/Figures/IDSL.IPA-TOC_Art.png' align="right" />
 
 ## Workflow
-To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), download the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx) and fill out the parameters accordingly and then use this spreadsheet as the input for the IDSL.IPA workflow:
+To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), download the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx) and select the parameters accordingly and then use this spreadsheet as the input for the IDSL.IPA workflow:
 
 	IPA_Workflow("Address of the IPA parameter spreadsheet")
 

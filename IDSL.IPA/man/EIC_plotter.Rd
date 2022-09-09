@@ -4,8 +4,7 @@
 EIC plotter
 }
 \description{
-This function plots the EIC figure and annex the chromatographic
-properties to the EIC figures.
+This function plots the EIC figure and annexes the chromatographic properties to the EIC figures.
 }
 \usage{
 EIC_plotter(spec_scan_xic, peak_property_xic, smoothing_window,
@@ -14,9 +13,7 @@ mz_target, rt_target, file_name, legend_EIC)
 }
 \arguments{
   \item{spec_scan_xic}{
-a matrix consists of 5 columns. The column contents are the m/z
-of 12C isotopologues, intensity of 12C isotopologues, scan number (t),
-m/z of 13C isotopologues, and intensity of 13C isotopologues.
+a matrix consists of 5 columns. The column contents are the m/z of 12C isotopologues, intensity of 12C isotopologues, scan number (t), m/z of 13C isotopologues, and intensity of 13C isotopologues.
 }
   \item{peak_property_xic}{
 a data frame representing chromatographic peak properties.
