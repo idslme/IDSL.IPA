@@ -15,5 +15,5 @@ a data frame from IPA_xlsxAnalyzer function.
 }
 }
 \value{
-This function saves individual .CSV files for peak height, area, and R13C properties in the "sample_centeric_annotation" folder.
+This function saves individual .csv files for peak height, area, and R13C properties in the "sample_centric_annotation" folder.
 }

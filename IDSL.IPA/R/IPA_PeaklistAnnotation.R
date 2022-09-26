@@ -1,8 +1,13 @@
 IPA_PeaklistAnnotation <- function(PARAM) {
-  print("Initiated sample-centric peak annotation!")
+  ##
+  IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
+  IPA_logRecorder("Initiated sample-centric peak annotation!")
+  ##
   number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
-  Output_Xcol <- paste0(output_path, "/sample_centeric_annotation")
+  Output_Xcol <- paste0(output_path, "/sample_centric_annotation")
+  ##
+  IPA_logRecorder("Sample centric annotation data are stored in the `sample_centric_annotation` folder!")
   ##
   massDifferenceIsotopes <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
   ##
@@ -14,7 +19,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
   name_compounds <- ref_table$name
   L_nc <- length(name_compounds)
   if (L_nc > 0) {
-    mz_compounds <- ref_table$'m/z'
+    mz_compounds <- ref_table$`m/z`
     rt_compounds <- ref_table$RT
     #
     input_path_peaklist <- paste0(output_path, "/peaklists")
@@ -36,7 +41,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
       file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
       file_names_peaklist_hrms <- file_name_hrms %in% file_names_peaklist_hrms2
       if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
-        stop("Error!!! peaklist files are not available for all selected HRMS files!")
+        stop(IPA_logRecorder("Error!!! peaklist files are not available for all selected HRMS files!"))
       }
     }
     ##
@@ -92,7 +97,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     opendir(Output_Xcol)
     ##
     save(annotated_peak_indices, file = paste0(Output_Xcol, "/annotated_peak_indices.Rdata"))
-    print("Peak index numbers from individual peaklists were stored in 'annotated_peak_indices.Rdata'")
+    IPA_logRecorder("Aligned indexed table from individual peaklists were stored as 'annotated_peak_indices.Rdata' in the `sample_centric_annotation` folder")
     listHeightAreaR13C <- peak_Xcol2(input_path_peaklist, file_names_peaklist, annotated_peak_indices)
     annotated_peak_height <- cbind(name_compounds, listHeightAreaR13C[["peak_height"]])
     colnames(annotated_peak_height) <- c("name", "m/z", "RT", file_names_hrms)
@@ -103,10 +108,12 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     write.csv(annotated_peak_height, file = paste0(Output_Xcol, "/annotated_peak_height.csv"))
     write.csv(annotated_peak_area, file = paste0(Output_Xcol, "/annotated_peak_area.csv"))
     write.csv(annotated_peak_R13C, file = paste0(Output_Xcol, "/annotated_peak_R13C.csv"))
-    print("Completed sample-centric peak annotation for peak height, peak area, and R13C!")
+    ##
+    IPA_logRecorder("Annotated peak height, peak area, and R13C tables were stored in `.Rdata` and `.csv` formats in the `sample_centric_annotation` folder!")
+    IPA_logRecorder("Completed sample-centric peak annotations for peak height, peak area, and R13C tables!")
     ##
     if (x0048 == TRUE) {
-      print("Initiated gap-filling for sample-centric peak annotation")
+      IPA_logRecorder("Initiated gap-filling for sample-centric peak annotation!")
       mass_error <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0038'), 2])   # Mass accuracy to cluster m/z in consecutive scans
       mass_error_13c <- 1.5*mass_error
       delta_rt <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0039'), 2])
@@ -344,11 +351,14 @@ IPA_PeaklistAnnotation <- function(PARAM) {
         }
       }
       close(progressBARboundaries)
-      print("Initiated saving gap-filled sample-centric peak annotation!")
+      IPA_logRecorder("Initiated saving gap-filled sample-centric peak annotation!")
       write.csv(annotated_peak_height_gapfilled, file = paste0(Output_Xcol, "/annotated_peak_height_gapfilled.csv"))
       write.csv(annotated_peak_area_gapfilled, file = paste0(Output_Xcol, "/annotated_peak_area_gapfilled.csv"))
       write.csv(annotated_peak_R13C_gapfilled, file = paste0(Output_Xcol, "/annotated_peak_R13C_gapfilled.csv"))
-      print("Completed gap-filled sample-centric peak annotation!")
+      ##
+      IPA_logRecorder("Gap-filled annotated peak height, peak area, and R13C tables were stored in `.csv` formats in the `sample_centric_annotation` folder!")
+      IPA_logRecorder("Completed gap-filled sample-centric peak annotations!")
     }
+    IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
   }
 }

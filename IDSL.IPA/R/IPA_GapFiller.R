@@ -1,5 +1,8 @@
 IPA_GapFiller <- function(PARAM) {
-  print("Initiated gap-filling!")
+  ##
+  IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
+  IPA_logRecorder("Initiated gap-filling!")
+  ##
   number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   ##
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
@@ -23,7 +26,7 @@ IPA_GapFiller <- function(PARAM) {
   file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
   file_names_peaklist_hrms <- file_name_hrms %in% file_names_peaklist_hrms2
   if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
-    stop("Error!!! peaklist files are not available for all selected HRMS files!")
+    stop(IPA_logRecorder("Error!!! peaklist files are not available for all selected HRMS files!"))
   }
   ##
   peak_Xcol <- loadRdata(paste0(output_path, "/peak_alignment/peak_Xcol.Rdata"))
@@ -234,7 +237,7 @@ IPA_GapFiller <- function(PARAM) {
     stopCluster(clust)
   }
   ##
-  print("Filling gaps of the peak height, peak area, and R13C on the aligned peak tables!")
+  IPA_logRecorder("Initiated filling gaps of the aligned peak height, peak area, and R13C tables!")
   OutputPath_peak_alignment <- paste0(output_path, "/peak_alignment/")
   peak_height <- loadRdata(paste0(OutputPath_peak_alignment, "peak_height.Rdata"))
   peak_area <- loadRdata(paste0(OutputPath_peak_alignment, "peak_area.Rdata"))
@@ -259,12 +262,27 @@ IPA_GapFiller <- function(PARAM) {
   }
   close(progressBARboundaries)
   opendir(OutputPath_peak_alignment)
-  print("Initiated saving aligned gap-filled peak tables!")
+  IPA_logRecorder("Initiated saving aligned gap-filled peak tables!")
   save(peak_height_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_height_gapfilled.Rdata"))
   write.csv(peak_height_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_height_gapfilled.csv"))
   save(peak_area_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_area_gapfilled.Rdata"))
   write.csv(peak_area_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_area_gapfilled.csv"))
   save(peak_R13C_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_R13C_gapfilled.Rdata"))
   write.csv(peak_R13C_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_R13C_gapfilled.csv"))
-  print("Completed gap-filling!!!")
+  IPA_logRecorder("Gap-filled aligned peak height, peak area, and R13C tables were stored in `.Rdata` and `.csv` formats in the `peak_alignment` folder!")
+  ##
+  ############################################################################
+  ##
+  IPA_logRecorder("Initiated detecting correlating peaks on the gap-filled peak height table!")
+  ##
+  correlationListHeight_gapfilled <- peak_property_table_correlation(peakPropertyTable = peak_height_gapfilled, RTtolerance = delta_rt, minFreqDetection = 1, method = "pearson", minThresholdCorrelation = 0.50, number_processing_threads)
+  ##
+  save(correlationListHeight_gapfilled, file = paste0(OutputPath_peak_alignment, "/correlationListHeight_gapfilled.Rdata"))
+  ##
+  IPA_logRecorder("Stored the correlating peaks on the gap-filled peak height table as `correlationListHeight_gapfilled.Rdata` in the `peak_alignement` folder!")
+  IPA_logRecorder("Completed gap-filling!")
+  IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
+  ##
+  ############################################################################
+  ##
 }

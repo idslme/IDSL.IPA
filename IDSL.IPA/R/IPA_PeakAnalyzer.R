@@ -1,5 +1,8 @@
 IPA_PeakAnalyzer <- function(PARAM) {
   ##
+  IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
+  IPA_logRecorder("Initiated HRMS peak detection!")
+  ##
   number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
   if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]) == "all") {
@@ -18,6 +21,13 @@ IPA_PeakAnalyzer <- function(PARAM) {
   ## To select monoisotopic peaks that have 13C isotopologues in the same scan
   int_threshold <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0011'), 2])     # Intensity threshold in each scan
   massDifferenceIsotopes <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
+  #
+  if (massDifferenceIsotopes <= 1.00336 & massDifferenceIsotopes >= 1.00335) {
+    IPA_logRecorder("Carbon isotopes are selected for ion pairing!")
+  } else {
+    IPA_logRecorder(paste0("Mass difference to pair isotopes are = '", massDifferenceIsotopes, " Da'!"))
+  }
+  #
   mass_accuracy_xic <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2]) # Mass accuracy to cluster m/z in consecutive scans
   mass_accuracy_isotope_pair <- 1.5*mass_accuracy_xic      # Mass accuracy to find 13C isotopologues
   delta_rt <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0014'), 2])           	    # The retention time deviations to detect redundant peaks
@@ -131,7 +141,8 @@ IPA_PeakAnalyzer <- function(PARAM) {
     ##
     return()
   }
-  print("Initiated HRMS peak detection!")
+  ##
+  IPA_logRecorder("Individual peaklists are stored in `.Rdata` and `.csv` formats in the `peaklist` folder!")
   ##
   if (number_processing_threads == 1) {
     ##
@@ -168,6 +179,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
     }
   }
   ##
-  print("Completed HRMS peak detection!")
+  IPA_logRecorder("Completed HRMS peak detection!")
+  IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
   return()
 }

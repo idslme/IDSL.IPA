@@ -69,5 +69,5 @@ plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta, number_processin
       lines(df$RT, df$Intensity, pch = 19, col = colvec[kk], type = "l", lty = 1,lwd=2)
     }
   }
-  print('simple EICs have been successfully generated!')
+  IPA_logRecorder('simple EICs have been successfully generated!')
 }

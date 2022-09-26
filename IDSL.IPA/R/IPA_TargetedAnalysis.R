@@ -1,10 +1,11 @@
 IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEIC = TRUE, exportTable = FALSE) {
-  cc_table <- c()
+  ##
+  cc_table <- NULL
   if (length(mzCandidate) !=  length(rtCandidate)) {
-    stop("Error!!! mz and rt vectors do not have the same length!")
+    stop(IPA_logRecorder("Error!!! mz and rt vectors do not have the same length!"))
   }
   PARAM <- xlsxAnalyzer_EIC(spreadsheet)
-  if (length(PARAM) > 0) {
+  if (!is.null(PARAM)) {
     ##
     number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
     input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
@@ -25,6 +26,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
       if (!dir.exists(output_path_eic)) {
         dir.create(output_path_eic, recursive = TRUE)
       }
+      IPA_logRecorder("Extracted ion chromatograms (EICs) from targted workflow are stored in the `EICs` folder!")
       opendir(output_path_eic)
       ##
       img <- png::readPNG(paste0(system.file("extdata", package = "IDSL.IPA"),"/EIC_legend.png"))
@@ -44,7 +46,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
     R5 <- c(8, 10)
     ##
     osType <- Sys.info()[['sysname']]
-    print("Initiated the targeted analysis!")
+    ##
     if (osType == "Windows") {
       clust <- makeCluster(number_processing_threads)
       registerDoParallel(clust)
@@ -249,8 +251,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
       }))
       closeAllConnections()
     }
-    ####
-    print("Completed the targeted analysis!")
+    ##
   }
   if (exportTable == TRUE) {
     if (length(cc_table) > 0) {
@@ -262,7 +263,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
                            "SeperationTray","AsymmetryFactor @ 10%","USPTailingFactor @ 5%",
                            "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
                            "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
-      rownames(cc_table) <- c()
+      rownames(cc_table) <- NULL
     }
   }
   return(cc_table)

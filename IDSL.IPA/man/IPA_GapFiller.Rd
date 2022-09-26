@@ -15,5 +15,5 @@ a data frame from the `IPA_xlsxAnalyzer` function containing the IPA parameters.
 }
 }
 \value{
-This function saves individual .CSV and .Rdata files for the gap-filled peak tables for peak height, area, and R13C properties in the "peak_alignment" folder.
+This function saves individual .csv and .Rdata files for the gap-filled peak tables for peak height, area, and R13C properties in the "peak_alignment" folder.
 }

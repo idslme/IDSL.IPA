@@ -48,5 +48,5 @@ plot_simple_tic <- function(filelist,filelocation, number_processing_threads = 1
       lines(df$RT, df$Intensity, pch = 19, col = sample(rainbow(500),1), type = "l", lty = 1,lwd=2)
     }
   }
-  print("simple TICs have been generated!")
+  IPA_logRecorder("simple TICs have been generated!")
 }

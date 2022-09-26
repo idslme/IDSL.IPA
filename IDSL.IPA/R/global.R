@@ -1,1 +1,1 @@
-utils::globalVariables(c("x", "i", "k", "y", "dflist", "spectraList", "mzmlfile" , "scanTable" ))
+utils::globalVariables(c("x", "i", "k", "y", "dflist", "spectraList", "mzmlfile" , "scanTable", "logIPA"))

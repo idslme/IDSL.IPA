@@ -15,5 +15,5 @@ a data frame from IPA_xlsxAnalyzer function containing the IPA parameters.
 }
 }
 \value{
-This function saves individual .CSV files for each compound in the "compound_centeric_annotation" folder.
+This function saves individual .csv files for each compound in the "compound_centric_annotation" folder.
 }

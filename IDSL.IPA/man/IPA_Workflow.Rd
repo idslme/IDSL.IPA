@@ -30,7 +30,7 @@ temp_wd_zip <- paste0(temp_wd,"/idsl_ipa_test_files.zip")
 spreadsheet <- readxl::read_xlsx(SSh1)
 download.file(paste0("https://github.com/idslme/IDSL.IPA/blob/main/",
 "IPA_educational_files/idsl_ipa_test_files.zip?raw=true"),
-destfile = temp_wd_zip)
+destfile = temp_wd_zip, mode = "wb")
 unzip(temp_wd_zip, exdir = temp_wd)
 spreadsheet[7, 4] <- temp_wd
 spreadsheet[40, 4] <- s_path

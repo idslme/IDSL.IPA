@@ -1,16 +1,26 @@
 IPA_CompoundsAnnotation <- function(PARAM) {
-  print("Initiated compound-centric peak annotation!")
+  ##
+  IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
+  IPA_logRecorder("Initiated compound-centric peak annotation!")
+  ##
   output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
-  Output_CSV <- paste0(output_path, "/compound_centeric_annotation")
+  Output_CSV <- paste0(output_path, "/compound_centric_annotation")
+  if (!dir.exists(Output_CSV)) {
+    dir.create(Output_CSV, recursive = TRUE)
+  }
+  opendir(Output_CSV)
+  ##
+  IPA_logRecorder("Compound centric annotation data are stored in the `compound_centric_annotation` folder!")
+  ##
   ref_table <- readxl::read_xlsx(PARAM[which(PARAM[, 1] == 'PARAM0042'), 2])
   mass_error <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0043'), 2])   # Mass accuracy to cluster m/z in consecutive scans
   rt_error <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0044'), 2])
   x0045 <- PARAM[which(PARAM[, 1] == 'PARAM0045'), 2]
   name_compounds <- ref_table$name
-  name_compounds <- gsub("[[:punct:]]", "", name_compounds, fixed = TRUE)
+  name_compounds <- IPA_gsub(c("/", "\\", ":", "*", "?", '"', "<", ">", "|"), "_", name_compounds, fixed = TRUE)  # To replace invalid characters
   L_nc <- length(name_compounds)
   if (L_nc > 0) {
-    mz_compounds <- ref_table$'m/z'
+    mz_compounds <- ref_table$`m/z`
     rt_compounds <- ref_table$RT
     #
     input_path_peaklist <- paste0(output_path, "/peaklists")
@@ -20,7 +30,7 @@ IPA_CompoundsAnnotation <- function(PARAM) {
     L_PL <- length(file_names_peaklist)
     ##
     annotation_list <- lapply(1:L_nc, function(i) {
-      MAT <- matrix(rep(0, L_PL*(24 + 1)), nrow = L_PL)
+      MAT <- matrix(rep(0, L_PL*25), nrow = L_PL) # 24 + 1 = 25
       MAT <- data.frame(MAT)
       names(MAT) <- c("SampleID","ScanNumberStart","ScanNumberEnd","RetentionTimeApex","PeakHeight","PeakArea",
                       "NumberDetectedScans(nIsoPair)","RCS(%)","m/z MonoIsotopic","CumulatedIntensity",
@@ -78,15 +88,13 @@ IPA_CompoundsAnnotation <- function(PARAM) {
     }
     close(progressBARboundaries)
     ##
-    if (!dir.exists(Output_CSV)) {
-      dir.create(Output_CSV, recursive = TRUE)
-    }
-    opendir(Output_CSV)
-    ##
     for (i in 1:L_nc) {
       A <- annotation_list[[i]]
       write.csv(A, file = paste0(Output_CSV, "/", i, "_", "annotated_compound__", name_compounds[i], ".csv"))
     }
-    print("Completed compound-centric peak annotation!")
+    ##
+    IPA_logRecorder("Annotated tables for each compound were stored in `.csv` formats in the `compound_centric_annotation` folder!")
+    IPA_logRecorder("Completed compound-centric peak annotation!")
+    IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
   }
 }

@@ -8,7 +8,7 @@ This function pairs isotopologue in high-resolution mass spectral datasets
 }
 \usage{
 IPA_IsotopePairing(spectraList, int_threshold, mass_accuracy_isotope_pair,
-massDifferenceIsotopes)
+massDifferenceIsotopes = 1.003354835336)
 }
 \arguments{
   \item{spectraList}{
