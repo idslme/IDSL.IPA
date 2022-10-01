@@ -6,7 +6,7 @@ mz_clustering_xic <- function(spec_scan, mass_accuracy_xic, min_peak_height, min
   mzxic <- rep(0, maxLengthClusters)
   Counter <- 0
   L_MinHeight <- length(which(MZ_Int_ScN[, 2] >= min_peak_height))
-  i <- 1
+  ##
   if (min_nIsoPair > 1) {
     for (i in 1:L_MinHeight) {
       if (MZ_Int_ScN[i, 1] != 0) {

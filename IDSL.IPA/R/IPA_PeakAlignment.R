@@ -72,26 +72,28 @@ IPA_PeakAlignment <- function(PARAM) {
     ############################################################################
     if (number_processing_threads == 1) {
       correted_RTs_samples <- lapply(file_name_peaklist_samples, function(i) {
-        peaklist <- loadRdata(paste0(input_path_peaklist, "/", i))
-        sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
+        sample_rt_corrector(reference_mz_rt_peaks, input_path_peaklist, i, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
       })
     } else {
       ## Processing OS
       osType <- Sys.info()[['sysname']]
       if (osType == "Windows") {
+        ##
         cl <- makeCluster(number_processing_threads)
         registerDoParallel(cl)
+        ##
         correted_RTs_samples <- foreach(i = file_name_peaklist_samples, .verbose = FALSE) %dopar% {
-          peaklist <- loadRdata(paste0(input_path_peaklist, "/", i))
-          sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
+          sample_rt_corrector(reference_mz_rt_peaks, input_path_peaklist, i, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
         }
+        ##
         stopCluster(cl)
         ##
       } else if (osType == "Linux") {
+        ##
         correted_RTs_samples <- mclapply(file_name_peaklist_samples, function(i) {
-          peaklist <- loadRdata(paste0(input_path_peaklist, "/", i))
-          sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
+          sample_rt_corrector(reference_mz_rt_peaks, input_path_peaklist, i, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
         }, mc.cores = number_processing_threads)
+        ##
         closeAllConnections()
       }
     }

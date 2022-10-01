@@ -1,7 +1,7 @@
 IPA_PeakAnalyzer <- function(PARAM) {
   ##
   IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
-  IPA_logRecorder("Initiated HRMS peak detection!")
+  peaklist024 <- matrix(rep(NA, 24), ncol = 24)
   ##
   number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
@@ -56,13 +56,13 @@ IPA_PeakAnalyzer <- function(PARAM) {
     n_spline2 <- n_spline
   }
   ##
-  call_carbon_IPA_parallel <- function(i) {
+  call_carbon_IPA_parallel <- function(k) {
     ## To convert mzML/mzXML datafiles
-    outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
+    outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[k])
     spectraList <- outputer[["spectraList"]]
     RetentionTime <- outputer[["retentionTime"]]
-    ## IPA_IsotopePairing
-    spec_scan <- IPA_IsotopePairing(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes)
+    ## IPA_IonPairing
+    spec_scan <- IPA_IonPairing(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes)
     ## m/z clustering
     index_xic <- mz_clustering_xic(spec_scan, mass_accuracy_xic, min_peak_height, min_nIsoPair)
     ## spectraList size reduction
@@ -81,13 +81,14 @@ IPA_PeakAnalyzer <- function(PARAM) {
                                               max_rpw, min_snr_baseline, max_R13C_integrated_peak, max_percentage_missing_scans, n_spline2)
       }
     }
+    ##
     if (!is.null(peaklist)) {
       if (length(peaklist) > 24) {
         ## To remove repeated peaks
         peaklist_subset <- cbind(peaklist[, 8], peaklist[, 3], peaklist[, 6])
-        for (k in 1:nrow(peaklist_subset)) {
-          x_mz_rt <- which(abs(peaklist_subset[, 1] - peaklist_subset[k, 1]) <= mass_accuracy_xic &
-                             abs(peaklist_subset[, 2] - peaklist_subset[k, 2]) <= delta_rt)
+        for (j in 1:nrow(peaklist_subset)) {
+          x_mz_rt <- which(abs(peaklist_subset[, 1] - peaklist_subset[j, 1]) <= mass_accuracy_xic &
+                             abs(peaklist_subset[, 2] - peaklist_subset[j, 2]) <= delta_rt)
           if (length(x_mz_rt) > 1) {
             x_max <- which.max(peaklist_subset[x_mz_rt, 3])
             x_remove <- x_mz_rt[-x_max[1]]
@@ -126,7 +127,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
       peaklist[, 24] <- round(peaklist[, 24], 0)
       ##
     } else {
-      peaklist <- matrix(rep(0, 24), ncol = 24)
+      peaklist <- peaklist024
     }
     ##
     colnames(peaklist) <- c("ScanNumberStart","ScanNumberEnd","RetentionTimeApex","PeakHeight","PeakArea",
@@ -136,12 +137,13 @@ IPA_PeakAnalyzer <- function(PARAM) {
                             "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
                             "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
     ##
-    save(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
-    write.csv(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".csv"))
+    save(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".Rdata"))
+    write.csv(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".csv"))
     ##
     return()
   }
   ##
+  IPA_logRecorder("Initiated HRMS peak detection!")
   IPA_logRecorder("Individual peaklists are stored in `.Rdata` and `.csv` formats in the `peaklist` folder!")
   ##
   if (number_processing_threads == 1) {
@@ -149,7 +151,9 @@ IPA_PeakAnalyzer <- function(PARAM) {
     progressBARboundaries <- txtProgressBar(min = 0, max = length(file_name_hrms), initial = 0, style = 3)
     ##
     for (k in 1:length(file_name_hrms)) {
-      Null_variable <- call_carbon_IPA_parallel(k)
+      Null_variable <- tryCatch(call_carbon_IPA_parallel(k),
+                                error = function(e) {save(peaklist024, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".Rdata"))
+                                  IPA_logRecorder(paste0("Problem with `", file_name_hrms[k],"`!"))})
       ##
       setTxtProgressBar(progressBARboundaries, k)
     }
@@ -163,16 +167,21 @@ IPA_PeakAnalyzer <- function(PARAM) {
     if (osType == "Linux") {
       ##
       Null_variable <- do.call(rbind, mclapply(1:length(file_name_hrms), function(k) {
-        call_carbon_IPA_parallel(k)
+        tryCatch(call_carbon_IPA_parallel(k),
+                 error = function(e) {save(peaklist024, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".Rdata"))
+                   IPA_logRecorder(paste0("Problem with `", file_name_hrms[k],"`!"))})
       }, mc.cores = number_processing_threads))
       ##
       closeAllConnections()
+      ##
     } else if (osType == "Windows") {
       clust <- makeCluster(number_processing_threads)
       registerDoParallel(clust)
       ##
       Null_variable <- foreach(k = 1:length(file_name_hrms), .combine = 'rbind', .verbose = FALSE) %dopar% {
-        call_carbon_IPA_parallel(k)
+        tryCatch(call_carbon_IPA_parallel(k),
+                 error = function(e) {save(peaklist024, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".Rdata"))
+                   IPA_logRecorder(paste0("Problem with `", file_name_hrms[k],"`!"))})
       }
       stopCluster(clust)
       ##

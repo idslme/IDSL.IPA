@@ -170,7 +170,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     }
   } else if (length(spreadsheet) == 1) {
     if (typeof(spreadsheet) == "character") {
-      if (file.exists(spreadsheet)){
+      if (file.exists(spreadsheet)) {
         spreadsheet_IPA <- readxl::read_xlsx(spreadsheet, sheet = 'parameters')
         PARAM <- cbind(spreadsheet_IPA[, 2], spreadsheet_IPA[, 4])
         checkpoint_parameter <- TRUE
@@ -183,7 +183,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
   } else {
     print("The IPA spreadsheet was not produced properly!")
   }
-  if (checkpoint_parameter == TRUE) {
+  if (checkpoint_parameter) {
     ##################### Global parameters ######################################
     x0001 <- PARAM[which(PARAM[, 1] == 'PARAM0001'), 2]
     if (length(x0001) == 0) {
@@ -268,19 +268,31 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       }
     }
     ################################## Data ####################################
-    hrms_address_needed <- 0
+    HRMSaddressCheck <- FALSE
+    ##
     if (tolower(x0001) == "yes" | tolower(x0003) == "yes") {
-      hrms_address_needed <- 1
+      HRMSaddressCheck <- TRUE
     }
+    ##
     if (tolower(x0002) == "yes") {
       x0029 <- PARAM[which(PARAM[, 1] == 'PARAM0029'), 2]
       if (length(x0029) > 0) {
         if (tolower(x0029) == "yes") {
-          hrms_address_needed <- 1
+          HRMSaddressCheck <- TRUE
         }
       }
     }
-    if (hrms_address_needed == 1) {
+    ##
+    if (tolower(x0004) == "yes") {
+      x0048 <- PARAM[which(PARAM[, 1] == 'PARAM0048'), 2]
+      if (length(x0048) > 0) {
+        if (tolower(x0048) == "yes") {
+          HRMSaddressCheck <- TRUE
+        }
+      }
+    }
+    ############################################################################
+    if (HRMSaddressCheck) {
       x0007 <- which(PARAM[, 1] == 'PARAM0007')
       if (length(x0007) == 0) {
         print("ERROR!!! Problem with PARAM0007!")
@@ -733,11 +745,13 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     }
     ##
   }
+  ##############################################################################
   if (checkpoint_parameter == FALSE) {
     print("Please visit   https://ipa.idsl.me    for instructions!")
     PARAM <- NULL
   } else {
     print("The spreadsheet is consistent with the IDSL.IPA workflow!")
   }
+  ##
   return(PARAM)
 }

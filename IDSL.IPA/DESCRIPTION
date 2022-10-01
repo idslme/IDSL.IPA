@@ -1,7 +1,7 @@
 Package: IDSL.IPA
 Type: Package
 Title: Intrinsic Peak Analysis (IPA) for HRMS Data
-Version: 2.3
+Version: 2.4
 Authors@R: c(
     person(family = "Fakouri-Baygi", given = "Sadjad", email = "sadjad.fakouri-baygi@mssm.edu",
     role = c("cre","aut"), comment = c(ORCID = "0000-0002-6864-6911")),

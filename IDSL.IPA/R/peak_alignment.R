@@ -67,6 +67,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
     ##
     RT_pl <- NULL
     ##
+    imzRTXcol_main <- imzRTXcol_main[!is.na(imzRTXcol_main[, 3]), ]
     imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
     ##
     if (n_quantile > 1) {
@@ -100,6 +101,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
       ##
       RT_pl <- NULL
       ##
+      imzRTXcol_main <- imzRTXcol_main[!is.na(imzRTXcol_main[, 3]), ]
       imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
       ##
       if (n_quantile > 1) {
@@ -133,6 +135,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
       }
       RT_pl <- NULL
       ##
+      imzRTXcol_main <- imzRTXcol_main[!is.na(imzRTXcol_main[, 3]), ]
       imzRTXcol_main <- imzRTXcol_main[(imzRTXcol_main[, 2] > 0), ]
       ##
       imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]

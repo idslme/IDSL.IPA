@@ -3,7 +3,11 @@ reference_peaks_detector <- function(input_path_peaklist, file_names_peaklist_re
   L_sS <- length(file_names_peaklist_ref)
   ##
   listRefRT <- lapply(file_names_peaklist_ref, function(i) {
-    matrix(loadRdata(paste0(input_path_peaklist, "/", i))[, 3], ncol = 1)
+    RTvec <- loadRdata(paste0(input_path_peaklist, "/", i))[, 3]
+    if (is.na(RTvec[1])) {
+      stop(IPA_logRecorder(paste0("IMPORTANT: `", i, "' CANNOT be a reference file in PARAM0030!")))
+    }
+    RTvec
   })
   ##
   names(listRefRT) <- file_names_peaklist_ref

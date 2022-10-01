@@ -6,5 +6,4 @@ opendir <- function(dir){
   if (osType == "Linux") {
     tryCatch(system(paste(Sys.getenv("R_BROWSER"), dir), ignore.stderr = TRUE), error = function(e){})
   }
-  return()
 }
