@@ -19,7 +19,7 @@ To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), downlo
 
 	IPA_Workflow("Address of the IPA parameter spreadsheet")
 
-Visit [**wiki**](https://github.com/idslme/IDSL.IPA/wiki) to demonstrate how to use `IPA_TargetedAnalysis` function for a large number of peaks (***m/z***-**RT** pairs) with an [example for targeted IDSL.IPA](https://github.com/idslme/IDSL.IPA/wiki/Targeted-IPA), defintion of [Signal to Noise ratio (S/N)](https://github.com/idslme/IDSL.IPA/wiki/Defintion-Signal-to-Noise-Ratio), [nIsoPair/RCS](https://github.com/idslme/IDSL.IPA/wiki/nIsoPair-RCS), and [Chromatogram gap percentage](https://github.com/idslme/IDSL.IPA/wiki/Chromatogram-gaps-percentage-(missing-scans)).
+Visit [**wiki**](https://github.com/idslme/IDSL.IPA/wiki) to demonstrate how to use `IPA_TargetedAnalysis` function for a large number of peaks (***m/z***-**RT** pairs) with an [example for targeted IDSL.IPA](https://github.com/idslme/IDSL.IPA/wiki/Targeted-IPA), [Ion Pairing](https://github.com/idslme/IDSL.IPA/wiki/Ion-Pairing), [Defintion of Signal to Noise ratio (S/N)](https://github.com/idslme/IDSL.IPA/wiki/Defintion-Signal-to-Noise-Ratio), [nIsoPair/RCS](https://github.com/idslme/IDSL.IPA/wiki/nIsoPair-RCS), and [Chromatogram gap percentage](https://github.com/idslme/IDSL.IPA/wiki/Chromatogram-gaps-percentage-(missing-scans)).
 
 Visit https://ipa.idsl.me/ for the detailed documentation and tutorial.
 
