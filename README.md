@@ -17,6 +17,7 @@
 ## Workflow
 To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), download the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx) and select the parameters accordingly and then use this spreadsheet as the input for the IDSL.IPA workflow:
 
+	library(IDSL.IPA)
 	IPA_Workflow("Address of the IPA parameter spreadsheet")
 
 Visit [**wiki**](https://github.com/idslme/IDSL.IPA/wiki) to demonstrate how to use `IPA_TargetedAnalysis` function for a large number of peaks (***m/z***-**RT** pairs) with an [example for targeted IDSL.IPA](https://github.com/idslme/IDSL.IPA/wiki/Targeted-IPA), [Ion Pairing](https://github.com/idslme/IDSL.IPA/wiki/Ion-Pairing), [Defintion of Signal to Noise ratio (S/N)](https://github.com/idslme/IDSL.IPA/wiki/Defintion-Signal-to-Noise-Ratio), [nIsoPair/RCS](https://github.com/idslme/IDSL.IPA/wiki/nIsoPair-RCS), [Ratio of peak width at half-height to peak width at the baseline (RPW)](https://github.com/idslme/IDSL.IPA/wiki/RPW), [Chromatogram gap percentage](https://github.com/idslme/IDSL.IPA/wiki/Chromatogram-gaps-percentage-(missing-scans)), [Peak tailing fronting resolving method](https://github.com/idslme/IDSL.IPA/wiki/Peak-tailing-fronting-resolving), [Peak smoothing](https://github.com/idslme/IDSL.IPA/wiki/Peak-smoothing), [Extra scans](https://github.com/idslme/IDSL.IPA/wiki/Extra-scans), and [Retention time correction](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index).
