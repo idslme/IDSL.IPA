@@ -7,7 +7,7 @@ plot_mz_eic
 plot_mz_eic
 }
 \usage{
-plot_mz_eic(filelist, filelocation, mztarget, mzdelta,
+plot_mz_eic(filelist, filelocation, mzTarget, massAccuracy,
 number_processing_threads = 1, rtstart = 0, rtend = 0, plotTitle = "")
 }
 \arguments{
@@ -17,11 +17,11 @@ filelist
   \item{filelocation}{
 filelocation
 }
-  \item{mztarget}{
-mztarget
+  \item{mzTarget}{
+mzTarget
 }
-  \item{mzdelta}{
-mzdelta
+  \item{massAccuracy}{
+massAccuracy
 }
   \item{number_processing_threads}{
 number of processing threads

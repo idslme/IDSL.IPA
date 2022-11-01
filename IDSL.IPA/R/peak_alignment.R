@@ -1,18 +1,20 @@
-peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol, n_quantile, number_processing_threads = 1) {
+peak_alignment <- function(peaklistInputFolderPath, peaklistFileNames, listCorrectedRTpeaklists, massAccuracy, RTtolerance, noQuantile, number_processing_threads = 1) {
   ##
-  L_PL <- length(file_names_pl)
+  L_PL <- length(peaklistFileNames)
   L_PL2 <- L_PL + 2
   L_PL3 <- L_PL + 3
   ##
-  imzRTXcol_main_call <- function(i) {
-    peaklist <- loadRdata(paste0(input_path_pl, "/", file_names_pl[i]))
-    cbind(rep(i, nrow(peaklist)), peaklist[, 8], RT_pl[[i]], peaklist[, 4], 1:nrow(peaklist))
+  call_mainImzRTXcol <- function(i) {
+    iPeaklistFileName <- paste0(peaklistInputFolderPath, "/", peaklistFileNames[i])
+    peaklist <- loadRdata(iPeaklistFileName)
+    nrowPL <- nrow(peaklist)
+    cbind(rep(i, nrowPL), peaklist[, 8], listCorrectedRTpeaklists[[peaklistFileNames[i]]], peaklist[, 4], seq(1, nrowPL, 1))
   }
   ##
-  FeatureTable_Main_call <- function(q) {
-    x_Q <- which(imzRTXcol_main[, 2] >= MZ_Q_boundaries[q, 1] &
-                   imzRTXcol_main[, 2] <= MZ_Q_boundaries[q, 2])
-    imzRTXcol <- imzRTXcol_main[x_Q, ]
+  call_mainPeakTable <- function(q) {
+    x_Q <- which(mainImzRTXcol[, 2] >= MZ_Q_boundaries[q, 1] &
+                   mainImzRTXcol[, 2] <= MZ_Q_boundaries[q, 2])
+    imzRTXcol <- mainImzRTXcol[x_Q, ]
     imzRTXcol <- imzRTXcol[order(imzRTXcol[, 4], decreasing = TRUE), ]
     N_imzRTXcol <- length(x_Q)
     FeatureTable <- matrix(rep(0, L_PL2*N_imzRTXcol), ncol = L_PL2)
@@ -25,8 +27,8 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
         FeatureTable[counter, 1] <- imzRTXcol[i, 2]
         FeatureTable[counter, 2] <- imzRTXcol[i, 3]
         FeatureTable[counter, (imzRTXcol[i, 1] + 2)] <- imzRTXcol[i, 5]
-        x <- which((abs(imzRTXcol[i, 2] - imzRTXcol[, 2]) <= mz_error) &
-                     (abs(imzRTXcol[i, 3] - imzRTXcol[, 3]) <= rt_tol) &
+        x <- which((abs(imzRTXcol[i, 2] - imzRTXcol[, 2]) <= massAccuracy) &
+                     (abs(imzRTXcol[i, 3] - imzRTXcol[, 3]) <= RTtolerance) &
                      (imzRTXcol[i, 1] != imzRTXcol[, 1]))
         ##
         if (length(x) > 0) {
@@ -61,33 +63,33 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
   ##############################################################################
   if (number_processing_threads == 1) {
     ##
-    imzRTXcol_main <- do.call(rbind, lapply(1:L_PL, function(i) {
-      imzRTXcol_main_call(i)
+    mainImzRTXcol <- do.call(rbind, lapply(1:L_PL, function(i) {
+      call_mainImzRTXcol(i)
     }))
     ##
-    RT_pl <- NULL
+    listCorrectedRTpeaklists <- NULL
     ##
-    imzRTXcol_main <- imzRTXcol_main[!is.na(imzRTXcol_main[, 3]), ]
-    imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
+    mainImzRTXcol <- mainImzRTXcol[!is.na(mainImzRTXcol[, 3]), ]
+    mainImzRTXcol <- mainImzRTXcol[order(mainImzRTXcol[, 2], decreasing = TRUE), ]
     ##
-    if (n_quantile > 1) {
-      MZ_Q <- quantile(imzRTXcol_main[, 2], probs = c(1:n_quantile)/n_quantile)
-      MZ_Q_boundaries <- cbind(c(min(imzRTXcol_main[, 2]), MZ_Q[1:(n_quantile - 1)]), MZ_Q)
-      MZ_Q_boundaries[, 1] <- MZ_Q_boundaries[, 1] - mz_error*1.5
-      MZ_Q_boundaries[, 2] <- MZ_Q_boundaries[, 2] + mz_error*1.5
+    if (noQuantile > 1) {
+      MZ_Q <- quantile(mainImzRTXcol[, 2], probs = c(1:noQuantile)/noQuantile)
+      MZ_Q_boundaries <- cbind(c(min(mainImzRTXcol[, 2]), MZ_Q[1:(noQuantile - 1)]), MZ_Q)
+      MZ_Q_boundaries[, 1] <- MZ_Q_boundaries[, 1] - massAccuracy*1.5
+      MZ_Q_boundaries[, 2] <- MZ_Q_boundaries[, 2] + massAccuracy*1.5
     } else {
-      MZ_Q_boundaries <- matrix(c(min(imzRTXcol_main[, 2]), max(imzRTXcol_main[, 2])), ncol = 2)
+      MZ_Q_boundaries <- matrix(c(min(mainImzRTXcol[, 2]), max(mainImzRTXcol[, 2])), ncol = 2)
     }
     ##
-    FeatureTable_Main <- do.call(rbind, lapply(1:n_quantile, function(q) {
-      FeatureTable_Main_call(q)
+    mainPeakTable <- do.call(rbind, lapply(1:noQuantile, function(q) {
+      call_mainPeakTable(q)
     }))
     ##
-    imzRTXcol_main <- NULL
+    mainImzRTXcol <- NULL
     ##
-    L_FTmain <- dim(FeatureTable_Main)[1]
+    L_FTmain <- dim(mainPeakTable)[1]
     x_s <- do.call(c, lapply(1:L_FTmain, function(i) {
-      length(which(FeatureTable_Main[i, 3:L_PL2] > 0))
+      length(which(mainPeakTable[i, 3:L_PL2] > 0))
     }))
     ##
   } else {
@@ -95,33 +97,33 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
     ##
     if (osType == "Linux") {
       ##
-      imzRTXcol_main <- do.call(rbind, mclapply(1:L_PL, function(i) {
-        imzRTXcol_main_call(i)
+      mainImzRTXcol <- do.call(rbind, mclapply(1:L_PL, function(i) {
+        call_mainImzRTXcol(i)
       }, mc.cores = number_processing_threads))
       ##
-      RT_pl <- NULL
+      listCorrectedRTpeaklists <- NULL
       ##
-      imzRTXcol_main <- imzRTXcol_main[!is.na(imzRTXcol_main[, 3]), ]
-      imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
+      mainImzRTXcol <- mainImzRTXcol[!is.na(mainImzRTXcol[, 3]), ]
+      mainImzRTXcol <- mainImzRTXcol[order(mainImzRTXcol[, 2], decreasing = TRUE), ]
       ##
-      if (n_quantile > 1) {
-        MZ_Q <- quantile(imzRTXcol_main[, 2], probs = c(1:n_quantile)/n_quantile)
-        MZ_Q_boundaries <- cbind(c(min(imzRTXcol_main[, 2]), MZ_Q[1:(n_quantile - 1)]), MZ_Q)
-        MZ_Q_boundaries[, 1] <- MZ_Q_boundaries[, 1] - mz_error*1.5
-        MZ_Q_boundaries[, 2] <- MZ_Q_boundaries[, 2] + mz_error*1.5
+      if (noQuantile > 1) {
+        MZ_Q <- quantile(mainImzRTXcol[, 2], probs = c(1:noQuantile)/noQuantile)
+        MZ_Q_boundaries <- cbind(c(min(mainImzRTXcol[, 2]), MZ_Q[1:(noQuantile - 1)]), MZ_Q)
+        MZ_Q_boundaries[, 1] <- MZ_Q_boundaries[, 1] - massAccuracy*1.5
+        MZ_Q_boundaries[, 2] <- MZ_Q_boundaries[, 2] + massAccuracy*1.5
       } else {
-        MZ_Q_boundaries <- matrix(c(min(imzRTXcol_main[, 2]), max(imzRTXcol_main[, 2])), ncol = 2)
+        MZ_Q_boundaries <- matrix(c(min(mainImzRTXcol[, 2]), max(mainImzRTXcol[, 2])), ncol = 2)
       }
       ##
-      FeatureTable_Main <- do.call(rbind, mclapply(1:n_quantile, function(q) {
-        FeatureTable_Main_call(q)
+      mainPeakTable <- do.call(rbind, mclapply(1:noQuantile, function(q) {
+        call_mainPeakTable(q)
       }, mc.cores = number_processing_threads))
       ##
-      imzRTXcol_main <- NULL
+      mainImzRTXcol <- NULL
       ##
-      L_FTmain <- dim(FeatureTable_Main)[1]
+      L_FTmain <- dim(mainPeakTable)[1]
       x_s <- do.call(c, mclapply(1:L_FTmain, function(i) {
-        length(which(FeatureTable_Main[i, 3:L_PL2] > 0))
+        length(which(mainPeakTable[i, 3:L_PL2] > 0))
       }, mc.cores = number_processing_threads))
       ##
       closeAllConnections()
@@ -130,34 +132,34 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
       cl <- makeCluster(number_processing_threads)
       registerDoParallel(cl)
       ##
-      imzRTXcol_main <- foreach(i = 1:L_PL, .combine = 'rbind', .verbose = FALSE) %dopar% {
-        imzRTXcol_main_call(i)
+      mainImzRTXcol <- foreach(i = 1:L_PL, .combine = 'rbind', .verbose = FALSE) %dopar% {
+        call_mainImzRTXcol(i)
       }
-      RT_pl <- NULL
+      listCorrectedRTpeaklists <- NULL
       ##
-      imzRTXcol_main <- imzRTXcol_main[!is.na(imzRTXcol_main[, 3]), ]
-      imzRTXcol_main <- imzRTXcol_main[(imzRTXcol_main[, 2] > 0), ]
+      mainImzRTXcol <- mainImzRTXcol[!is.na(mainImzRTXcol[, 3]), ]
+      mainImzRTXcol <- mainImzRTXcol[(mainImzRTXcol[, 2] > 0), ]
       ##
-      imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
+      mainImzRTXcol <- mainImzRTXcol[order(mainImzRTXcol[, 2], decreasing = TRUE), ]
       ##
-      if (n_quantile > 1) {
-        MZ_Q <- quantile(imzRTXcol_main[, 2], probs = c(1:n_quantile)/n_quantile)
-        MZ_Q_boundaries <- cbind(c(min(imzRTXcol_main[, 2]), MZ_Q[1:(n_quantile - 1)]), MZ_Q)
-        MZ_Q_boundaries[, 1] <- MZ_Q_boundaries[, 1] - mz_error*1.5
-        MZ_Q_boundaries[, 2] <- MZ_Q_boundaries[, 2] + mz_error*1.5
+      if (noQuantile > 1) {
+        MZ_Q <- quantile(mainImzRTXcol[, 2], probs = c(1:noQuantile)/noQuantile)
+        MZ_Q_boundaries <- cbind(c(min(mainImzRTXcol[, 2]), MZ_Q[1:(noQuantile - 1)]), MZ_Q)
+        MZ_Q_boundaries[, 1] <- MZ_Q_boundaries[, 1] - massAccuracy*1.5
+        MZ_Q_boundaries[, 2] <- MZ_Q_boundaries[, 2] + massAccuracy*1.5
       } else {
-        MZ_Q_boundaries <- matrix(c(min(imzRTXcol_main[, 2]), max(imzRTXcol_main[, 2])), ncol = 2)
+        MZ_Q_boundaries <- matrix(c(min(mainImzRTXcol[, 2]), max(mainImzRTXcol[, 2])), ncol = 2)
       }
       ##
-      FeatureTable_Main <- foreach(q = 1:n_quantile, .combine = 'rbind', .verbose = FALSE) %dopar% {
-        FeatureTable_Main_call(q)
+      mainPeakTable <- foreach(q = 1:noQuantile, .combine = 'rbind', .verbose = FALSE) %dopar% {
+        call_mainPeakTable(q)
       }
       ##
-      imzRTXcol_main <- NULL
+      mainImzRTXcol <- NULL
       ##
-      L_FTmain <- dim(FeatureTable_Main)[1]
+      L_FTmain <- dim(mainPeakTable)[1]
       x_s <- foreach(i = 1:L_FTmain, .combine = 'c', .verbose = FALSE) %dopar% {
-        length(which(FeatureTable_Main[i, 3:L_PL2] > 0))
+        length(which(mainPeakTable[i, 3:L_PL2] > 0))
       }
       ##
       stopCluster(cl)
@@ -165,21 +167,21 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
   }
   ##############################################################################
   ## To resolve redundant peaks in the peak matrix table
-  FeatureTable_Main <- cbind(x_s, FeatureTable_Main)
-  FeatureTable_Main <- FeatureTable_Main[order(FeatureTable_Main[, 1], decreasing = TRUE), ]
+  mainPeakTable <- cbind(x_s, mainPeakTable)
+  mainPeakTable <- mainPeakTable[order(mainPeakTable[, 1], decreasing = TRUE), ]
   ##
   progressBARboundaries <- txtProgressBar(min = 0, max = L_FTmain, initial = 0, style = 3)
   for (i in 1:L_FTmain) {
     setTxtProgressBar(progressBARboundaries, i)
-    if (FeatureTable_Main[i, 1] != 0) {
-      x_c <- which(abs(FeatureTable_Main[i, 2] - FeatureTable_Main[, 2]) <= mz_error &
-                     abs(FeatureTable_Main[i, 3] - FeatureTable_Main[, 3]) <= rt_tol)
+    if (mainPeakTable[i, 1] != 0) {
+      x_c <- which(abs(mainPeakTable[i, 2] - mainPeakTable[, 2]) <= massAccuracy &
+                     abs(mainPeakTable[i, 3] - mainPeakTable[, 3]) <= RTtolerance)
       ##
       if (length(x_c) > 1) {
         x_diff <- setdiff(x_c, i)
-        if (FeatureTable_Main[i, 1] < L_PL) {
+        if (mainPeakTable[i, 1] < L_PL) {
           table_c <- do.call(rbind, lapply(x_c, function(j) {
-            FeatureTable_Main[j, 1:L_PL3]
+            mainPeakTable[j, 1:L_PL3]
           }))
           x_table_main0 <- which(table_c[1, ] == 0)
           for (j in x_table_main0) {
@@ -192,22 +194,22 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
               table_c[1, j] <- table_c[x_non0, j]
             }
           }
-          FeatureTable_Main[i, 4:L_PL3] <- table_c[1, 4:L_PL3]
+          mainPeakTable[i, 4:L_PL3] <- table_c[1, 4:L_PL3]
         }
-        FeatureTable_Main[x_diff, ] <- 0
+        mainPeakTable[x_diff, ] <- 0
       }
     }
   }
   close(progressBARboundaries)
   ##
-  x_non0 <- which(FeatureTable_Main[, 1] != 0)
-  FeatureTable_Main <- FeatureTable_Main[x_non0, ]
-  FeatureTable_Main <- FeatureTable_Main[, -1]
-  rownames(FeatureTable_Main) <- NULL
-  FeatureTable_Main <- FeatureTable_Main[order(FeatureTable_Main[, 1], decreasing = FALSE), ]
+  x_non0 <- which(mainPeakTable[, 1] != 0)
+  mainPeakTable <- mainPeakTable[x_non0, ]
+  mainPeakTable <- mainPeakTable[, -1]
+  rownames(mainPeakTable) <- NULL
+  mainPeakTable <- mainPeakTable[order(mainPeakTable[, 1], decreasing = FALSE), ]
   ##
-  FeatureTable_Main[, 1] <- round(FeatureTable_Main[, 1], digits = 6)
-  FeatureTable_Main[, 2] <- round(FeatureTable_Main[, 2], digits = 4)
+  mainPeakTable[, 1] <- round(mainPeakTable[, 1], digits = 6)
+  mainPeakTable[, 2] <- round(mainPeakTable[, 2], digits = 4)
   ##
-  return(FeatureTable_Main)
+  return(mainPeakTable)
 }

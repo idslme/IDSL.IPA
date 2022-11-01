@@ -7,29 +7,29 @@ sample retention time corrector
 This function calculates corrected retention times for the peaklists.
 }
 \usage{
-sample_rt_corrector(reference_mz_rt_peaks, input_path_peaklist, file_name_peaklist,
-mz_error, rt_correction_method, reference_peak_tol = 1, polynomial_degree = 3)
+sample_rt_corrector(referenceMZRTpeaks, inputPathPeaklist, peaklistFileName,
+massAccuracy, RTcorrectionMethod, refPeakTolerance = 1, degreePolynomial = 3)
 }
 \arguments{
-  \item{reference_mz_rt_peaks}{
+  \item{referenceMZRTpeaks}{
 a matrix of reference peaks for retention time correction.
 }
-  \item{input_path_peaklist}{
+  \item{inputPathPeaklist}{
 input path to peaklist
 }
-  \item{file_name_peaklist}{
+  \item{peaklistFileName}{
 file name peaklist
 }
-  \item{mz_error}{
+  \item{massAccuracy}{
 mass error to detect common reference peaks.
 }
-  \item{rt_correction_method}{
+  \item{RTcorrectionMethod}{
 c('RetentionIndex','Polynomial')
 }
-  \item{reference_peak_tol}{
+  \item{refPeakTolerance}{
 number of reference peaks for retention time correction using the 'RetentionIndex' method.
 }
-  \item{polynomial_degree}{
+  \item{degreePolynomial}{
 polynomial degree for retention time correction using the 'Polynomial' method.
 }
 }

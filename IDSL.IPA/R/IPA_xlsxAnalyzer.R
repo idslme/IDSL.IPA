@@ -240,7 +240,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     } else {
       if (tolower(x0005) == "yes" | tolower(x0005) == "no") {
         if (tolower(x0005) == "yes") {
-          PARAM_targeted <- xlsxAnalyzer_EIC(spreadsheet)
+          PARAM_targeted <- IPA_targeted_xlsxAnalyzer(spreadsheet)
           if (length(PARAM_targeted) == 0) {
             checkpoint_parameter <- FALSE
           }
@@ -362,6 +362,19 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     ##############################################################################
     ####### Pairing 12C/13C isotopologues in individual chromatogram scans #######
     if (tolower(x0001) == "yes") {
+      ##
+      x_EIC <- PARAM[which(PARAM[, 1] == 'PARAM_EIC'), 2]
+      if (length(x_EIC) == 0) {
+        print("ERROR!!! Problem with `PARAM_EIC`!")
+        checkpoint_parameter <- FALSE
+        x_EIC <- 0
+      } else {
+        if (!(tolower(x_EIC) == "yes" | tolower(x_EIC) == "no")) {
+          print("ERROR!!! Problem with `PARAM_EIC`!")
+          checkpoint_parameter <- FALSE
+        }
+      }
+      ##
       x0011 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0011'), 2])
       if (is.na(x0011)) {
         print("ERROR!!! Problem with PARAM0011! This value should be a number greater than or equal to 0 !")
@@ -378,8 +391,8 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("ERROR!!! Problem with PARAM0012!")
         checkpoint_parameter <- FALSE
       } else {
-        massDifferenceIsotopes <- tryCatch(as.numeric(PARAM[x0012, 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
-        PARAM[x0012, 2] <- massDifferenceIsotopes
+        ionMassDifference <- tryCatch(as.numeric(PARAM[x0012, 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
+        PARAM[x0012, 2] <- ionMassDifference
       }
       #################### Chromatographic peak detection ########################
       x0013 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])

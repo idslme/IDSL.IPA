@@ -14,7 +14,7 @@ spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0002")] <-
 # PARAM0003  : Perform gap-filling for the aligned peak table
 spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0003")] <- "YES"
 
-# PARAM0004  :Annotate peaks from individual peaklists using a reference database
+# PARAM0004 : Annotate peaks from individual peaklists using a reference database
 spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0004")] <- "YES"
 
 # PARAMA005 : Employ IPA for targeted analysis (Applicable only for the 'IPA_TargetedAnalysis' module)
@@ -40,6 +40,8 @@ spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0009")] <-
 # PARAM010 : Output location (MS1 processed data)
 spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0010")] <- "E:/MTBLS136/rp_early_pos/"
 
+# PARAM_EIC : Save extracted ion chromatogram (EIC) figures for individual files
+spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM_EIC")] <- "YES"
 
 #######################################################
 ######################  Pairing isotopologues in the mass spectra level

@@ -12,7 +12,6 @@ citEntry("Article",
          pages = "1485-1494",
          PubMedID = "35579321",
          url      = "https://pubs.acs.org/doi/full/10.1021/acs.jproteome.2c00120",
-
          textVersion =
          paste0("Fakouri Baygi et. al.,\n",
                "IDSL.IPA characterizes the organic chemical space in untargeted LC/HRMS datasets\n",

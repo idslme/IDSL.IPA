@@ -7,19 +7,19 @@ XIC
 XIC
 }
 \usage{
-XIC(spectraList.xic, scan_number_start = 1, mz_target, mass_accuracy_xic)
+XIC(spectraListXIC, scanNumberStart = 1, mzTarget, massAccuracyXIC)
 }
 \arguments{
-  \item{spectraList.xic}{
+  \item{spectraListXIC}{
 a list of mass spectra in each chromatogram scan.
 }
-  \item{scan_number_start}{
+  \item{scanNumberStart}{
 the first scan number.
 }
-  \item{mz_target}{
+  \item{mzTarget}{
 an m/z value to perform XIC analysis.
 }
-  \item{mass_accuracy_xic}{
+  \item{massAccuracyXIC}{
 a mass error to perform XIC analysis.
 }
 }

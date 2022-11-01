@@ -7,7 +7,7 @@ m/z - RT Indexer
 This function locate the closest pair of a reference (m/z - RT) pair in a 2-D grid of `m/z` and `RT` vectors.
 }
 \usage{
-mzRTindexer(MZvec, RTvec, MZref, RTref, MZtolerance, RTtolerance)
+mzRTindexer(MZvec, RTvec, MZref, RTref, massAccuracy, RTtolerance)
 }
 \arguments{
   \item{MZvec}{
@@ -22,7 +22,7 @@ a reference m/z
   \item{RTref}{
 a reference RT
 }
-  \item{MZtolerance}{
+  \item{massAccuracy}{
 m/z tolerance
 }
   \item{RTtolerance}{

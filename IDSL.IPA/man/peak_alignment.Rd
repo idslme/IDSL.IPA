@@ -7,26 +7,26 @@ Peak alignment
 This function aligns peaks from multiple peaklists and produce a peak table to find common peaks among multiple samples.
 }
 \usage{
-peak_alignment(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol,
-n_quantile, number_processing_threads = 1)
+peak_alignment(peaklistInputFolderPath, peaklistFileNames, listCorrectedRTpeaklists,
+massAccuracy, RTtolerance, noQuantile, number_processing_threads = 1)
 }
 \arguments{
-  \item{input_path_pl}{
+  \item{peaklistInputFolderPath}{
 path to directory of peaklists.
 }
-  \item{file_names_pl}{
+  \item{peaklistFileNames}{
 name of peaklists for peak table production.
 }
-  \item{RT_pl}{
+  \item{listCorrectedRTpeaklists}{
 a list of corrected or uncorrected retention times for each peaklist.
 }
-  \item{mz_error}{
+  \item{massAccuracy}{
 mass error to detect common peaks.
 }
-  \item{rt_tol}{
+  \item{RTtolerance}{
 retention time tolerance to detect common peaks.
 }
-  \item{n_quantile}{
+  \item{noQuantile}{
 number of total m/z quantiles to split the whole table for faster processing.
 }
   \item{number_processing_threads}{

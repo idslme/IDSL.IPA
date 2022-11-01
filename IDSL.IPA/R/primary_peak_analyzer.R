@@ -1,19 +1,20 @@
-primary_peak_analyzer <- function (spec_scan, index_xic, scan_tol, spectraList, RetentionTime,
-                                   mass_accuracy_xic, smoothing_window, peak_resolving_power, min_nIsoPair,
-                                   min_peak_height, min_ratio_IsoPair, max_rpw, min_snr_baseline,
-                                   max_R13C_integrated_peak, max_percentage_missing_scans, n_spline) {
+primary_peak_analyzer <- function(spectraScan, indexXIC, scanTolerance, spectraList, RetentionTime,
+                                  massAccuracyXIC, smoothingWindow, peakResolvingPower, minNIonPair,
+                                  minPeakHeight, minRatioIonPair, maxRPW, minSNRbaseline,
+                                  maxR13CcumulatedIntensity, maxPercentageMissingScans, nSpline,
+                                  exportEICparameters = NULL) {
   n_RT <- length(RetentionTime)
-  if (min_nIsoPair > 1) {
-    peaklist <- do.call(rbind, lapply(1:length(index_xic), function(i) {
-      x <- index_xic[[i]]
-      A <- spec_scan[x, ]
+  if (minNIonPair > 1) {
+    peaklist <- do.call(rbind, lapply(1:length(indexXIC), function(i) {
+      x <- indexXIC[[i]]
+      A <- spectraScan[x, ]
       mz_interim <- A[1, 1]
       A <- A[order(A[, 3]), ]
-      t1 <- A[1, 3] - scan_tol
+      t1 <- A[1, 3] - scanTolerance
       if (t1 < 1) {
         t1 <- 1
       }
-      t2 <- A[nrow(A), 3] + scan_tol
+      t2 <- A[nrow(A), 3] + scanTolerance
       if (t2 > n_RT) {
         t2 <- n_RT
       }
@@ -23,23 +24,23 @@ primary_peak_analyzer <- function (spec_scan, index_xic, scan_tol, spectraList, 
       if (A[nrow(A), 3] != t2) {
         A <- rbind(A, c(mz_interim, 0, t2, 0, 0))
       }
-      chromatography_analysis(A, smoothing_window, peak_resolving_power, min_nIsoPair, min_peak_height,
-                              min_ratio_IsoPair, max_rpw, min_snr_baseline, max_R13C_integrated_peak,
-                              max_percentage_missing_scans, mz_interim, rt_target = 0,
-                              mass_accuracy_xic, spectraList, RetentionTime, n_spline)
+      chromatographyPeakAnalysis(A, smoothingWindow, peakResolvingPower, minNIonPair, minPeakHeight,
+                                 minRatioIonPair, maxRPW, minSNRbaseline, maxR13CcumulatedIntensity,
+                                 maxPercentageMissingScans, mz_interim, rtTarget = NULL, massAccuracyXIC,
+                                 spectraList, RetentionTime, nSpline, exportEICparameters)
     }))
   } else {
-    peaklist <- do.call(rbind, lapply(1:length(index_xic), function(i) {
-      x <- index_xic[[i]]
-      A <- matrix(spec_scan[x, ], ncol = 5)
+    peaklist <- do.call(rbind, lapply(1:length(indexXIC), function(i) {
+      x <- indexXIC[[i]]
+      A <- matrix(spectraScan[x, ], ncol = 5)
       mz_interim <- A[1, 1]
       A <- A[order(A[, 3]), ]
       A <- matrix(A, ncol = 5)
-      t1 <- A[1, 3] - scan_tol
+      t1 <- A[1, 3] - scanTolerance
       if (t1 < 1) {
         t1 <- 1
       }
-      t2 <- A[nrow(A), 3] + scan_tol
+      t2 <- A[nrow(A), 3] + scanTolerance
       if (t2 > n_RT) {
         t2 <- n_RT
       }
@@ -51,10 +52,10 @@ primary_peak_analyzer <- function (spec_scan, index_xic, scan_tol, spectraList, 
         A <- rbind(A, c(mz_interim, 0, t2, 0, 0))
         A <- matrix(A, ncol = 5)
       }
-      chromatography_analysis(A, smoothing_window, peak_resolving_power, min_nIsoPair, min_peak_height,
-                              min_ratio_IsoPair, max_rpw, min_snr_baseline, max_R13C_integrated_peak,
-                              max_percentage_missing_scans, mz_interim, rt_target = 0,
-                              mass_accuracy_xic, spectraList, RetentionTime, n_spline)
+      chromatographyPeakAnalysis(A, smoothingWindow, peakResolvingPower, minNIonPair, minPeakHeight,
+                                 minRatioIonPair, maxRPW, minSNRbaseline, maxR13CcumulatedIntensity,
+                                 maxPercentageMissingScans, mz_interim, rtTarget = NULL, massAccuracyXIC,
+                                 spectraList, RetentionTime, nSpline, exportEICparameters)
     }))
   }
   return(peaklist)
