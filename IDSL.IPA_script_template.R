@@ -41,7 +41,7 @@ spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0009")] <-
 spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0010")] <- "E:/MTBLS136/rp_early_pos/"
 
 # PARAM_EIC : Save extracted ion chromatogram (EIC) figures for individual files
-spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM_EIC")] <- "YES"
+spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM_EIC")] <- "NO"
 
 #######################################################
 ######################  Pairing isotopologues in the mass spectra level
@@ -185,5 +185,5 @@ spreadsheet$User.provided.input[which(spreadsheet$Parameter.ID=="PARAM0048")] <-
 ######################  RUN IDSL.IPA pipeline
 #######################################################
 
-IDSL.IPA::IPA_Workflow(spreadsheet)
+IDSL.IPA::IPA_workflow(spreadsheet)
 

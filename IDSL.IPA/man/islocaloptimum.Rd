@@ -18,7 +18,7 @@ is a vector of y values.
 A vector in the same size of the vector 'y'. Local minimum and maximum arrays represented by -1 and +1, respectively.
 }
 \examples{
-data(chromatogram_builder)
-int <- chromatogram_builder$SmoothedChromatogram
+data(chromatogramMatrix)
+int <- chromatogramMatrix$smoothChromatogram
 islocaloptimum(int)
 }

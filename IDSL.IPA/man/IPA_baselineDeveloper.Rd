@@ -27,7 +27,7 @@ A vector of baselines in the same size of the "int" vector.
 }
 \examples{
 data(segment)
-data(chromatogram_builder)
-int <- chromatogram_builder$SmoothedChromatogram
+data(chromatogramMatrix)
+int <- chromatogramMatrix$smoothChromatogram
 IPA_baselineDeveloper(segment, int)
 }

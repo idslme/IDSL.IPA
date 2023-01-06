@@ -1,21 +1,20 @@
 Package: IDSL.IPA
 Type: Package
 Title: Intrinsic Peak Analysis (IPA) for HRMS Data
-Version: 2.5
+Version: 2.6
 Authors@R: c(
     person(family = "Fakouri-Baygi", given = "Sadjad", email = "sadjad.fakouri-baygi@mssm.edu",
     role = c("cre","aut"), comment = c(ORCID = "0000-0002-6864-6911")),
     person(family = "Barupal", given = "Dinesh", email = "dinesh.kumar@mssm.edu", role = "aut",
            comment = c(ORCID = "0000-0002-9954-8628")))
 Depends: R (>= 4.0)
-Imports: IDSL.MXP (>= 1.4), doParallel, foreach, readxl
+Imports: IDSL.MXP (>= 1.8), doParallel, foreach, readxl
 Author: Sadjad Fakouri-Baygi [cre, aut] (<https://orcid.org/0000-0002-6864-6911>),
     Dinesh Barupal [aut] (<https://orcid.org/0000-0002-9954-8628>)
 Maintainer: Sadjad Fakouri-Baygi <sadjad.fakouri-baygi@mssm.edu>
-Description: A sophisticated pipeline for processing LC/HRMS data to extract signals of organic compounds. The package performs ion pairing, peak detection, alignment, RT correction, gap filling, peak annotation and visualization of extracted ion chromatograms (EICs) and total ion chromatograms (TICs).
+Description: A multi-layered untargeted pipeline for high-throughput LC/HRMS data processing to extract signals of organic small molecules. The package performs ion pairing, peak detection, peak table alignment, retention time correction, aligned peak table gap filling, peak annotation and visualization of extracted ion chromatograms (EICs) and total ion chromatograms (TICs).
 License: MIT + file LICENSE
-URL: https://ipa.idsl.me,
-        https://github.com/idslme/idsl.ipa
+URL: https://github.com/idslme/idsl.ipa
 BugReports: https://github.com/idslme/idsl.ipa/issues
 Encoding: UTF-8
 LazyData: true

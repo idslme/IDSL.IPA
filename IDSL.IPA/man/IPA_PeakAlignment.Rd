@@ -4,14 +4,14 @@
 IPA peak alignment
 }
 \description{
-This function produce an aligned peak table from individual peaklists.
+This function produces an aligned peak table from individual peaklists.
 }
 \usage{
 IPA_PeakAlignment(PARAM)
 }
 \arguments{
   \item{PARAM}{
-is a data frame from IPA_xlsxAnalyzer function.
+a data frame from the `IPA_xlsxAnalyzer` function.
 }
 }
 \value{

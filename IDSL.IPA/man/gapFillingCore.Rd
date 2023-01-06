@@ -26,7 +26,7 @@ massAccuracy
 RTtolerance
 }
   \item{scanTolerance}{
-scanTolerance
+a scan tolerance to extend the chromatogram for better calculations.
 }
   \item{retentionTimeCorrectionCheck}{
 retentionTimeCorrectionCheck

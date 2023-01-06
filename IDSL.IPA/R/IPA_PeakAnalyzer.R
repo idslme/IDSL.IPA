@@ -1,25 +1,20 @@
 IPA_PeakAnalyzer <- function(PARAM) {
   ##
-  IPA.dir.create <- function(folder) {
-    unlink(folder, recursive = TRUE)
-    dir.create(folder, recursive = TRUE)
-  }
-  ##
   IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
-  peaklist024 <- matrix(rep(NA, 24), ncol = 24)
+  peaklistNA24 <- matrix(rep(NA, 24), nrow = 1)
   ##
   number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
-  if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]) == "all") {
+  samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]
+  if (tolower(samples_string) == "all") {
     file_name_hrms <- dir(path = input_path_hrms)
-    file_name_hrms <- file_name_hrms[grep(paste0(".", tolower(PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]), "$"), file_name_hrms, ignore.case = TRUE)]
+    file_name_hrms <- file_name_hrms[grep(pattern = ".mzML$|.mzXML$|.CDF$", file_name_hrms, ignore.case = TRUE)]
   } else {
-    samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]
-    file_name_hrms <- strsplit(samples_string, ";")[[1]] # files used as reference m/z-RT
+    file_name_hrms <- strsplit(samples_string, ";")[[1]]
   }
-  ##
-  if (length(file_name_hrms) == 0) {
-    stop(IPA_logRecorder("EMPTY HRMS FOLDER!!!"))
+  LHRMS <- length(file_name_hrms)
+  if (LHRMS == 0) {
+    stop(IPA_logRecorder("ERROR!!! EMPTY HRMS FOLDER!!!"))
   }
   ##
   output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
@@ -29,46 +24,57 @@ IPA_PeakAnalyzer <- function(PARAM) {
   }
   opendir(output_path_peaklist)
   ##
-  exportEICcheck <- if (tolower(PARAM[which(PARAM[, 1] == 'PARAM_EIC'), 2]) == "yes") {TRUE} else {FALSE}
+  exportEICcheck <- if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]) == "yes") {TRUE} else {FALSE}
   if (exportEICcheck) {
-    output_path_eics <- paste0(output_path, "/IPA_EIC")
-    if (!dir.exists(output_path_eics)) {
-      dir.create(output_path_eics, recursive = TRUE)
+    ##
+    IPA_dir.create <- function(folder) {
+      tryCatch(unlink(folder, recursive = TRUE), error = function(e) {IPA_logRecorder(paste0("Can't delete `", folder, "`!"))})
+      tryCatch(dir.create(folder, recursive = TRUE), warning = function(w) {NULL})
     }
     ##
-    tryCatch(dev.off(), error = function(e) {Sys.sleep(0.0001)})
+    dev.offCheck <- TRUE
+    while (dev.offCheck) {
+      dev.offCheck <- tryCatch(dev.off(), error = function(e) {FALSE})
+    }
+    ##
+    outputPathEICs <- paste0(output_path, "/IPA_EIC")
+    if (!dir.exists(outputPathEICs)) {
+      dir.create(outputPathEICs, recursive = TRUE)
+    }
   }
-  opendir(output_path_peaklist)
+
   ## To select monoisotopic peaks that have 13C isotopologues in the same scan
-  minSpectraNoiseLevel <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0011'), 2])     # Intensity threshold in each scan
-  ionMassDifference <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
+  minSpectraNoiseLevel <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0011'), 2])         # Intensity threshold in each scan
+  ionMassDifference <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for ion pairs
   #
   if (ionMassDifference <= 1.00336 & ionMassDifference >= 1.00335) {
     IPA_logRecorder("Carbon isotopes are selected for ion pairing!")
   } else {
-    IPA_logRecorder(paste0("Mass difference to pair isotopes are = '", ionMassDifference, " Da'!"))
+    IPA_logRecorder(paste0("Mass difference to pair ions is = `", ionMassDifference, " Da`!"))
   }
   #
-  massAccuracyXIC <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2]) # Mass accuracy to cluster m/z in consecutive scans
-  massAccuracy1.5 <- 1.5*massAccuracyXIC      # Mass accuracy to find 13C isotopologues
+  massAccuracy <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])                # Mass accuracy to cluster m/z in consecutive scans
+  massAccuracy1.5 <- 1.5*massAccuracy                                                   # Mass accuracy to find 13C isotopologues
   RTtolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0014'), 2])           	    # The retention time deviations to detect redundant peaks
   smoothingWindow <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0015'), 2])
   peakResolvingPower <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0017'), 2])
 
-  ## HRMS size reduction
-  powerSpectraReduction <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0018'), 2])
-
-  # Data reduction
-  recursiveMZcorrectionCheck <-  if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0019'), 2]) == "yes") {TRUE} else {FALSE}
+  ## Data reduction
+  recursiveMZcorrectionCheck <- if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0019'), 2]) == "yes") {TRUE} else {FALSE}
   scanTolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0020'), 2])		            # Number of scans to include in the search before and after of boundaries of detected peaks
-  minPeakHeight <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0021'), 2])	    	  # Intensity threshold for peak height
+  minPeakHeight <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0021'), 2])	    	        # Intensity threshold for peak height
+  minPeakHeightXIC <- 0.20*minPeakHeight                                                # Intensity threshold for raw XIC peak clustering
   maxPercentageMissingScans <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0022'), 2])	  # Maximum percentage of missing scans on the raw chromatogram
-  minNIonPair <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0023'), 2])          # Minimum number of scans in each peak
-  minRatioIonPair <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0024'), 2])   # Ratio of number of detected scans per number of available scans (RCS)
-  maxR13CcumulatedIntensity <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0025'), 2])  	      	  # Max ratio of 13C for the integrated spectra
-  maxRPW <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0026'), 2])      	    	  # Peak width at half height to peak width at baseline (RPW)
-  minSNRbaseline <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0027'), 2])     		        # S/N threshold
-  nSpline <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0028'), 2])         		  # Level of peak smoothing to calculate ancillary chromatography parameters
+  minNIonPair <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0023'), 2])                 # Minimum number of scans in each peak
+  minRatioIonPair <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0024'), 2])             # Ratio of number of detected scans per number of available scans (RCS)
+  maxR13CcumulatedIntensity <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0025'), 2])   # Max ratio of 13C for the integrated spectra
+  maxRPW <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0026'), 2])      	          	  # Peak width at half height to peak width at baseline (RPW)
+  minSNRbaseline <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0027'), 2])     		      # S/N threshold
+  nSpline <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0028'), 2])         	      	  # Level of peak smoothing to calculate ancillary chromatography parameters
+  ##
+  if (nSpline == 0) {
+    IPA_logRecorder("NOTICE: Ancillary chromatography parameters are not calculated because `PARAM0028` was selected `0`!")
+  }
   ##
   if (!recursiveMZcorrectionCheck) {
     nSpline1 <- nSpline
@@ -83,77 +89,102 @@ IPA_PeakAnalyzer <- function(PARAM) {
   ##
   ##############################################################################
   ##
-  call_carbon_IPA_parallel <- function(k) {
+  call_IPA_PeakAnalyzer <- function(i) {
     ## To convert mzML/mzXML/CDF datafiles
-    outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[k])
+    outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
     spectraList <- outputer[["spectraList"]]
-    RetentionTime <- outputer[["retentionTime"]]
+    retentionTime <- outputer[["retentionTime"]]
+    outputer <- NULL
+    ## Pending: This is where torch based smoothing, resolution and de-noising can happen. This needs a GPU hardware. How fast a CPU, depends
     ## IPA_IonPairing
     spectraScan <- IPA_IonPairing(spectraList, minSpectraNoiseLevel, massAccuracy1.5, ionMassDifference)
     ## m/z clustering
-    indexXIC <- MZclusteringRAWxic(spectraScan, massAccuracyXIC, minPeakHeight, minNIonPair)
-    ## spectraList size reduction
-    if (powerSpectraReduction > 0) {
-      spectraList <- spectraListRoundingFiltering(spectraScan, spectraList, roundingDigit = powerSpectraReduction)
-    }
+    indexXIC <- mzClusteringRawXIC(spectraScan123 = spectraScan[, 1:3], massAccuracy, minNIonPair, minPeakHeightXIC)
+    ##
+    aggregatedSpectraList <- IPA_spectraListAggregator(spectraList)
+    spectraList <- NULL
     ##
     if (exportEICcheck1) {
-      .GlobalEnv$counterEIC <- 0
-      outputIPAeic <- paste0(output_path_eics, "/", file_name_hrms[k])
-      exportEICparameters1 <- c(outputIPAeic, file_name_hrms[k], "UnTargetedWorkflow")
+      outputIPAeic <- paste0(outputPathEICs, "/", file_name_hrms[i])
+      exportEICparameters <- c(outputIPAeic, file_name_hrms[i], "UnTargetedWorkflow")
       ##
-      IPA.dir.create(outputIPAeic)
+      IPA_dir.create(outputIPAeic)
       ##
     } else {
-      exportEICparameters1 <- NULL
+      exportEICparameters <- NULL
     }
     ## primary peak analyzer
-    peaklist <- primary_peak_analyzer(spectraScan, indexXIC, scanTolerance, spectraList, RetentionTime, massAccuracyXIC,
-                                      smoothingWindow, peakResolvingPower, minNIonPair, minPeakHeight, minRatioIonPair,
-                                      maxRPW, minSNRbaseline, maxR13CcumulatedIntensity, maxPercentageMissingScans, nSpline1,
-                                      exportEICparameters = exportEICparameters1)
+    peaklist <- primaryXICdeconvoluter(spectraScan, scanTolerance, indexXIC, aggregatedSpectraList, retentionTime, massAccuracy,
+                                       smoothingWindow, peakResolvingPower, minNIonPair, minPeakHeight, minRatioIonPair,
+                                       maxRPW, minSNRbaseline, maxR13CcumulatedIntensity, maxPercentageMissingScans, nSpline1,
+                                       exportEICparameters)
+    indexXIC <- NULL
     ## Recursive analysis
     if (recursiveMZcorrectionCheck) {
       if (!is.null(peaklist)) {
         ##
         if (exportEICcheck2) {
-          .GlobalEnv$counterEIC <- 0
-          outputIPAeic <- paste0(output_path_eics, "/", file_name_hrms[k])
-          exportEICparameters2 <- c(outputIPAeic, file_name_hrms[k], "UnTargetedWorkflow")
+          outputIPAeic <- paste0(outputPathEICs, "/", file_name_hrms[i])
+          exportEICparameters <- c(outputIPAeic, file_name_hrms[i], "UnTargetedWorkflow")
           ##
-          IPA.dir.create(outputIPAeic)
+          IPA_dir.create(outputIPAeic)
           ##
         } else {
-          exportEICparameters2 <- NULL
+          exportEICparameters <- NULL
         }
         ##
-        peaklist <- recursive_mass_correction(peaklist, spectraScan, scanTolerance, spectraList, RetentionTime, massAccuracyXIC,
-                                              smoothingWindow, peakResolvingPower, minNIonPair, minPeakHeight, minRatioIonPair,
-                                              maxRPW, minSNRbaseline, maxR13CcumulatedIntensity, maxPercentageMissingScans, nSpline2,
-                                              exportEICparameters = exportEICparameters2)
+        peaklist <- recursiveMZpeaklistCorrector(peaklist, spectraScan, scanTolerance, aggregatedSpectraList, retentionTime, massAccuracy,
+                                                 smoothingWindow, peakResolvingPower, minNIonPair, minPeakHeight, minRatioIonPair,
+                                                 maxRPW, minSNRbaseline, maxR13CcumulatedIntensity, maxPercentageMissingScans, nSpline2,
+                                                 exportEICparameters)
       }
     }
+    aggregatedSpectraList <- NULL
+    spectraScan <- NULL
+    ##
+    ############################################################################
     ##
     if (!is.null(peaklist)) {
-      if (length(peaklist) > 24) {
-        ## Sort candidate m/z values by intensity
-        orderINTpeaklist <- order(peaklist[, 4], decreasing = TRUE)
-        ## To remove repeated peaks
-        peaklistSubset <- cbind(peaklist[, 8], peaklist[, 3], peaklist[, 6])
-        for (j in orderINTpeaklist) {
-          x_mz_rt <- which((abs(peaklistSubset[, 1] - peaklistSubset[j, 1]) <= massAccuracyXIC) &
-                             (abs(peaklistSubset[, 2] - peaklistSubset[j, 2]) <= RTtolerance))
-          if (length(x_mz_rt) > 1) {
-            x_max <- which.max(peaklistSubset[x_mz_rt, 3])
-            xRemove <- x_mz_rt[-x_max[1]]
-            peaklistSubset[xRemove, ] <- rep(0, 3)
+      ##
+      peaklist <- matrix(peaklist, ncol = 24)
+      nPeaks <- nrow(peaklist)
+      if (nPeaks > 1) {
+        ##
+        ########################################################################
+        ## Sort candidate m/z values by the mass
+        peaklist <- peaklist[order(peaklist[, 8], decreasing = FALSE), ]
+        ## To remove similar or redundant peaks
+        xDiffQ <- c(0, which(diff(peaklist[, 8]) > massAccuracy), nPeaks)
+        LxDiffQ <- length(xDiffQ) - 1
+        ##
+        for (q in 1:LxDiffQ) {
+          xQ <- seq((xDiffQ[q] + 1), xDiffQ[q + 1], 1)
+          ## To sort candidate m/z values by intensity
+          xQ <- xQ[order(peaklist[xQ, 4], decreasing = TRUE)]
+          ##
+          for (j in xQ) {
+            if (peaklist[j, 1] != 0) {
+              xMZRT <- which((abs(peaklist[xQ, 8] - peaklist[j, 8]) <= massAccuracy) &
+                               (abs(peaklist[xQ, 3] - peaklist[j, 3]) <= RTtolerance))
+              if (length(xMZRT) > 1) {
+                xMZRT <- xQ[xMZRT]
+                xMax <- which.max(peaklist[xMZRT, 6])
+                xRemove <- xMZRT[-xMax[1]]
+                peaklist[xRemove, ] <- 0
+              }
+            }
           }
         }
-        xEICpng  <- which(peaklistSubset[, 3] > 0)
-        peaklist <- matrix(peaklist[xEICpng, ], ncol = 24)
-        ## Sort candidate m/z values by the mass
-        order12MZpeaklist <- order(peaklist[, 8], decreasing = FALSE)
-        peaklist <- matrix(peaklist[order12MZpeaklist, ], ncol = 24)
+        xNon0  <- which(peaklist[, 1] > 0)
+        nPeaks <- length(xNon0)
+        peaklist <- peaklist[xNon0, ]
+        ##
+        if (nPeaks == 1) {
+          peaklist <- matrix(peaklist, nrow = 1)
+        }
+        ##
+        ########################################################################
+        ##
       }
       ##
       peaklist[, 3] <- round(peaklist[, 3], 3) ## Retention Time Apex
@@ -178,73 +209,81 @@ IPA_PeakAnalyzer <- function(PARAM) {
       peaklist[, 23] <- round(peaklist[, 23], 3) ## S/N RMS
       peaklist[, 24] <- round(peaklist[, 24], 0) ## Sharpness
       ##
-      if (exportEICcheck) {
-        ##
-        xEICpng <- xEICpng[order12MZpeaklist]
-        ##
-        PNGdir <- dir(path = outputIPAeic, pattern = ".png")
-        strPNGdir <- strsplit(PNGdir, "_")
-        ##
-        idPNG <- do.call(c, lapply(strPNGdir, function(j) {
-          j[length(j) - 5]
-        }))
-        idPNG <- as.numeric(idPNG)
-        PNGdir <- PNGdir[order(idPNG, decreasing = FALSE)]
-        ##
-        jCounter <- 0
-        for (j in xEICpng) {
-          jCounter <- jCounter + 1
-          oldEICname <- paste0(outputIPAeic, "/", PNGdir[j])
-          newEICname <- paste0(outputIPAeic, "/IPA_EIC_", file_name_hrms[k], "_PeakID_", jCounter, "_MZ_", peaklist[jCounter, 8], "_RT_", peaklist[jCounter, 3], "_.png")
-          file.rename(from = oldEICname, to = newEICname)
-        }
-        ##
-        lRAWpeaklist <- length(orderINTpeaklist)
-        xRemovePNG <- setdiff(seq(1, lRAWpeaklist, 1), xEICpng)
-        if (length(xRemovePNG) > 0) {
-          for (j in xRemovePNG) {
-            unlink(paste0(outputIPAeic, "/", PNGdir[j]))
-          }
-        }
-      }
+    } else {
       ##
-    }else {
-      peaklist <- peaklist024
+      peaklist <- peaklistNA24
+      nPeaks <- 1
     }
     ##
-    colnames(peaklist) <- c("ScanNumberStart","ScanNumberEnd","RetentionTimeApex","PeakHeight","PeakArea",
-                            "NumberDetectedScans(nIsoPair)","RCS(%)","m/z 12C","CumulatedIntensity",
-                            "m/z 13C","Ratio 13C CumulatedIntensity","PeakWidthBaseline","Ratio PeakWidth @ 50%",
-                            "SeparationTray","AsymmetryFactor @ 10%","USPTailingFactor @ 5%",
+    colnames(peaklist) <- c("ScanNumberStart","ScanNumberEnd","retentionTimeApex","PeakHeight","PeakArea",
+                            "NumberDetectedScans(nIsoPair)","RCS(%)","m/z 12C","CumulatedIntensity", "m/z 13C",
+                            "Ratio13C CumulatedIntensity","PeakWidthBaseline","RatioPeakWidth @ 50%",
+                            "SeparationTray","peakAsymmetryFactor @ 10%","peakUSPtailingFactor @ 5%",
                             "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
                             "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
     ##
-    save(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".Rdata"))
-    write.csv(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".csv"), row.names = FALSE)
+    save(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
+    write.csv(peaklist, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".csv"), row.names = TRUE)
+    ##
+    ############################################################################
+    ## To rename EICs according to their peak iDs in individual peaklists
+    if (exportEICcheck & (!is.na(peaklist[1, 1]))) {
+      ##
+      cantRenameFiles <- do.call(c, lapply(1:nPeaks, function(j) {
+        untargetedEICfilename <- paste0("IPA_EIC_", exportEICparameters[2], "_", exportEICparameters[3], "_MZ_", peaklist[j, 8], "_RT_", peaklist[j, 3], "_.png")
+        oldEICfilename <- paste0(exportEICparameters[1], "/", untargetedEICfilename)
+        newEICfilename <- paste0(exportEICparameters[1], "/IPA_EIC_", exportEICparameters[2], "_", j, "_MZ_", peaklist[j, 8], "_RT_", peaklist[j, 3], "_.png")
+        renameCheck <- tryCatch(file.rename(from = oldEICfilename, to = newEICfilename), error = function(e) {FALSE}, warning = function(w) {FALSE})
+        if (!renameCheck) {
+          untargetedEICfilename
+        }
+      }))
+      ##
+      PNGdir <- dir(path = exportEICparameters[1], pattern = ".png$")
+      ##
+      if (!is.null(cantRenameFiles)) {
+        PNGdir <- setdiff(PNGdir, cantRenameFiles)
+      }
+      ##
+      xRemovePNG <- grep(exportEICparameters[3], PNGdir)
+      if (length(xRemovePNG) > 0) {
+        for (j in xRemovePNG) {
+          tryCatch(unlink(paste0(exportEICparameters[1], "/", PNGdir[j])), error = function(e){NULL})
+        }
+      }
+    }
+    ##
+    ############################################################################
     ##
     return()
   }
+  ##
+  ##############################################################################
   ##
   IPA_logRecorder("Initiated HRMS peak detection!")
   IPA_logRecorder("Individual peaklists are stored in `.Rdata` and `.csv` formats in the `peaklist` folder!")
   if (exportEICcheck) {
     IPA_logRecorder("Extracted ion chromatogram (EIC) figures for the detected ions are stored in the `IPA_EICs` folder!")
-    IPA_logRecorder("NOTICE: Please DO NOT open EIC figures and folders until the run is completed since at the end EIC figures are renamed according to their peak IDs in the peaklist files!")
+    IPA_logRecorder("NOTICE: Please DO NOT open EIC figures until the run is completed because EIC figures will be renamed according to their peak IDs in the peaklist files at the end of the run!")
   }
+  ##
+  ##############################################################################
   ##
   if (number_processing_threads == 1) {
     ##
-    progressBARboundaries <- txtProgressBar(min = 0, max = length(file_name_hrms), initial = 0, style = 3)
+    progressBARboundaries <- txtProgressBar(min = 0, max = LHRMS, initial = 0, style = 3)
     ##
-    for (k in 1:length(file_name_hrms)) {
-      Null_variable <- tryCatch(call_carbon_IPA_parallel(k),
-                                error = function(e) {save(peaklist024, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".Rdata"))
-                                  IPA_logRecorder(paste0("Problem with `", file_name_hrms[k],"`!"))})
+    for (i in 1:LHRMS) {
+      Null_variable <- tryCatch(call_IPA_PeakAnalyzer(i),
+                                error = function(e) {save(peaklistNA24, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
+                                  IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
       ##
-      setTxtProgressBar(progressBARboundaries, k)
+      setTxtProgressBar(progressBARboundaries, i)
     }
     ##
     close(progressBARboundaries)
+    ##
+    ############################################################################
     ##
   } else {
     ## Processing OS
@@ -252,33 +291,40 @@ IPA_PeakAnalyzer <- function(PARAM) {
     ##
     if (osType == "Linux") {
       ##
-      Null_variable <- do.call(rbind, mclapply(1:length(file_name_hrms), function(k) {
-        tryCatch(call_carbon_IPA_parallel(k),
-                 error = function(e) {save(peaklist024, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".Rdata"))
-                   IPA_logRecorder(paste0("Problem with `", file_name_hrms[k],"`!"))})
+      Null_variable <- do.call(rbind, mclapply(1:LHRMS, function(i) {
+        tryCatch(call_IPA_PeakAnalyzer(i),
+                 error = function(e) {save(peaklistNA24, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
+                   IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
       }, mc.cores = number_processing_threads))
       ##
       closeAllConnections()
+      ##
+      ##########################################################################
       ##
     } else if (osType == "Windows") {
       clust <- makeCluster(number_processing_threads)
       registerDoParallel(clust)
       ##
-      Null_variable <- foreach(k = 1:length(file_name_hrms), .combine = 'rbind', .verbose = FALSE) %dopar% {
-        tryCatch(call_carbon_IPA_parallel(k),
-                 error = function(e) {save(peaklist024, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[k], ".Rdata"))
-                   IPA_logRecorder(paste0("Problem with `", file_name_hrms[k],"`!"))})
+      Null_variable <- foreach(i = 1:LHRMS, .combine = 'rbind', .verbose = FALSE) %dopar% {
+        tryCatch(call_IPA_PeakAnalyzer(i),
+                 error = function(e) {save(peaklistNA24, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
+                   IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
       }
       stopCluster(clust)
       ##
     }
   }
   ##
+  ##############################################################################
+  ##
   if (exportEICcheck) {
-    opendir(output_path_eics)
+    opendir(outputPathEICs)
   }
   ##
   IPA_logRecorder("Completed HRMS peak detection!")
   IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
+  ##
+  ##############################################################################
+  ##
   return()
 }

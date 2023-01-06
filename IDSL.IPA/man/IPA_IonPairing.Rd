@@ -4,10 +4,10 @@
 IPA Ion Pairing
 }
 \description{
-This function pairs two ions in high-resolution mass spectral datasets
+This function pairs two ions with a fixed distance in high-resolution mass spectral datasets
 }
 \usage{
-IPA_IonPairing(spectraList, minSpectraNoiseLevel, massAccuracyIonPair,
+IPA_IonPairing(spectraList, minSpectraNoiseLevel, massAccuracyIonPair = 0.015,
 ionMassDifference = 1.003354835336)
 }
 \arguments{

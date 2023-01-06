@@ -9,25 +9,25 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       print("ERROR!!! Problem with PARAM0029!")
       checkpoint_parameter <- FALSE
     } else {
-      FA0029 <- tolower(PARAM[x0029, 2])
-      if ((FA0029 == "yes") | (FA0029 == "no")) {
-        PARAM[x0029, 2] <- FA0029
+      RTcorrectionCheck <- tolower(PARAM[x0029, 2])
+      if ((RTcorrectionCheck == "yes") | (RTcorrectionCheck == "no")) {
+        PARAM[x0029, 2] <- RTcorrectionCheck
       } else {
         print("ERROR!!! Problem with PARAM0029!")
         checkpoint_parameter <- FALSE
       }
     }
-    if (FA0029 == "yes") {
+    if (RTcorrectionCheck == "yes") {
       ##
       x0007 <- which(PARAM[, 1] == 'PARAM0007')
       if (length(x0007) == 0) {
         print("ERROR!!! Problem with PARAM0007!")
         checkpoint_parameter <- FALSE
       } else {
-        address_hrms <- PARAM[x0007, 2]
-        address_hrms <- gsub("\\", "/", address_hrms, fixed = TRUE)
-        PARAM[x0007, 2] <- address_hrms
-        if (!dir.exists(address_hrms)) {
+        input_path_hrms <- PARAM[x0007, 2]
+        input_path_hrms <- gsub("\\", "/", input_path_hrms, fixed = TRUE)
+        PARAM[x0007, 2] <- input_path_hrms
+        if (!dir.exists(input_path_hrms)) {
           print("ERROR!!! Problem with PARAM0007! Please make sure the full path is provided!")
           checkpoint_parameter <- FALSE
         }
@@ -40,7 +40,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       } else {
         Ref_name <- strsplit(reference_samples_string, ";")[[1]] # files used as reference m/z-RT
         Ref_ID <- sapply(1:length(Ref_name), function(i) {
-          ID_name <- paste0(address_hrms, "/", Ref_name[i])
+          ID_name <- paste0(input_path_hrms, "/", Ref_name[i])
           as.numeric(file.exists(ID_name))
         })
         x_Ref_ID <- which(Ref_ID == 0)
@@ -59,14 +59,17 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         checkpoint_parameter <- FALSE
       }
       ##
-      x0032 <- PARAM[which(PARAM[, 1] == 'PARAM0032'), 2]
+      x0032 <- which(PARAM[, 1] == 'PARAM0032')
       if (is.na(x0032)) {
         print("ERROR!!! Problem with PARAM0032!")
         checkpoint_parameter <- FALSE
       } else {
-        if (!(gsub(" ", "", tolower(x0032)) == "polynomial" | gsub(" ", "", tolower(x0032)) == "retentionindex")) {
+        RTcorrectionMethod <- tolower(gsub(" ", "", PARAM[x0032, 2]))
+        if (!((RTcorrectionMethod == "polynomial") | (RTcorrectionMethod == "retentionindex"))) {
           print("ERROR!!! Problem with PARAM0032!")
           checkpoint_parameter <- FALSE
+        } else {
+          PARAM[x0032, 2] <- RTcorrectionMethod
         }
       }
       ##
@@ -114,7 +117,6 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
               }
             }
           }
-          ##
         }
       }
     }
@@ -138,22 +140,6 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       if (x0036 <= 0) {
         print("ERROR!!! Problem with PARAM0036! This parameter should be greater than 0 !")
         checkpoint_parameter <- FALSE
-      }
-    }
-    ##
-    x0037 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0037'), 2])
-    if (is.na(x0037)) {
-      print("ERROR!!! Problem with PARAM0037! This parameter should be a positive integer greater than or equal to 2 !")
-      checkpoint_parameter <- FALSE
-    } else {
-      if (x0037 < 1) {
-        print("ERROR!!! Problem with PARAM0037! This parameter should be a positive integer greater than or equal to 2 !")
-        checkpoint_parameter <- FALSE
-      } else {
-        if ((x0037 %% 1) != 0) {
-          print("ERROR!!! Problem with PARAM0037! This parameter should be a positive integer greater than or equal to 2 !")
-          checkpoint_parameter <- FALSE
-        }
       }
     }
     ##
@@ -184,7 +170,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     print("The IPA spreadsheet was not produced properly!")
   }
   if (checkpoint_parameter) {
-    ##################### Global parameters ######################################
+    ##################### Global parameters ####################################
     x0001 <- PARAM[which(PARAM[, 1] == 'PARAM0001'), 2]
     if (length(x0001) == 0) {
       print("ERROR!!! Problem with PARAM0001!")
@@ -250,7 +236,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         checkpoint_parameter <- FALSE
       }
     }
-    # print("WARNING!!! IPA Targeted Analysis was selected in PARAM0005! You may use the targeted analysis only with the 'IPA_TargetedAnalysis' module!")
+    # print("WARNING!!! IPA Targeted Analysis was selected in PARAM0005! You may use the targeted analysis only with the 'IPA_targeted' module!")
     ##
     x0006 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
     if (length(x0006) == 0) {
@@ -298,10 +284,10 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("ERROR!!! Problem with PARAM0007!")
         checkpoint_parameter <- FALSE
       } else {
-        address_hrms <- PARAM[x0007, 2]
-        address_hrms <- gsub("\\", "/", address_hrms, fixed = TRUE)
-        PARAM[x0007, 2] <- address_hrms
-        if (!dir.exists(address_hrms)) {
+        input_path_hrms <- PARAM[x0007, 2]
+        input_path_hrms <- gsub("\\", "/", input_path_hrms, fixed = TRUE)
+        PARAM[x0007, 2] <- input_path_hrms
+        if (!dir.exists(input_path_hrms)) {
           print("ERROR!!! Problem with PARAM0007! Please make sure the full path is provided!")
           checkpoint_parameter <- FALSE
         }
@@ -312,34 +298,41 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("ERROR!!! Problem with PARAM0008!")
         checkpoint_parameter <- FALSE
       } else {
-        if (tolower(PARAM[x0008, 2]) != "all") {
+        if (tolower(PARAM[x0008, 2]) == "all") {
+          file_name_hrms <- dir(path = input_path_hrms)
+          file_name_hrms <- file_name_hrms[grep(pattern = ".mzML$|.mzXML$|.CDF$", file_name_hrms, ignore.case = TRUE)]
+          if (length(file_name_hrms) == 0) {
+            print("ERROR!!! Problem with PARAM0008! No mzML/mzXML/CDF file was detected in the folder!")
+          }
+        } else {
           samples_string <- PARAM[x0008, 2]
-          name <- strsplit(samples_string, ";")[[1]] # files used to detect reference m/z-RT peaks
-          ID <- sapply(1:length(name), function(i) {
-            ID_name <- paste0(address_hrms, "/", name[i])
+          file_name_hrms <- strsplit(samples_string, ";")[[1]]
+          ID <- sapply(1:length(file_name_hrms), function(i) {
+            ID_name <- paste0(input_path_hrms, "/", file_name_hrms[i])
             as.numeric(file.exists(ID_name))
           })
           x_ID <- which(ID == 0)
           if (length(x_ID) > 0) {
             print("ERROR!!! Problem with PARAM0008! not detected the following file(s) (case sensitive even for file extensions):")
-            for (i in 1:length(x_ID)) {
-              print(name[x_ID[i]])
+            for (i in x_ID) {
+              print(file_name_hrms[i])
             }
             checkpoint_parameter <- FALSE
           }
         }
-        ##
-        if (tolower(PARAM[x0008, 2]) == "all") {
-          x0009 <- PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]
-          if (is.na(x0009)) {
-            print("ERROR!!! Problem with PARAM0009!")
-            checkpoint_parameter <- FALSE
-          } else {
-            if (!(tolower(x0009) == "mzml" | tolower(x0009) == "mzxml" | tolower(x0009) == "cdf")) {
-              print("ERROR!!! Problem with PARAM0009! HRMS data are incompatible!")
-              checkpoint_parameter <- FALSE
-            }
-          }
+      }
+    }
+    ##
+    if (tolower(x0001) == "yes") {
+      exportEICcheck <- PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]
+      if (length(exportEICcheck) == 0) {
+        print("ERROR!!! Problem with `PARAM0009`!")
+        checkpoint_parameter <- FALSE
+        exportEICcheck <- 0
+      } else {
+        if (!(tolower(exportEICcheck) == "yes" | tolower(exportEICcheck) == "no")) {
+          print("ERROR!!! Problem with `PARAM0009`!")
+          checkpoint_parameter <- FALSE
         }
       }
     }
@@ -358,22 +351,10 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         }
       }
     }
-    ######################### Peaklist production ################################
-    ##############################################################################
-    ####### Pairing 12C/13C isotopologues in individual chromatogram scans #######
+    ######################## Peaklist production ###############################
+    ############################################################################
+    ###### Pairing 12C/13C isotopologues in individual chromatogram scans ######
     if (tolower(x0001) == "yes") {
-      ##
-      x_EIC <- PARAM[which(PARAM[, 1] == 'PARAM_EIC'), 2]
-      if (length(x_EIC) == 0) {
-        print("ERROR!!! Problem with `PARAM_EIC`!")
-        checkpoint_parameter <- FALSE
-        x_EIC <- 0
-      } else {
-        if (!(tolower(x_EIC) == "yes" | tolower(x_EIC) == "no")) {
-          print("ERROR!!! Problem with `PARAM_EIC`!")
-          checkpoint_parameter <- FALSE
-        }
-      }
       ##
       x0011 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0011'), 2])
       if (is.na(x0011)) {
@@ -394,14 +375,14 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         ionMassDifference <- tryCatch(as.numeric(PARAM[x0012, 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
         PARAM[x0012, 2] <- ionMassDifference
       }
-      #################### Chromatographic peak detection ########################
-      x0013 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])
-      if (is.na(x0013)) {
+      #################### Chromatographic peak detection ######################
+      massAccuracy <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])
+      if (is.na(massAccuracy)) {
         print("ERROR!!! Problem with PARAM0013!")
         checkpoint_parameter <- FALSE
       } else {
-        if (x0013 <= 0) {
-          print("ERROR!!! Problem with PARAM0013! This value should be a positive number!")
+        if (massAccuracy > 0.01) {
+          print("ERROR!!! Problem with PARAM0013! Mass accuracy must be below `0.01 Da`")
           checkpoint_parameter <- FALSE
         }
       }
@@ -428,17 +409,6 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         }
       }
       ##
-      # x0016 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0016'), 2])
-      # if (is.na(x0016)) {
-      #   print("ERROR!!! Problem with PARAM0016! This parameter should be a positive integer!")
-      #   checkpoint_parameter <- FALSE
-      # } else {
-      #   if (x0016 <= 0) {
-      #     print("ERROR!!! Problem with PARAM0016! This parameter should be a positive integer!")
-      #     checkpoint_parameter <- FALSE
-      #   }
-      # }
-      ##
       x0017 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0017'), 2])
       if (is.na(x0017)) {
         print("ERROR!!! Problem with PARAM0017! This value should be a positive number between 0-0.05 !")
@@ -449,23 +419,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
           checkpoint_parameter <- FALSE
         }
       }
-      ##
-      x0018 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0018'), 2])
-      if (is.na(x0018)) {
-        print("ERROR!!! Problem with PARAM0018! This parameter should be a positive integer!")
-        checkpoint_parameter <- FALSE
-      } else {
-        if (x0018 < 0) {
-          print("ERROR!!! Problem with PARAM0018! This parameter should be a positive integer!")
-          checkpoint_parameter <- FALSE
-        } else {
-          if ((x0018 %% 1) != 0) {
-            print("ERROR!!! Problem with PARAM0018! This parameter should be a positive integer!")
-            checkpoint_parameter <- FALSE
-          }
-        }
-      }
-      ############### Peak quality measurement and data reduction ###################
+      ############# Peak quality measurement and data reduction ################
       x0019 <- PARAM[which(PARAM[, 1] == 'PARAM0019'), 2]
       if (is.na(x0019)) {
         print("ERROR!!! Problem with PARAM0019!")
@@ -477,22 +431,18 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         }
       }
       ##
-      if (!is.na(x0019)) {
-        if (tolower(x0019) == "yes") {
-          x0020 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0020'), 2])
-          if (is.na(x0020)) {
+      x0020 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0020'), 2])
+      if (is.na(x0020)) {
+        print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
+        checkpoint_parameter <- FALSE
+      } else {
+        if (x0020 <= 0) {
+          print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
+          checkpoint_parameter <- FALSE
+        } else {
+          if ((x0020 %% 1) != 0) {
             print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
             checkpoint_parameter <- FALSE
-          } else {
-            if (x0020 <= 0) {
-              print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
-              checkpoint_parameter <- FALSE
-            } else {
-              if ((x0020 %% 1) != 0) {
-                print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
-                checkpoint_parameter <- FALSE
-              }
-            }
           }
         }
       }
@@ -578,13 +528,71 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         }
       }
     }
-    ############## RT correction and peak alignment table production #############
+    ############# RT correction and peak alignment table production ############
     if (tolower(x0002) == "yes") {
       RT_correction_checkList <- RT_correction_check(checkpoint_parameter, PARAM)
       checkpoint_parameter <- RT_correction_checkList[[1]]
       PARAM <- RT_correction_checkList[[2]]
+      ##
+      maxRedundantPeakFlagging <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0037'), 2])
+      if (is.na(maxRedundantPeakFlagging)) {
+        print("ERROR!!! Problem with PARAM0037! This parameter should be between 0-1!")
+        checkpoint_parameter <- FALSE
+      } else {
+        if (maxRedundantPeakFlagging < 0 | maxRedundantPeakFlagging > 100) {
+          print("ERROR!!! Problem with PARAM0037! This parameter should be between 0-1!")
+          checkpoint_parameter <- FALSE
+        }
+      }
+      ##
+      xALG1 <- which(PARAM[, 1] == 'PARAM_ALG1')
+      if (is.na(xALG1)) {
+        print("ERROR!!! Problem with `PARAM_ALG1`!")
+        checkpoint_parameter <- FALSE
+      } else {
+        correlationMethod <- tolower(gsub(" ", "", PARAM[xALG1, 2]))
+        if (!(correlationMethod == "pearson") | (correlationMethod == "spearman")) {
+          print("ERROR!!! Problem with `PARAM_ALG1`!")
+          checkpoint_parameter <- FALSE
+        } else {
+          PARAM[xALG1, 2] <- correlationMethod
+        }
+      }
+      ##
+      minThresholdCorrelation <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG2'), 2])
+      if (is.na(minThresholdCorrelation)) {
+        print("ERROR!!! Problem with 'PARAM_ALG2'! This parameter should be between 0-1!")
+        checkpoint_parameter <- FALSE
+      } else {
+        if (minThresholdCorrelation < 0.5 | minThresholdCorrelation > 1) {
+          print("ERROR!!! Problem with 'PARAM_ALG2'! This parameter should be between 0-1!")
+          checkpoint_parameter <- FALSE
+        }
+      }
+      ##
+      minFreqDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG3'), 2])
+      if (is.na(minFreqDetection)) {
+        print("ERROR!!! Problem with 'PARAM_ALG3'! This parameter should be equal or greater than 3!")
+        checkpoint_parameter <- FALSE
+      } else {
+        if (minFreqDetection < 3) {
+          print("ERROR!!! Problem with 'PARAM_ALG3'! This parameter should be equal or greater than 3!")
+          checkpoint_parameter <- FALSE
+        }
+      }
+      ##
+      minPercentageDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG4'), 2])
+      if (is.na(minPercentageDetection)) {
+        print("ERROR!!! Problem with 'PARAM_ALG4'! This parameter should be between 0-100%!")
+        checkpoint_parameter <- FALSE
+      } else {
+        if (minPercentageDetection < 0 | minPercentageDetection > 100) {
+          print("ERROR!!! Problem with 'PARAM_ALG4'! This parameter should be between 0-100%!")
+          checkpoint_parameter <- FALSE
+        }
+      }
     }
-    ############################## Gap-filling ###################################
+    ############################# Gap-filling ##################################
     gapfilling_check <- function(checkpoint_parameter, PARAM) {
       x0038 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0038'), 2])
       if (is.na(x0038)) {
@@ -628,7 +636,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     if (tolower(x0003) == "yes") {
       checkpoint_parameter <- gapfilling_check(checkpoint_parameter, PARAM)
     }
-    ##############################################################################
+    ############################################################################
     if (tolower(x0004) == "yes") {
       address_ref <- PARAM[which(PARAM[, 1] == 'PARAM0041'), 2] ## x0041
       if (is.na(address_ref)) {
@@ -759,8 +767,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     ##
   }
   ##############################################################################
-  if (checkpoint_parameter == FALSE) {
-    print("Please visit   https://ipa.idsl.me    for instructions!")
+  if (!checkpoint_parameter) {
     PARAM <- NULL
   } else {
     print("The spreadsheet is consistent with the IDSL.IPA workflow!")

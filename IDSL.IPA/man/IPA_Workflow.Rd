@@ -36,7 +36,7 @@ download.file(paste0("https://github.com/idslme/IDSL.IPA/blob/main/",
 destfile = temp_wd_zip, mode = "wb")
 unzip(temp_wd_zip, exdir = temp_wd)
 spreadsheet[7, 4] <- temp_wd
-spreadsheet[41, 4] <- s_path
+spreadsheet[43, 4] <- s_path
 spreadsheet[10, 4] <- temp_wd
 IPA_workflow(spreadsheet)
 }

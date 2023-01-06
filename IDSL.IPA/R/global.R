@@ -1,1 +1,1 @@
-utils::globalVariables(c("i", "j", "counterEIC", "logIPA"))
+utils::globalVariables(c("i", "j", ".logIPA"))

@@ -7,19 +7,22 @@ XIC
 XIC
 }
 \usage{
-XIC(spectraListXIC, scanNumberStart = 1, mzTarget, massAccuracyXIC)
+XIC(aggregatedSpectraList, scanNumberStart, scanNumberEnd, mzTarget, massAccuracy)
 }
 \arguments{
-  \item{spectraListXIC}{
-a list of mass spectra in each chromatogram scan.
+  \item{aggregatedSpectraList}{
+aggregated spectraList and spectra matrix from the `IPA_spectraListAggregator` module
 }
   \item{scanNumberStart}{
 the first scan number.
 }
+  \item{scanNumberEnd}{
+the last scan number.
+}
   \item{mzTarget}{
 an m/z value to perform XIC analysis.
 }
-  \item{massAccuracyXIC}{
+  \item{massAccuracy}{
 a mass error to perform XIC analysis.
 }
 }

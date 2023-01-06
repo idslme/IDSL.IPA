@@ -1,23 +1,22 @@
 mzRTindexer <- function(MZvec, RTvec, MZref, RTref, massAccuracy, RTtolerance) {
   ##
-  indexRefVec <- which((abs(MZvec - MZref) <= massAccuracy) & (abs(RTvec - RTref) <= RTtolerance))
+  measuredRTdiff <- abs(RTvec - RTref)
+  measuredMassDiff <- abs(MZvec - MZref)
+  indexRefVec <- which((measuredMassDiff <= massAccuracy) & (measuredRTdiff <= RTtolerance))
   ##
   LindexRefVec <- length(indexRefVec)
   if (LindexRefVec > 0) {
     if (LindexRefVec > 1) {
       ##
-      measuredRTerror <- abs(RTvec[indexRefVec] - RTref)
-      measuredMassError <- abs(MZvec[indexRefVec] - MZref)
-      ##
-      if (max(measuredMassError) == 0) {
-        x_min <- which.min(measuredRTerror)
-      } else if (max(measuredRTerror) == 0) {
-        x_min <- which.min(measuredMassError)
+      if (max(measuredMassDiff[indexRefVec]) == 0) {
+        xMin <- which.min(measuredRTdiff[indexRefVec])
+      } else if (max(measuredRTdiff[indexRefVec]) == 0) {
+        xMin <- which.min(measuredMassDiff[indexRefVec])
       } else {
-        x_min <- which.min(measuredMassError*measuredRTerror)
+        xMin <- which.min(measuredMassDiff[indexRefVec]*measuredRTdiff[indexRefVec])
       }
       ##
-      indexRefVec <- indexRefVec[x_min[1]]
+      indexRefVec <- indexRefVec[xMin[1]]
     }
     ##
   } else {

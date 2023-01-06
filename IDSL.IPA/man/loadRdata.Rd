@@ -11,7 +11,7 @@ loadRdata(fileName)
 }
 \arguments{
   \item{fileName}{
-is an .Rdata file.
+is an `.Rdata` file.
 }
 }
 \value{

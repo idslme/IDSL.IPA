@@ -1,11 +1,8 @@
 plot_mz_eic <- function(filelist, filelocation, mzTarget, massAccuracy, number_processing_threads = 1, rtstart = 0, rtend = 0, plotTitle = "") {
-
-
+  ##
   clust <- makeCluster(number_processing_threads)
   registerDoParallel(clust)
-
-
-
+  ##
   dflist <- foreach(i = filelist) %dopar% {
     p2l <- IDSL.MXP::peak2list(filelocation, i)
     scanTable <- p2l[["scanTable"]]
@@ -16,53 +13,39 @@ plot_mz_eic <- function(filelist, filelocation, mzTarget, massAccuracy, number_p
     df
   }
   stopCluster(clust)
-
-
-
-  inten.maxvec <- sapply(1:length(dflist), function(x){max(dflist[[x]][,2])})
-  inten.minvec <- sapply(1:length(dflist), function(x){min(dflist[[x]][,2])})
-
-
-
-  rt.maxvec <- sapply(1:length(dflist), function(x){max(dflist[[x]][,1])})
-  rt.minvec <- sapply(1:length(dflist), function(x){min(dflist[[x]][,1])})
-
-
-
+  ##
+  inten.maxvec <- sapply(1:length(dflist), function(x){max(dflist[[x]][, 2])})
+  inten.minvec <- sapply(1:length(dflist), function(x){min(dflist[[x]][, 2])})
+  ##
+  rt.maxvec <- sapply(1:length(dflist), function(x){max(dflist[[x]][, 1])})
+  rt.minvec <- sapply(1:length(dflist), function(x){min(dflist[[x]][, 1])})
+  ##
   rtmax <- max(rt.maxvec)
   rtmin <- min(rt.minvec)
-
-
-
   if (rtstart != 0 & rtend != 0) {
     rtmax = rtend
     rtmin = rtstart
   }
-
-
-
+  ##
   ptitle <- plotTitle
-
-
-
   if (plotTitle == "") {
     ptitle <- paste0(mzTarget," (+/- ",massAccuracy," Da)")
   }
-
-
-
+  ##
+  rainbowColors <- rainbow(length(filelist), alpha = 1)
   png(paste0(filelocation, "/_simple_eic.png"), width = 12, height = 8, units = "in", res = 100)
-
-
-
+  ##
   for (kk in 1:length(filelist)) {
     df <- dflist[[kk]]
     if (kk == 1) {
-      plot(df$RT, df$Intensity, ylim = c(min(inten.minvec),max(inten.maxvec)), xlim = c(rtmin,rtmax), type = "l", lty = 1, lwd = 2, frame = T, pch = 19, col = "black", ylab = "Intensity", xlab = "RT (min)", cex.lab = 4, cex.axis = 2)
+      plot(df$RT, df$Intensity, ylim = c(min(inten.minvec), max(inten.maxvec)), xlim = c(rtmin, rtmax), type = "l", lty = 1, lwd = 2, frame = T, pch = 19, col = "black", ylab = "Intensity", xlab = "RT (min)", cex.lab = 4, cex.axis = 2)
       title(main = ptitle, cex.main = 1.5)
     } else {
-      lines(df$RT, df$Intensity, pch = 19, col = sample(rainbow(500, alpha = 1), kk), type = "l", lty = 1, lwd = 2)
+      lines(df$RT, df$Intensity, pch = 19, col = rainbowColors[kk], type = "l", lty = 1, lwd = 2)
     }
   }
+  ##
+  dev.off()
+  ##
   IPA_logRecorder('simple EICs have been successfully generated!')
 }

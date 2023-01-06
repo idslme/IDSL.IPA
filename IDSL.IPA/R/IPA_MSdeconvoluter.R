@@ -6,8 +6,8 @@ IPA_MSdeconvoluter <- function(inputHRMSfolderPath, MSfileName, MSlevel = 1) {
   spectraList <- spectraList[x_MS]
   scanTable <- scanTable[x_MS, ]
   retentionTime <- as.numeric(scanTable$retentionTime)  # Retention times in minute
-  MS_polarity <- ifelse(scanTable$polarity[x_MS[1]] == 1, "+", "-")
-  outputer <- list(spectraList, retentionTime, MS_polarity)
-  names(outputer)  <- c("spectraList", "retentionTime", "MS_polarity")
+  msPolarity <- if (scanTable$polarity[1] == 1) {"+"} else {"-"}
+  outputer <- list(spectraList, retentionTime, msPolarity)
+  names(outputer)  <- c("spectraList", "retentionTime", "msPolarity")
   return(outputer)
 }

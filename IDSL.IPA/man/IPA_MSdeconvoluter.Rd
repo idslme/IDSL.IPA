@@ -4,7 +4,7 @@
 MS deconvoluter
 }
 \description{
-This function deconvolutes mass spectrometry files into a list of mass spectrals and a vector of retention times.
+This function deconvolutes mass spectrometry files into a list of mass spectra and a vector of retention times.
 }
 \usage{
 IPA_MSdeconvoluter(inputHRMSfolderPath, MSfileName, MSlevel = 1)
@@ -24,10 +24,10 @@ MS level to extract information.
   \item{spectraList}{
  a list of mass spectra.
 }
-  \item{RetentionTime}{
+  \item{retentionTime}{
  a vector of retention times for scan numbers.
 }
   \item{MS_polarity}{
-mass spectromtery ionization mode (+/-)
+mass spectrometry ionization mode (+/-)
 }
 }

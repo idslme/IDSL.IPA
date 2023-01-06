@@ -28,8 +28,8 @@ A matrix of 2 columns. Each row indicates peak boundary indices on the 'int' vec
 }
 \examples{
 data(segment)
-data(chromatogram_builder)
-int <- chromatogram_builder$SmoothedChromatogram
+data(chromatogramMatrix)
+int <- chromatogramMatrix$smoothChromatogram
 maxScanDifference <- 7
 peakResolvingPower <- 0.2
 peakFrontingTailingResolver(segment, int, maxScanDifference, peakResolvingPower)

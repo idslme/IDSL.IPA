@@ -4,32 +4,37 @@ IPA_PeakAlignment <- function(PARAM) {
   IPA_logRecorder("Initiated generating data for peak alignment!")
   ##
   number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
-  output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
-  inputPathPeaklist <- paste0(output_path, "/peaklists")
-  peaklistFileNames1 <- dir(path = inputPathPeaklist, pattern = ".Rdata")
-  peaklistFileNames2 <- dir(path = inputPathPeaklist, pattern = "peaklist_")
-  peaklistFileNames <- peaklistFileNames1[peaklistFileNames1 %in% peaklistFileNames2]
-  L_PL <- length(peaklistFileNames)
   ##
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
-  if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]) == "all") {
-    file_names_hrms <- dir(path = input_path_hrms)
-    file_names_hrms <- file_names_hrms[grep(paste0(".", tolower(PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]), "$"), file_names_hrms, ignore.case = TRUE)]
+  samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]
+  if (tolower(samples_string) == "all") {
+    file_name_hrms <- dir(path = input_path_hrms)
+    file_name_hrms <- file_name_hrms[grep(pattern = ".mzML$|.mzXML$|.CDF$", file_name_hrms, ignore.case = TRUE)]
   } else {
-    samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]
-    file_names_hrms <- strsplit(samples_string, ";")[[1]] # files used as reference m/z-RT
+    file_name_hrms <- strsplit(samples_string, ";")[[1]]
   }
+  LHRMS <- length(file_name_hrms)
   ##
-  peaklist2HRMS <- gsub("^peaklist_", "", gsub(".Rdata$", "", peaklistFileNames))
-  matchPeaklist2HRMS <- file_names_hrms[(file_names_hrms %in% peaklist2HRMS)]
-  if (length(matchPeaklist2HRMS) != L_PL) {
-    stop(IPA_logRecorder("Error!!! peaklist files are not available for all selected HRMS files!"))
+  output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
+  inputPathPeaklist <- paste0(output_path, "/peaklists")
+  peaklistFileNames <- dir(path = inputPathPeaklist, pattern = ".Rdata$")
+  peaklistFileNames <- peaklistFileNames[grep("^peaklist_", peaklistFileNames)]
+  L_PL <- length(peaklistFileNames)
+  ##
+  if (LHRMS > L_PL) {
+    peaklistHRMSfileNames <- paste0("peaklist_", file_name_hrms, ".Rdata")
+    ndPeaklists <- setdiff(peaklistHRMSfileNames, peaklistFileNames)
+    ndPeaklists <- gsub("^peaklist_|.Rdata$", "", ndPeaklists)
+    IPA_logRecorder("Error!!! peaklist files are not available for the following HRMS file(s):")
+    for (i in ndPeaklists) {
+      IPA_logRecorder(i)
+    }
+    stop()
   }
   ##
   RTcorrectionCheck <- if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0029'), 2]) == "yes") {TRUE} else {FALSE}
   massAccuracy <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0035'), 2])
   RTtolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0036'), 2])
-  noQuantile <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0037'), 2])
   ##
   OutputPath_peak_alignment <- paste0(output_path, "/peak_alignment")
   if (!dir.exists(OutputPath_peak_alignment)) {
@@ -46,36 +51,36 @@ IPA_PeakAlignment <- function(PARAM) {
     IPA_logRecorder("Initiated detecting reference peaks for RT correction!")
     minFrequencyRefPeaks <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0031'), 2])
     ##
-    listReferencePeaks <- reference_peaks_detector(inputPathPeaklist, refPeaklistFileNames, minFrequencyRefPeaks,
-                                                   massAccuracy, RTtolerance, noQuantile, number_processing_threads)
+    listReferencePeaks <- referenceRetentionTimeDetector(inputPathPeaklist, refPeaklistFileNames, minFrequencyRefPeaks,
+                                                         massAccuracy, RTtolerance, number_processing_threads)
     referenceMZRTpeaks <- listReferencePeaks[["referenceMZRTpeaks"]]
     listRefRT <- listReferencePeaks[["listRefRT"]]
     ##
-    IPA_logRecorder("Reference endogenous peaks are stored for retention time correction! Please see the 'referenceMZRTpeaks.csv' in the `peak_alignment` folder!")
-    write.csv(referenceMZRTpeaks, file = paste0(OutputPath_peak_alignment, "/referenceMZRTpeaks.csv"), row.names = FALSE)
+    IPA_logRecorder("Reference endogenous peaks are stored for retention time correction! Please see the `endogenousReferenceMZRTpeaks.csv` in the `peak_alignment` folder!")
+    write.csv(referenceMZRTpeaks, file = paste0(OutputPath_peak_alignment, "/endogenousReferenceMZRTpeaks.csv"), row.names = TRUE)
     ##
-    IPA_logRecorder(paste0("Detected " , dim(referenceMZRTpeaks)[1], " reference peaks for RT correction!"))
+    IPA_logRecorder(paste0("Detected `", dim(referenceMZRTpeaks)[1], "` reference peaks for RT correction!"))
     #
     png(paste0(OutputPath_peak_alignment, "/Ref_peaks_distribution.png"), width = 20, height = 10, units = "in", res = 100)
     Ref_peaks_distribution <- referenceMZRTpeaks[, 2]
-    hist_rt_reference_peaks <- hist(Ref_peaks_distribution, breaks = round(max(unlist(listRefRT))*1), xlab = "Retention time (min)")
-    tryCatch(dev.off(), error = function(e) {Sys.sleep(0.0001)})
-    L_x_regions_rt0 <- length(which(hist_rt_reference_peaks[["counts"]] == 0))
+    histRTreferencePeaks <- hist(Ref_peaks_distribution, breaks = round(max(unlist(listRefRT))*1), xlab = "Retention time (min)")
+    tryCatch(dev.off(), error = function(e) {NULL})
+    L_x_regions_rt0 <- length(which(histRTreferencePeaks[["counts"]] == 0))
     if (L_x_regions_rt0 > 0) {
-      IPA_logRecorder("WARNING!!! Reference peaks were not detected for the entire range of the retention times! Please see the 'Ref_peaks_distribution.png' in the `peak_alignment` folder!")
+      IPA_logRecorder("WARNING!!! Reference peaks were not detected for the entire range of the retention times! Please see the `Ref_peaks_distribution.png` in the `peak_alignment` folder!")
     }
     ##
-    IPA_logRecorder("Initiated RT correction!")
+    IPA_logRecorder("Initiated retention time correction!")
     ##
     RTcorrectionMethod <- PARAM[which(PARAM[, 1] == 'PARAM0032'), 2]
     refPeakTolerance <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0033'), 2]), error = function(e) {5}, warning = function(w) {5})
     degreePolynomial <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0034'), 2]), error = function(e) {3}, warning = function(w) {3})
     ##
-    peaklistFileName_samples <- setdiff(peaklistFileNames, refPeaklistFileNames)
+    peaklistFileNameSamples <- setdiff(peaklistFileNames, refPeaklistFileNames)
     ############################################################################
     if (number_processing_threads == 1) {
-      listCorrectedRTsamples <- lapply(peaklistFileName_samples, function(i) {
-        sample_rt_corrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
+      listCorrectedRTsamples <- lapply(peaklistFileNameSamples, function(i) {
+        analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
       })
     } else {
       ## Processing OS
@@ -85,22 +90,22 @@ IPA_PeakAlignment <- function(PARAM) {
         cl <- makeCluster(number_processing_threads)
         registerDoParallel(cl)
         ##
-        listCorrectedRTsamples <- foreach(i = peaklistFileName_samples, .verbose = FALSE) %dopar% {
-          sample_rt_corrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
+        listCorrectedRTsamples <- foreach(i = peaklistFileNameSamples, .verbose = FALSE) %dopar% {
+          analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
         }
         ##
         stopCluster(cl)
         ##
       } else if (osType == "Linux") {
         ##
-        listCorrectedRTsamples <- mclapply(peaklistFileName_samples, function(i) {
-          sample_rt_corrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
+        listCorrectedRTsamples <- mclapply(peaklistFileNameSamples, function(i) {
+          analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
         }, mc.cores = number_processing_threads)
         ##
         closeAllConnections()
       }
     }
-    names(listCorrectedRTsamples) <- peaklistFileName_samples
+    names(listCorrectedRTsamples) <- peaklistFileNameSamples
     ##
     ############################################################################
     ##
@@ -113,11 +118,11 @@ IPA_PeakAlignment <- function(PARAM) {
     })
     ##
     IPA_logRecorder("Corrected retention times for individual peaklists are stored as `listCorrectedRTpeaklists.Rdata` in the `peak_alignment` folder!")
-    IPA_logRecorder("Completed RT correction!")
+    IPA_logRecorder("Completed retention time correction!")
     ##
   } else {
     listCorrectedRTpeaklists <- lapply(peaklistFileNames, function(i) {
-      loadRdata(paste0(inputPathPeaklist, "/", i))[, 3]
+      as.numeric(loadRdata(paste0(inputPathPeaklist, "/", i))[, 3])
     })
   }
   ##
@@ -127,30 +132,49 @@ IPA_PeakAlignment <- function(PARAM) {
   ##
   if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0002'), 2]) == "yes") {
     IPA_logRecorder("Initiated peak alignment on the entire peaklists using peak IDs in each peaklist!")
-    peakXcol <- peak_alignment(inputPathPeaklist, peaklistFileNames, listCorrectedRTpeaklists, massAccuracy, RTtolerance, noQuantile, number_processing_threads)
-    #
-    colnames(peakXcol) <- c("m/z", "RT", file_names_hrms)
-    save(peakXcol, file = paste0(OutputPath_peak_alignment, "/peak_Xcol.Rdata"))
-    IPA_logRecorder("Stored aligned indexed table as 'peak_Xcol.Rdata' in the `peak_alignment` folder!")
+    peakXcol <- peakAlignmentCore(inputPathPeaklist, peaklistFileNames, listCorrectedRTpeaklists, massAccuracy, RTtolerance, number_processing_threads)
+    listCorrectedRTpeaklists <- NULL
+    colnames(peakXcol) <-  c("mz", "RT", "frequencyPeakXcol", file_name_hrms)
     ##
-    IPA_logRecorder("Initiated generating aligned peak tables for the peak height, peak area, and R13C values!")
+    save(peakXcol, file = paste0(OutputPath_peak_alignment, "/peakXcol.Rdata"))
+    IPA_logRecorder("Stored aligned indexed table as 'peakXcol.Rdata' in the `peak_alignment` folder!")
+    ##
+    ############################################################################
+    ##
+    maxRedundantPeakFlagging <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0037'), 2])/100
+    ##
+    IPA_logRecorder("Initiated flagging suspicious aligned peaks!")
+    ##
+    falggingVector <- peakXcolFlagger(peakXcol[, 1], peakXcol[, 2], peakXcol[, 3], massAccuracy, 3*RTtolerance, maxRedundantPeakFlagging)
+    ##
+    IPA_logRecorder("Completed flagging suspicious aligned peaks!")
+    ##
+    ############################################################################
+    ##
+    IPA_logRecorder("Initiated generating and saving aligned peak tables for the peak height, peak area, and R13C values!")
     ##
     listHeightAreaR13C <- peakXcolFiller(peakXcol, inputPathPeaklist)
-    peak_height <- listHeightAreaR13C[["peak_height"]]
-    peak_area <- listHeightAreaR13C[["peak_area"]]
-    peak_R13C <- listHeightAreaR13C[["peak_R13C"]]
+    peakXcol <- NULL
     ##
-    IPA_logRecorder("Initiated saving aligned peak tables")
+    peak_height <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_height"]], falggingVector, number_processing_threads)
+    colnames(peak_height)[c(3, 4, 5)] <- c("freqPeakHeight", "medianPeakHeight", "Flag")
     opendir(OutputPath_peak_alignment)
-    ##
     save(peak_height, file = paste0(OutputPath_peak_alignment, "/peak_height.Rdata"))
-    write.csv(peak_height, file = paste0(OutputPath_peak_alignment, "/peak_height.csv"), row.names = FALSE)
+    write.csv(peak_height, file = paste0(OutputPath_peak_alignment, "/peak_height.csv"), row.names = TRUE)
     ##
+    peak_area <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_area"]], falggingVector, number_processing_threads)
+    colnames(peak_area)[c(3, 4, 5)] <- c("freqPeakArea", "medianPeakArea", "Flag")
     save(peak_area, file = paste0(OutputPath_peak_alignment, "/peak_area.Rdata"))
-    write.csv(peak_area, file = paste0(OutputPath_peak_alignment, "/peak_area.csv"), row.names = FALSE)
+    write.csv(peak_area, file = paste0(OutputPath_peak_alignment, "/peak_area.csv"), row.names = TRUE)
+    peak_area <- NULL
     ##
+    peak_R13C <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_R13C"]], falggingVector, number_processing_threads)
+    colnames(peak_R13C)[c(3, 4, 5)] <- c("freqR13C", "medianR13C", "Flag")
     save(peak_R13C, file = paste0(OutputPath_peak_alignment, "/peak_R13C.Rdata"))
-    write.csv(peak_R13C, file = paste0(OutputPath_peak_alignment, "/peak_R13C.csv"), row.names = FALSE)
+    write.csv(peak_R13C, file = paste0(OutputPath_peak_alignment, "/peak_R13C.csv"), row.names = TRUE)
+    peak_R13C <- NULL
+    ##
+    listHeightAreaR13C <- NULL
     ##
     IPA_logRecorder("Aligned peak height, peak area, and R13C tables were stored in `.Rdata` and `.csv` formats in the `peak_alignment` folder!")
     ##
@@ -158,15 +182,26 @@ IPA_PeakAlignment <- function(PARAM) {
     ##
     IPA_logRecorder("Initiated detecting correlating peaks on the peak height table!")
     ##
-    correlationListHeight <- peakPropertyTableCorrelation(peakPropertyTable = peak_height, RTtolerance = RTtolerance, minFreqDetection = 1, method = "pearson", minThresholdCorrelation = 0.50, number_processing_threads)
+    correlationMethod <- tolower(PARAM[which(PARAM[, 1] == 'PARAM_ALG1'), 2])
+    minThresholdCorrelation <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG2'), 2])
+    minFreqDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG3'), 2])
+    minRatioDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG4'), 2])/100
     ##
-    save(correlationListHeight, file = paste0(OutputPath_peak_alignment, "/correlationListHeight.Rdata"))
+    IPA_logRecorder(paste0("Initiated detecting correlating peaks on the aligned peak height table using the `", correlationMethod, "` method with coefficients `>=",
+                           minThresholdCorrelation,"` and minimum number of complete observation `>=", minFreqDetection, "` combined with observation percentage `>=", minRatioDetection*100, "%`!"))
     ##
-    IPA_logRecorder("Stored the correlating peaks on the peak height table as `correlationListHeight.Rdata` in the `peak_alignement` folder!")
+    alignedPeakHeightTableCorrelationList <- alignedPeakPropertyTableCorrelationListCalculator(peakPropertyTable = peak_height, RTtolerance, minFreqDetection, minRatioDetection,
+                                                                                               method = correlationMethod, minThresholdCorrelation, number_processing_threads)
+    peak_height <- NULL
+    ##
+    save(alignedPeakHeightTableCorrelationList, file = paste0(OutputPath_peak_alignment, "/alignedPeakHeightTableCorrelationList.Rdata"))
+    ##
+    IPA_logRecorder("Stored the correlating peaks on the peak height table as `alignedPeakHeightTableCorrelationList.Rdata` in the `peak_alignement` folder (Only corrolating aligned peak IDs are presented)!")
     IPA_logRecorder("Completed generating data for peak alignment!")
     IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
-    ##
-    ############################################################################
-    ##
   }
+  ##
+  ##############################################################################
+  ##
+  return()
 }
