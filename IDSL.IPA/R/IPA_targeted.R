@@ -24,8 +24,8 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
     if (number_processing_threads > 1) {
       parallelizationMode <- gsub(" ", "", tolower(PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_PAR'), 2]))
       ##
-      if (parallelizationMode != "samplemode") {
-        parallelizationMode = "peakmode"
+      if (parallelizationMode != "peakmode") {
+        parallelizationMode = "samplemode"
       }
     }
     ##

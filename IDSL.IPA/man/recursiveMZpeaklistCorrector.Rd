@@ -11,7 +11,7 @@ recursiveMZpeaklistCorrector(peaklist, spectraScan, scanTolerance,
 aggregatedSpectraList, retentionTime, massAccuracy, smoothingWindow,
 peakResolvingPower, minNIonPair, minPeakHeight, minRatioIonPair, maxRPW,
 minSNRbaseline, maxR13CcumulatedIntensity, maxPercentageMissingScans, nSpline,
-exportEICparameters = NULL)
+exportEICparameters = NULL, number_processing_threads = 1)
 }
 \arguments{
   \item{peaklist}{
@@ -64,6 +64,9 @@ number of points for further smoothing using a cubic spline smoothing method to 
 }
   \item{exportEICparameters}{
 When `NULL`, EICs are not plotted. `exportEICparameters` should contain three variables of 1) an address to save IPA EICs figures, 2) 'HRMS' file name, and 3) a valid string of characters.
+}
+  \item{number_processing_threads}{
+number of processing threads
 }
 }
 \value{
