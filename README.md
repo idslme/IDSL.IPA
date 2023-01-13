@@ -43,8 +43,6 @@ To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), downlo
 
 Visit [**wiki**](https://github.com/idslme/IDSL.IPA/wiki) to demonstrate how to use IDSL.IPA for [a population size study with 499 indivdual mass spectrometry file](https://github.com/idslme/IDSL.IPA/wiki/IDSL.IPA-for-MTBLS1684-study), the `IPA_targeted` function for a large number of peaks (***m/z***-**RT** pairs) with an [example for targeted IDSL.IPA](https://github.com/idslme/IDSL.IPA/wiki/IPA_targeted), [Ion Pairing](https://github.com/idslme/IDSL.IPA/wiki/Ion-Pairing), [Definition of Signal to Noise ratio (S/N)](https://github.com/idslme/IDSL.IPA/wiki/Definition-Signal-to-Noise-Ratio), [nIsoPair/RCS](https://github.com/idslme/IDSL.IPA/wiki/nIsoPair-RCS), [Ratio of peak width at half-height to peak width at the baseline (RPW)](https://github.com/idslme/IDSL.IPA/wiki/RPW), [Chromatogram gap percentage](https://github.com/idslme/IDSL.IPA/wiki/Chromatogram-gaps-percentage-(missing-scans)), [Peak tailing fronting resolving method](https://github.com/idslme/IDSL.IPA/wiki/Peak-tailing-fronting-resolving), [Peak smoothing](https://github.com/idslme/IDSL.IPA/wiki/Peak-smoothing), [Extra scans](https://github.com/idslme/IDSL.IPA/wiki/Extra-scans), and [Retention time correction](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index).
 
-Visit https://ipa.idsl.me/ for the detailed documentation and tutorial.
-
 ## Citation
 
 Fakouri Baygi, S., Kumar, Y. Barupal, D.K. [IDSL. IPA characterizes the organic chemical space in untargeted LC/HRMS datasets](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00120). *Journal of proteome research*, **2022**, *21(6)*, 1485-1494.
