@@ -19,7 +19,7 @@
 3) Calculating 17 chromatographic peak properties
 4) Mass spectra level [Ion Pairing](https://github.com/idslme/IDSL.IPA/wiki/Ion-Pairing) to remove random noises to accelerate the processing speed
 5) Compatibility to screen for any ion mass difference in addition to natural carbon signatures (<sup>12</sup>C/<sup>13</sup>C isotopologues) mass difference
-6) Retention time correction using endogenous reference markers
+6) [Retention time correction](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index) using endogenous reference markers
 7) Generating batch untargeted extracted ion chromatograms (EICs)
 8) Generating pairwise correlations list for aligned peak height and its gap-filled tables to detect potential recurring adducts, in-source products and fragment peaks
 9) Aggregating untargeted EICs after (m/z-RT) annotation for each compound
