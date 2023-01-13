@@ -35,7 +35,8 @@ IPA_workflow <- function(spreadsheet) {
       ## To create log record for IDSL.IPA
       input_path <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
       output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
-      .GlobalEnv$.logIPA <- paste0(output_path, "/logIPA_performance.txt")
+      .logIPA <- NULL
+      .logIPA <<- paste0(output_path, "/logIPA_performance.txt")
       IPA_logRecorder(paste0(rep("", 100), collapse = "="))
       IPA_logRecorder("Type <<< citation('IDSL.IPA') >>> for citing this R package in publications.")
       IPA_logRecorder(paste0("mzML/mzXML/netCDF:  ", input_path))
@@ -84,7 +85,8 @@ IPA_workflow <- function(spreadsheet) {
         ## To create log record for IDSL.IPA
         input_path <- PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM0007'), 2]
         output_path <- PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM0010'), 2]
-        .GlobalEnv$.logIPA <- paste0(output_path, "/logIPA_targeted.txt")
+        .logIPA <- NULL
+        .logIPA <<- paste0(output_path, "/logIPA_targeted.txt")
         IPA_logRecorder(paste0(rep("", 100), collapse = "="))
         IPA_logRecorder("Type <<< citation('IDSL.IPA') >>> for citing this R package in publications.")
         IPA_logRecorder(paste0("mzML/mzXML/netCDF:  ", input_path))
