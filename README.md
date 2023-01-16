@@ -14,7 +14,7 @@
 
 ## Table of Contents
 
-- [Features of IDSL.IPA](https://github.com/idslme/IDSL.IPA#features-of-idsl.ipa)
+- [Features of IDSL.IPA](https://github.com/idslme/IDSL.IPA#features-of-idslipa)
 - [Installation](https://github.com/idslme/IDSL.IPA#installation)
 - [Workflow](https://github.com/idslme/IDSL.IPA#workflow)
 - [Quick Batch Example](https://github.com/idslme/IDSL.IPA#quick-batch-example)
@@ -46,6 +46,7 @@
 	install.packages("RNetCDF")
 
 ## Workflow
+
 To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), download the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx) and select the parameters accordingly and then use this spreadsheet as the input for the `IPA_workflow` function as shown below:
 
 	library(IDSL.IPA)
@@ -86,6 +87,7 @@ Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolo
 11. [**Retention time correction**](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index).
 
 ## News and Updates
+
 We post major changes in the IDSL.IPA workflow [here](https://github.com/idslme/IDSL.IPA/blob/main/UPDATE.md).
 
 ## Citation
