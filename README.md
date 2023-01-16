@@ -59,7 +59,7 @@ Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolo
 
 2. Separate positive and negative modes *.mzXML* data in different folders. We generally suggest processing positive and negative modes data separately to avoid data similarity complications.
 
-3. IDSL.IPA requires 51 parameters distributed into 9 separate sections. For the **MTBLS1684** study, use default parameter values presented in the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx). Next, Provide address for 
+3. IDSL.IPA requires 51 parameters distributed into 9 separate sections. For this study, use default parameter values presented in the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx). Next, Provide address for 
 	
 	3.1. **PARAM0007** for the *Input data location address (MS1 level HRMS data)*
 	
@@ -70,7 +70,6 @@ Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolo
 4. Run this command in R/Rstudio console or terminal: `IDSL.IPA::IPA_workflow("Address of the IPA parameter spreadsheet")`
 
 5. You may parse the results at the address you provided for **PARAM0010**.
-
 
 ## [**Wiki**](https://github.com/idslme/IDSL.IPA/wiki)
 

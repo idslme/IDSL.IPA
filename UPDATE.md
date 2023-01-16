@@ -1,4 +1,4 @@
-We slightly revised the IDSL.IPA algorithm with respect to the published version in the *Journal of Proteome Research* that are listed for each section:
+We slightly revised the IDSL.IPA algorithm relative to our publication in the *Journal of Proteome Research* that are listed for each section:
 
 ## Generate untargeted peaklists for individual HRMS files
 - **PARAM_PAR** were added to be consistent with **sample mode** and **peak mode** parallelization modes to generate individual peaklists.
