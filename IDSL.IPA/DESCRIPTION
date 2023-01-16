@@ -1,7 +1,7 @@
 Package: IDSL.IPA
 Type: Package
 Title: Intrinsic Peak Analysis (IPA) for HRMS Data
-Version: 2.7
+Version: 2.6
 Authors@R: c(
     person(family = "Fakouri-Baygi", given = "Sadjad", email = "sadjad.fakouri-baygi@mssm.edu",
     role = c("cre","aut"), comment = c(ORCID = "0000-0002-6864-6911")),
@@ -19,3 +19,5 @@ BugReports: https://github.com/idslme/idsl.ipa/issues
 Encoding: UTF-8
 LazyData: true
 Archs: i386, x64
+NeedsCompilation: no
+Packaged: 2023-01-06 19:47:15 UTC; sfbaygi

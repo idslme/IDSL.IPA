@@ -10,8 +10,7 @@ This function performs the first round of the chromatography analysis.
 primaryXICdeconvoluter(spectraScan, scanTolerance, indexXIC, aggregatedSpectraList,
 retentionTime, massAccuracy, smoothingWindow, peakResolvingPower, minNIonPair,
 minPeakHeight, minRatioIonPair, maxRPW, minSNRbaseline, maxR13CcumulatedIntensity,
-maxPercentageMissingScans, nSpline, exportEICparameters = NULL,
-number_processing_threads = 1)
+maxPercentageMissingScans, nSpline, exportEICparameters = NULL)
 }
 \arguments{
   \item{spectraScan}{
@@ -65,9 +64,6 @@ number of points for further smoothing using a cubic spline smoothing method.
 }
   \item{exportEICparameters}{
 When `NULL`, EICs are not plotted. `exportEICparameters` should contain three variables of 1) an address to save IPA EICs figures, 2) 'HRMS' file name, and 3) a valid string of characters.
-}
-  \item{number_processing_threads}{
-number of processing threads
 }
 }
 \value{

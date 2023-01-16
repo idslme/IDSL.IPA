@@ -1,6 +1,6 @@
 IPA_logRecorder <- function(messageQuote, printMessage = TRUE) {
   if (printMessage) {
-    print(messageQuote, quote = FALSE)
+    print(messageQuote)
   }
   ##
   if (exists('.logIPA')) {

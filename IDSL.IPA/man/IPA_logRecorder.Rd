@@ -17,6 +17,3 @@ messageQuote
 printMessage
 }
 }
-\value{
-a line of communication messages is exported to the console and the log .txt file.
-}

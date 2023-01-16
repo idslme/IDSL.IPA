@@ -238,13 +238,13 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     }
     # print("WARNING!!! IPA Targeted Analysis was selected in PARAM0005! You may use the targeted analysis only with the 'IPA_targeted' module!")
     ##
-    number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
-    if (length(number_processing_threads) == 0) {
+    x0006 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
+    if (length(x0006) == 0) {
       print("ERROR!!! Problem with PARAM0006! This parameter should be a positive integer!")
       checkpoint_parameter <- FALSE
     } else {
-      if (number_processing_threads >= 1) {
-        if ((number_processing_threads %% 1) != 0) {
+      if (x0006 >= 1) {
+        if ((x0006 %% 1) != 0) {
           print("ERROR!!! Problem with PARAM0006! This parameter should be a positive integer!")
           checkpoint_parameter <- FALSE
         }
@@ -355,18 +355,6 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     ############################################################################
     ###### Pairing 12C/13C isotopologues in individual chromatogram scans ######
     if (tolower(x0001) == "yes") {
-      ##
-      if (number_processing_threads > 1) {
-        x_par <- which(PARAM[, 1] == 'PARAM_PAR')
-        parallelizationMode <- gsub(" ", "", tolower(PARAM[x_par, 2]))
-        ##
-        if ((parallelizationMode == "peakmode") | (parallelizationMode == "samplemode")) {
-          PARAM[x_par, 2] <- parallelizationMode
-        } else {
-          print("ERROR!!! Problem with 'PARAM_PAR'! This parameter should be `Sample Mode` or `Peak Mode`!")
-          checkpoint_parameter <- FALSE
-        }
-      }
       ##
       x0011 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0011'), 2])
       if (is.na(x0011)) {
@@ -542,18 +530,17 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     }
     ############# RT correction and peak alignment table production ############
     if (tolower(x0002) == "yes") {
-      ##
       RT_correction_checkList <- RT_correction_check(checkpoint_parameter, PARAM)
       checkpoint_parameter <- RT_correction_checkList[[1]]
       PARAM <- RT_correction_checkList[[2]]
       ##
       maxRedundantPeakFlagging <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0037'), 2])
       if (is.na(maxRedundantPeakFlagging)) {
-        print("ERROR!!! Problem with PARAM0037! This parameter should be between 0-100%!")
+        print("ERROR!!! Problem with PARAM0037! This parameter should be between 0-1!")
         checkpoint_parameter <- FALSE
       } else {
         if (maxRedundantPeakFlagging < 0 | maxRedundantPeakFlagging > 100) {
-          print("ERROR!!! Problem with PARAM0037! This parameter should be between 0-100%!")
+          print("ERROR!!! Problem with PARAM0037! This parameter should be between 0-1!")
           checkpoint_parameter <- FALSE
         }
       }
@@ -777,6 +764,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         }
       }
     }
+    ##
   }
   ##############################################################################
   if (!checkpoint_parameter) {

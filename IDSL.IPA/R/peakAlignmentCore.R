@@ -128,10 +128,11 @@ peakAlignmentCore <- function(peaklistInputFolderPath, peaklistFileNames, listCo
         if (length(xC) > 1) {
           xC <- xQ[xC]
           ##
-          xDiffxC <- setdiff(xC, i)
+          xDiffxc <- setdiff(xC, i)
           if (mainPeakTable[i, 3] < nSamples) {
-            table_c <- mainPeakTable[xC, ]
-            ##
+            table_c <- do.call(rbind, lapply(xC, function(j) {
+              mainPeakTable[j, ]
+            }))
             x_table_main0 <- which(table_c[1, ] == 0)
             for (j in x_table_main0) {
               xNon0 <- which(table_c[, j] > 0)
@@ -149,7 +150,7 @@ peakAlignmentCore <- function(peaklistInputFolderPath, peaklistFileNames, listCo
             }
             mainPeakTable[i, ] <- table_c[1, ]
           }
-          mainPeakTable[xDiffxC, ] <- 0
+          mainPeakTable[xDiffxc, ] <- 0
         }
       }
     }

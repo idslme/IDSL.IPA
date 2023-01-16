@@ -1,17 +1,17 @@
 primaryXICdeconvoluter <- function(spectraScan, scanTolerance, indexXIC, aggregatedSpectraList, retentionTime,
                                    massAccuracy, smoothingWindow, peakResolvingPower, minNIonPair, minPeakHeight,
                                    minRatioIonPair, maxRPW, minSNRbaseline, maxR13CcumulatedIntensity,
-                                   maxPercentageMissingScans, nSpline, exportEICparameters = NULL, number_processing_threads = 1) {
+                                   maxPercentageMissingScans, nSpline, exportEICparameters = NULL) {
   ##
   LretentionTime <- length(retentionTime)
   ##
-  call_primaryXICdeconvoluter <- function(i) {
+  peaklist <- do.call(rbind, lapply(indexXIC, function(x) {
     ##
-    mzTarget <- spectraScan[i[1], 1]
+    mzTarget <- spectraScan[x[1], 1]
     ##
-    Lx <- length(i)
+    Lx <- length(x)
     ##
-    spectraScanPrimary <- spectraScan[i, ]
+    spectraScanPrimary <- spectraScan[x, ]
     if (Lx == 1) {
       spectraScanPrimary <- matrix(spectraScan, nrow = 1)
     } else {
@@ -31,48 +31,7 @@ primaryXICdeconvoluter <- function(spectraScan, scanTolerance, indexXIC, aggrega
                                 rtTarget = NULL, scanNumberStart, scanNumberEnd, smoothingWindow, peakResolvingPower, minNIonPair,
                                 minPeakHeight, minRatioIonPair, maxRPW, minSNRbaseline, maxR13CcumulatedIntensity,
                                 maxPercentageMissingScans, nSpline, exportEICparameters)
-  }
-  ##
-  ##############################################################################
-  ##############################################################################
-  ##
-  if (number_processing_threads == 1) {
-    ##
-    peaklist <- do.call(rbind, lapply(indexXIC, function(i) {
-      call_primaryXICdeconvoluter(i)
-    }))
-    ##
-  } else {
-    ## Processing OS
-    osType <- Sys.info()[['sysname']]
-    ##
-    ############################################################################
-    ##
-    if (osType == "Linux") {
-      ##
-      peaklist <- do.call(rbind, mclapply(indexXIC, function(i) {
-        call_primaryXICdeconvoluter(i)
-      }, mc.cores = number_processing_threads))
-      ##
-      closeAllConnections()
-      ##
-      ##########################################################################
-      ##
-    } else if (osType == "Windows") {
-      clust <- makeCluster(number_processing_threads)
-      registerDoParallel(clust)
-      ##
-      peaklist <- foreach(i = indexXIC, .combine = 'rbind', .verbose = FALSE) %dopar% {
-        call_primaryXICdeconvoluter(i)
-      }
-      ##
-      stopCluster(clust)
-      ##
-    }
-  }
-  ##
-  ##############################################################################
-  ##############################################################################
+  }))
   ##
   return(peaklist)
 }

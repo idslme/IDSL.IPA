@@ -8,9 +8,19 @@
 [![Dependencies](https://tinyverse.netlify.com/badge/IDSL.IPA)](https://cran.r-project.org/package=IDSL.IPA)
 <!-- badges: end -->
 
-**Intrinsic Peak Analysis (IPA)** by the [**Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME)**](https://www.idsl.me/) is a light-weight R package that extracts peaks for organic small molecules from untargeted liquid chromatography high resolution mass spectrometry (LC/HRMS) data in population scale projects. IDSL-IPA generates comprehensive and high-quality datasets from untargeted analysis of organic small molecules in a bio-specimen. It is a suite of new algorithms covering extracted ion chromatogram (EIC) candidate generation, peak detection, peak property evaluation, mass-correction, retention time correction across multiple batches and peak annotation. IDSL.IPA has been optimized and tested for analysis of large sample sizes (n = 499) samples. We have shown that IDSL.IPA in our publication is able to outperform similar peak picking tools such as MZmine 2, *xcms*, MS-DIAL in terms of sensitivity, specificity and speed.
+**Intrinsic Peak Analysis (IPA)** by the [**Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME)**](https://www.idsl.me) is a light-weight R package that extracts peaks for organic small molecules from untargeted liquid chromatography high resolution mass spectrometry (LC/HRMS) data in population scale projects. IDSL-IPA generates comprehensive and high-quality datasets from untargeted analysis of organic small molecules in a bio-specimen. It is a suite of new algorithms covering extracted ion chromatogram (EIC) candidate generation, peak detection, peak property evaluation, mass-correction, retention time correction across multiple batches and peak annotation. IDSL.IPA has been optimized and tested for analysis of large sample sizes (n = 499) samples. We have shown that IDSL.IPA in our [publication](https://github.com/idslme/IDSL.IPA#citation) is able to outperform similar peak picking tools such as MZmine 2, *xcms*, and MS-DIAL in terms of sensitivity, specificity and speed.
 
 ## <img src='IPA_educational_files/Figures/IDSL.IPA-TOC_Art.png' align="right" />
+
+## Table of Contents
+
+- [Features of IDSL.IPA](https://github.com/idslme/IDSL.IPA#features-of-idsl.ipa)
+- [Installation](https://github.com/idslme/IDSL.IPA#installation)
+- [Workflow](https://github.com/idslme/IDSL.IPA#workflow)
+- [Simple Batch Example](https://github.com/idslme/IDSL.IPA#simple-batch-example)
+- [Wiki](https://github.com/idslme/IDSL.IPA#wiki)
+- [Citation](https://github.com/idslme/IDSL.IPA#citation)
+- [News and Update](https://github.com/idslme/IDSL.IPA/update.md)
 
 ## Features of IDSL.IPA
 
@@ -41,7 +51,21 @@ To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), downlo
 	library(IDSL.IPA)
 	IPA_workflow("Address of the IPA parameter spreadsheet")
 
-Visit [**wiki**](https://github.com/idslme/IDSL.IPA/wiki) to demonstrate how to use IDSL.IPA for [a population size study with 499 indivdual mass spectrometry file](https://github.com/idslme/IDSL.IPA/wiki/IDSL.IPA-for-MTBLS1684-study), the `IPA_targeted` function for a large number of peaks (***m/z***-**RT** pairs) with an [example for targeted IDSL.IPA](https://github.com/idslme/IDSL.IPA/wiki/IPA_targeted), [Ion Pairing](https://github.com/idslme/IDSL.IPA/wiki/Ion-Pairing), [Definition of Signal to Noise ratio (S/N)](https://github.com/idslme/IDSL.IPA/wiki/Definition-Signal-to-Noise-Ratio), [nIsoPair/RCS](https://github.com/idslme/IDSL.IPA/wiki/nIsoPair-RCS), [Ratio of peak width at half-height to peak width at the baseline (RPW)](https://github.com/idslme/IDSL.IPA/wiki/RPW), [Chromatogram gap percentage](https://github.com/idslme/IDSL.IPA/wiki/Chromatogram-gaps-percentage-(missing-scans)), [Peak tailing fronting resolving method](https://github.com/idslme/IDSL.IPA/wiki/Peak-tailing-fronting-resolving), [Peak smoothing](https://github.com/idslme/IDSL.IPA/wiki/Peak-smoothing), [Extra scans](https://github.com/idslme/IDSL.IPA/wiki/Extra-scans), and [Retention time correction](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index).
+## Simple Batch Example
+
+## [**Wiki**](https://github.com/idslme/IDSL.IPA/wiki)
+
+1. [**Example of a population size study with 499 indivdual mass spectrometry file**](https://github.com/idslme/IDSL.IPA/wiki/IDSL.IPA-for-MTBLS1684-study)
+2. `IPA_targeted` function for a large number of peaks (***m/z***-**RT** pairs) with an [**example for targeted IDSL.IPA**](https://github.com/idslme/IDSL.IPA/wiki/IPA_targeted)
+3. [**Ion Pairing**](https://github.com/idslme/IDSL.IPA/wiki/Ion-Pairing)
+4. [**Definition of Signal to Noise ratio (S/N)**](https://github.com/idslme/IDSL.IPA/wiki/Definition-Signal-to-Noise-Ratio)
+5. [**nIsoPair/RCS**](https://github.com/idslme/IDSL.IPA/wiki/nIsoPair-RCS)
+6. [**Ratio of peak width at half-height to peak width at the baseline (RPW)**](https://github.com/idslme/IDSL.IPA/wiki/RPW)
+7. [**Chromatogram gap percentage**](https://github.com/idslme/IDSL.IPA/wiki/Chromatogram-gaps-percentage-(missing-scans))
+8. [**Peak tailing fronting resolving method**](https://github.com/idslme/IDSL.IPA/wiki/Peak-tailing-fronting-resolving)
+9. [**Peak smoothing**](https://github.com/idslme/IDSL.IPA/wiki/Peak-smoothing)
+10. [**Extra scans**](https://github.com/idslme/IDSL.IPA/wiki/Extra-scans)
+11. [**Retention time correction**](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index).
 
 ## Citation
 
