@@ -17,10 +17,10 @@
 - [Features of IDSL.IPA](https://github.com/idslme/IDSL.IPA#features-of-idsl.ipa)
 - [Installation](https://github.com/idslme/IDSL.IPA#installation)
 - [Workflow](https://github.com/idslme/IDSL.IPA#workflow)
-- [Simple Batch Example](https://github.com/idslme/IDSL.IPA#simple-batch-example)
+- [Quick Batch Example](https://github.com/idslme/IDSL.IPA#quick-batch-example)
 - [Wiki](https://github.com/idslme/IDSL.IPA#wiki)
 - [Citation](https://github.com/idslme/IDSL.IPA#citation)
-- [News and Update](https://github.com/idslme/IDSL.IPA/update.md)
+- [News and Update](https://github.com/idslme/IDSL.IPA/blob/main/UPDATE.md)
 
 ## Features of IDSL.IPA
 
@@ -51,7 +51,26 @@ To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), downlo
 	library(IDSL.IPA)
 	IPA_workflow("Address of the IPA parameter spreadsheet")
 
-## Simple Batch Example
+## Quick Batch Example
+
+Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolomicsworkbench.org/data/DRCCMetadata.php?Mode=Study&StudyID=ST002263&DataMode=AllData&ResultType=1) which has Thermo Q Exactive HF hybrid Orbitrap data collected in the HILIC-ESI-POS/NEG modes. 
+
+1. Download [ST002263_Rawdata.zip (1.6G)](https://www.metabolomicsworkbench.org/data/DRCCStudySummary.php?Mode=SetupRawDataDownload&StudyID=ST002263)
+
+2. Separate positive and negative modes *.mzXML* data in different folders. We generally suggest processing positive and negative modes data separately to avoid data similarity complications.
+
+3. IDSL.IPA requires 51 parameters distributed into 9 separate sections. For the **MTBLS1684** study, use default parameter values presented in the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx). Next, Provide address for 
+	
+	3.1. **PARAM0007** for the *Input data location address (MS1 level HRMS data)*
+	
+	3.2. **PARAM0010** for *Output location address (MS1 processed data)*
+		
+	3.3. You may also increase the number of processing threads using **PARAM0006** according to your computational power
+
+4. Run this command in R/Rstudio console or terminal: `IDSL.IPA::IPA_workflow("Address of the IPA parameter spreadsheet")`
+
+5. You may parse the results at the address you provided for **PARAM0010**.
+
 
 ## [**Wiki**](https://github.com/idslme/IDSL.IPA/wiki)
 
