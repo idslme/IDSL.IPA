@@ -19,7 +19,7 @@
 - [Workflow](https://github.com/idslme/IDSL.IPA#workflow)
 - [Quick Batch Example](https://github.com/idslme/IDSL.IPA#quick-batch-example)
 - [Wiki](https://github.com/idslme/IDSL.IPA#wiki)
-- [News and Update](https://github.com/idslme/IDSL.IPA/blob/main/UPDATE.md)
+- [News and Updates](https://github.com/idslme/IDSL.IPA#news-and-updates)
 - [Citation](https://github.com/idslme/IDSL.IPA#citation)
 
 ## Features of IDSL.IPA
@@ -86,7 +86,7 @@ Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolo
 10. [**Extra scans**](https://github.com/idslme/IDSL.IPA/wiki/Extra-scans)
 11. [**Retention time correction**](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index).
 
-## [News and Update](https://github.com/idslme/IDSL.IPA/blob/main/UPDATE.md)
+## News and Updates
 We post major changes in the IDSL.IPA workflow [here](https://github.com/idslme/IDSL.IPA/blob/main/UPDATE.md).
 
 ## Citation
