@@ -68,19 +68,22 @@ Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolo
 		
 	3.3. You may also increase the number of processing threads using **PARAM0006** according to your computational power
 
-4. Run this command in R/Rstudio console or terminal.
+4. Run this command in the R/Rstudio console or terminal.
 
 	library(IDSL.IPA)
 	IPA_workflow("Address of the IPA parameter spreadsheet")
 
 5. You see the results in the address you provided for **PARAM0010** including:
+
 	5.1. individual peaklists for each HRMS file in the *peaklists* directory in the *.Rdata* and *.csv* formats
+	
 	5.2. peak alignment tables in the *peak_alignment* directory
-	5.3. if you had selected **YES** for **PARAM0009**, untargeted EICs are also avialable in the *IPA_EIC* for each HRMS file.
+	
+	5.3. if you had selected **YES** for **PARAM0009**, untargeted EICs are also available in the *IPA_EIC* for each HRMS file.
 
 ## [**Wiki**](https://github.com/idslme/IDSL.IPA/wiki)
 
-1. [**Example of a population size study with 499 indivdual mass spectrometry file**](https://github.com/idslme/IDSL.IPA/wiki/IDSL.IPA-for-MTBLS1684-study)
+1. [**Example of a population size study with 499 individual mass spectrometry file**](https://github.com/idslme/IDSL.IPA/wiki/IDSL.IPA-for-MTBLS1684-study)
 2. `IPA_targeted` function for a large number of peaks (***m/z***-**RT** pairs) with an [**example for targeted IDSL.IPA**](https://github.com/idslme/IDSL.IPA/wiki/IPA_targeted)
 3. [**Ion Pairing**](https://github.com/idslme/IDSL.IPA/wiki/Ion-Pairing)
 4. [**Definition of Signal to Noise ratio (S/N)**](https://github.com/idslme/IDSL.IPA/wiki/Definition-Signal-to-Noise-Ratio)
