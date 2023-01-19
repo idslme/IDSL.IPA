@@ -8,7 +8,7 @@
 [![Dependencies](https://tinyverse.netlify.com/badge/IDSL.IPA)](https://cran.r-project.org/package=IDSL.IPA)
 <!-- badges: end -->
 
-**Intrinsic Peak Analysis (IPA)** by the [**Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME)**](https://www.idsl.me) is a light-weight R package that extracts peaks for organic small molecules from untargeted liquid chromatography high resolution mass spectrometry (LC/HRMS) data in population scale projects. IDSL-IPA generates comprehensive and high-quality datasets from untargeted analysis of organic small molecules in a bio-specimen. It is a suite of new algorithms covering extracted ion chromatogram (EIC) candidate generation, peak detection, peak property evaluation, mass-correction, retention time correction across multiple batches and peak annotation. IDSL.IPA has been optimized and tested for analysis of large sample sizes (n = 499) samples. We have shown that IDSL.IPA in our [publication](https://github.com/idslme/IDSL.IPA#citation) is able to outperform similar peak picking tools such as MZmine 2, *xcms*, and MS-DIAL in terms of sensitivity, specificity and speed.
+**Intrinsic Peak Analysis (IPA)** by the [**Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME)**](https://www.idsl.me) is a light-weight R package that extracts peaks for organic small molecules from untargeted liquid chromatography high resolution mass spectrometry (LC/HRMS) data in population scale projects. IDSL.IPA generates comprehensive and high-quality datasets from untargeted analysis of organic small molecules in a bio-specimen. It is a suite of new algorithms covering extracted ion chromatogram (EIC) candidate generation, peak detection, peak property evaluation, mass-correction, retention time correction across multiple batches and peak annotation. IDSL.IPA has been optimized and tested for analysis of large sample sizes (n = 499) samples. We have shown that IDSL.IPA in our [publication](https://github.com/idslme/IDSL.IPA#citation) is able to outperform similar peak picking tools such as MZmine 2, *xcms*, and MS-DIAL in terms of sensitivity, specificity and speed.
 
 ## <img src='IPA_educational_files/Figures/IDSL.IPA-TOC_Art.png' align="right" />
 
@@ -58,9 +58,9 @@ Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolo
 
 1. Download [ST002263_Rawdata.zip (1.6G)](https://www.metabolomicsworkbench.org/data/DRCCStudySummary.php?Mode=SetupRawDataDownload&StudyID=ST002263)
 
-2. Separate positive and negative modes *.mzXML* data in different folders. We generally suggest processing positive and negative modes data separately to avoid data similarity complications.
+2. Separate positive and negative modes *.mzXML* data in different folders. Positive and negative modes data must be processed separately.
 
-3. IDSL.IPA requires 51 parameters distributed into 9 separate sections. For this study, use default parameter values presented in the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx). Next, Provide address for 
+3. IDSL.IPA requires 51 parameters distributed into 9 separate sections for a full scale run. For this study, use default parameter values presented in the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx). Then, provide information for 
 	
 	3.1. **PARAM0007** for the *Input data location address (MS1 level HRMS data)*
 	
@@ -68,9 +68,15 @@ Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolo
 		
 	3.3. You may also increase the number of processing threads using **PARAM0006** according to your computational power
 
-4. Run this command in R/Rstudio console or terminal: `IDSL.IPA::IPA_workflow("Address of the IPA parameter spreadsheet")`
+4. Run this command in R/Rstudio console or terminal.
 
-5. You may parse the results at the address you provided for **PARAM0010**.
+	library(IDSL.IPA)
+	IPA_workflow("Address of the IPA parameter spreadsheet")
+
+5. You see the results in the address you provided for **PARAM0010** including:
+	5.1. individual peaklists for each HRMS file in the *peaklists* directory in the *.Rdata* and *.csv* formats
+	5.2. peak alignment tables in the *peak_alignment* directory
+	5.3. if you had selected **YES** for **PARAM0009**, untargeted EICs are also avialable in the *IPA_EIC* for each HRMS file.
 
 ## [**Wiki**](https://github.com/idslme/IDSL.IPA/wiki)
 
