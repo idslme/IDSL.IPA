@@ -70,8 +70,10 @@ Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolo
 
 4. Run this command in the R/Rstudio console or terminal.
 
-	library(IDSL.IPA)
-	IPA_workflow("Address of the IPA parameter spreadsheet")
+```
+library(IDSL.IPA)
+IPA_workflow("Address of the IPA parameter spreadsheet")
+```
 
 5. You see the results in the address you provided for **PARAM0010** including:
 

@@ -12,4 +12,4 @@ We slightly revised the IDSL.IPA algorithm relative to our publication in the *J
 - **PARAM_ALG1-ALG4** parameters were added to calculate correlation of aligned peak heights to detect related peaks using Pearson correlation coefficients. These correlation results are stored as `alignedPeakHeightTableCorrelationList.Rdata` in an R list format. Each (*m/z*-RT) on the aligned table is presented with its correlating peaks.
 
 ## Annotating peaks from individual peaklists using a reference database of *m/z*-RT-name
-- Compound-centric annotation can aggregate untargeted EICs in separate folders for each compound when **PARAM0008** was selected **YES** in the peak-picking step.
+- Compound-centric annotation can aggregate untargeted EICs in separate folders for each compound when **PARAM0009** was selected **YES** in the peak-picking step.
