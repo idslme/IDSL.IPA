@@ -54,9 +54,9 @@ To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), downlo
 
 ## Quick Batch Example
 
-Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolomicsworkbench.org/data/DRCCMetadata.php?Mode=Study&StudyID=ST002263&DataMode=AllData&ResultType=1) which has Thermo Q Exactive HF hybrid Orbitrap data collected in the HILIC-ESI-POS/NEG modes.
+Follow these steps for a quick case study (n = 33) [ST002263](https://www.metabolomicsworkbench.org/data/DRCCMetadata.php?Mode=Study&StudyID=ST002263&DataMode=AllData&ResultType=1) which has Thermo Q Exactive HF hybrid Orbitrap data collected in the HILIC-ESI-POS/NEG modes.
 
-1. Download [Kynurenine_Kynurenic_acid.msp](https://github.com/idslme/IDSL.FSA/blob/main/IDSL.FSA/inst/extdata/Kynurenine_Kynurenic_acid.msp)
+1. Download [ST002263_Rawdata.zip (1.6G)](https://www.metabolomicsworkbench.org/data/DRCCStudySummary.php?Mode=SetupRawDataDownload&StudyID=ST002263)
 
 2. Separate positive and negative modes *.mzXML* data in different folders. Positive and negative modes data must be processed separately.
 
