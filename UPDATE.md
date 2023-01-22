@@ -5,6 +5,7 @@ We slightly revised the IDSL.IPA algorithm relative to our publication in the *J
 - **PARAM_PAR** were added to be consistent with **sample mode** and **peak mode** parallelization modes to generate individual peaklists.
 - **PARAM0009** was updated to save untargeted extracted ion chromatogram (EIC) figures for individual HRMS files.
 - **PARAM0012** has changed its functionality and allows users to decide the mass difference between the isotopologues. This feature allows to screen for C, Cl, Br, S, Se, ... isotopologues or any constant mass difference. Furthermore, negative values are also allowed for this parameter to search  for lower mass isotopologues.
+- **PARAM0018** was removed from the workflow.
 - Gaussianity of the chromatographic peaks are calculated using the Pearson correlation coefficient instead of Kolmogorov–Smirnov test.
 
 ## Generating aligned peak tables and correlation lists for the aligned peak height table

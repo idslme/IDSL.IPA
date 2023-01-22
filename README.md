@@ -8,7 +8,7 @@
 [![Dependencies](https://tinyverse.netlify.com/badge/IDSL.IPA)](https://cran.r-project.org/package=IDSL.IPA)
 <!-- badges: end -->
 
-**Intrinsic Peak Analysis (IPA)** by the [**Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME)**](https://www.idsl.me) is a light-weight R package that extracts peaks for organic small molecules from untargeted liquid chromatography high resolution mass spectrometry (LC/HRMS) data in population scale projects. IDSL.IPA generates comprehensive and high-quality datasets from untargeted analysis of organic small molecules in a bio-specimen. It is a suite of new algorithms covering extracted ion chromatogram (EIC) candidate generation, peak detection, peak property evaluation, mass-correction, retention time correction across multiple batches and peak annotation. IDSL.IPA has been optimized and tested for analysis of large sample sizes (n = 499) samples. We have shown that IDSL.IPA in our [publication](https://github.com/idslme/IDSL.IPA#citation) is able to outperform similar peak picking tools such as MZmine 2, *xcms*, and MS-DIAL in terms of sensitivity, specificity and speed.
+**Intrinsic Peak Analysis (IPA)** by the [**Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME)**](https://www.idsl.me) is a light-weight R package that extracts peaks for organic small molecules from untargeted liquid chromatography high resolution mass spectrometry (LC/HRMS) data in population scale projects. IDSL.IPA generates comprehensive and high-quality datasets from untargeted analysis of organic small molecules in a bio-specimen. IDSL.IPA is a suite of new algorithms covering extracted ion chromatogram (EIC) candidate generation, peak detection, peak property evaluation, recursive mass correction, retention time correction across multiple batches and peak annotation. IDSL.IPA has been optimized and tested for analysis of population-size studies. We have shown in our [publication](https://github.com/idslme/IDSL.IPA#citation) that IDSL.IPA is able to outperform similar peak picking tools such as MZmine 2, *xcms*, and MS-DIAL in terms of sensitivity, specificity and speed.
 
 ## <img src='IPA_educational_files/Figures/IDSL.IPA-TOC_Art.png' align="right" />
 
@@ -54,13 +54,13 @@ To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), downlo
 
 ## Quick Batch Example
 
-Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolomicsworkbench.org/data/DRCCMetadata.php?Mode=Study&StudyID=ST002263&DataMode=AllData&ResultType=1) which has Thermo Q Exactive HF hybrid Orbitrap data collected in the HILIC-ESI-POS/NEG modes. 
+Follow these steps for a quick case study (n=33) [ST002263](https://www.metabolomicsworkbench.org/data/DRCCMetadata.php?Mode=Study&StudyID=ST002263&DataMode=AllData&ResultType=1) which has Thermo Q Exactive HF hybrid Orbitrap data collected in the HILIC-ESI-POS/NEG modes.
 
-1. Download [ST002263_Rawdata.zip (1.6G)](https://www.metabolomicsworkbench.org/data/DRCCStudySummary.php?Mode=SetupRawDataDownload&StudyID=ST002263)
+1. Download [Kynurenine_Kynurenic_acid.msp](https://github.com/idslme/IDSL.FSA/blob/main/IDSL.FSA/inst/extdata/Kynurenine_Kynurenic_acid.msp)
 
 2. Separate positive and negative modes *.mzXML* data in different folders. Positive and negative modes data must be processed separately.
 
-3. IDSL.IPA requires 51 parameters distributed into 9 separate sections for a full scale run. For this study, use default parameter values presented in the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx). Then, provide information for 
+3. Parameters for IDSL.IPA are distributed into 9 separate sections. For this study, use default parameter values presented in the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx). Then, provide information for 
 	
 	3.1. **PARAM0007** for the *Input data location address (MS1 level HRMS data)*
 	
