@@ -24,18 +24,18 @@
 
 ## Features of IDSL.IPA
 
-1) Parameter selection through a well-described [parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx)
-2) Process high-throughput and population size studies (n > 500)
-3) Calculating 17 chromatographic peak properties
-4) Mass spectra level [Ion Pairing](https://github.com/idslme/IDSL.IPA/wiki/Ion-Pairing) to remove random noises to accelerate the processing speed
-5) Compatibility to screen for any ion mass difference in addition to natural carbon signatures (<sup>12</sup>C/<sup>13</sup>C isotopologues) mass difference
-6) [Retention time correction](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index) using endogenous reference markers
+1) Parameter selection through a user-friendly and well-described [parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx)
+2) Analyzing population size untargeted studies (n > 500)
+3) Calculating 19 chromatographic peak properties such as peak area, nIsoPair, RCS, cumulated intensity, R<sup>13</sup>C, peak width, RPW, number of separation trays, asymmetry factor, USP tailing factor, skewness using derivative method, symmetry using pseudo-moments, skewness using pseudo-moments, gaussianity, S/N using baseline, S/N using the *xcms* method, S/N using the RMS method, and sharpness.
+4) Mass spectra scan level [Ion Pairing](https://github.com/idslme/IDSL.IPA/wiki/Ion-Pairing) to only select relevant ions
+5) Flexibility to screen for any ion mass difference in addition to natural carbon signatures (<sup>12</sup>C/<sup>13</sup>C isotopologues) mass difference
+6) [Retention time correction](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index) using endogenous reference markers for multi-batch large scale studies
 7) Generating batch untargeted extracted ion chromatograms (EICs)
 8) Generating pairwise correlations list for aligned peak height and its gap-filled tables to detect potential recurring adducts, in-source products and fragment peaks
 9) Aggregating untargeted EICs after (m/z-RT) annotation for each compound
-10) Compatibility with parallel processing in Windows and Linux environments
-11) Compatibility with downstream molecular formula annotation tools such as [IDSL.UFA](https://github.com/idslme/IDSL.UFA) and [IDSL.UFAx](https://github.com/idslme/IDSL.UFAx)
-12) Compatibility with [IDSL.CSA](https://github.com/idslme/IDSL.CSA) workflow to cluster recurring ions to generate composite spectra
+10) Parallel processing in Windows and Linux environments
+11) Integration with molecular formula annotation tools [IDSL.UFA](https://github.com/idslme/IDSL.UFA) and [IDSL.UFAx](https://github.com/idslme/IDSL.UFAx)
+12) Integration with [IDSL.CSA](https://github.com/idslme/IDSL.CSA) workflow to cluster recurring ions to generate composite spectra
 
 ## Installation
 
