@@ -32,7 +32,7 @@
 6) [Retention time correction](https://github.com/idslme/IDSL.IPA/wiki/Retention-Index) using endogenous reference markers for multi-batch large scale studies
 7) Generating batch untargeted extracted ion chromatograms (EICs)
 8) Generating pairwise correlations list for aligned peak height and its gap-filled tables to detect potential recurring adducts, in-source products and fragment peaks
-9) Aggregating untargeted EICs after (m/z-RT) annotation for each compound
+9) Aggregating untargeted EICs after (*m/z*-RT) annotation for each compound
 10) Parallel processing in Windows and Linux environments
 11) Integration with molecular formula annotation tools [IDSL.UFA](https://github.com/idslme/IDSL.UFA) and [IDSL.UFAx](https://github.com/idslme/IDSL.UFAx)
 12) Integration with [IDSL.CSA](https://github.com/idslme/IDSL.CSA) workflow to cluster recurring ions to generate composite spectra
@@ -56,32 +56,32 @@ To process your mass spectrometry data (**mzXML**, **mzML**, **netCDF**), downlo
 
 Follow these steps for a quick case study (n = 33) [ST002263](https://www.metabolomicsworkbench.org/data/DRCCMetadata.php?Mode=Study&StudyID=ST002263&DataMode=AllData&ResultType=1) which has Thermo Q Exactive HF hybrid Orbitrap data collected in the HILIC-ESI-POS/NEG modes.
 
-1. Download [ST002263_Rawdata.zip (1.6G)](https://www.metabolomicsworkbench.org/data/DRCCStudySummary.php?Mode=SetupRawDataDownload&StudyID=ST002263)
+1. Download the file ["ST002263_Rawdata.zip" (1.6G)](https://www.metabolomicsworkbench.org/data/DRCCStudySummary.php?Mode=SetupRawDataDownload&StudyID=ST002263)
 
-2. Separate positive and negative modes *.mzXML* data in different folders. Positive and negative modes data must be processed separately.
+2. Separate the positive and negative modes *.mzXML* data into different folders and process each mode separately. Positive and negative modes data must be processed separately.
 
-3. Parameters for IDSL.IPA are distributed into 9 separate sections. For this study, use default parameter values presented in the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx). Then, provide information for 
+3. Open the [IPA parameter spreadsheet](https://raw.githubusercontent.com/idslme/IDSL.IPA/main/IPA_parameters.xlsx) and use default values for all parameters, except:
 	
-	3.1. **PARAM0007** for the *Input data location address (MS1 level HRMS data)*
+	3.1. Input data location: In **PARAM0007**, specify the location of the MS1 level HRMS data.
 	
-	3.2. **PARAM0010** for *Output location address (MS1 processed data)*
+	3.2. Output location: In **PARAM0010**, specify the location where you want the processed data to be stored.
 		
-	3.3. You may also increase the number of processing threads using **PARAM0006** according to your computational power
+	3.3. Number of processing threads: In **PARAM0006**, increase the number of processing threads based on your computer's computational power.
 
-4. Run this command in the R/Rstudio console or terminal.
+4. Open the R/Rstudio console or terminal and run the following command:
 
 ```
 library(IDSL.IPA)
 IPA_workflow("Address of the IPA parameter spreadsheet")
 ```
 
-5. You see the results in the address you provided for **PARAM0010** including:
+5. The results will be available in the output location specified in **PARAM0010** and will include:
 
-	5.1. individual peaklists for each HRMS file in the *peaklists* directory in the *.Rdata* and *.csv* formats
+	5.1. Individual peaklists for each HRMS file in *.Rdata* and *.csv* formats in the "peaklists" directory.
 	
-	5.2. peak alignment tables in the *peak_alignment* directory
+	5.2. Peak alignment tables in the "peak_alignment" directory.
 	
-	5.3. if you had selected **YES** for **PARAM0009**, untargeted EICs are also available in the *IPA_EIC* for each HRMS file.
+	5.3. (Optional) untargeted EICs in the "IPA_EIC" directory for each HRMS file, if selected **YES** in **PARAM0009**.
 
 ## [**Wiki**](https://github.com/idslme/IDSL.IPA/wiki)
 
@@ -103,4 +103,4 @@ We post major changes in the IDSL.IPA workflow [here](https://github.com/idslme/
 
 ## Citation
 
-Fakouri Baygi, S., Kumar, Y. Barupal, D.K. [IDSL. IPA characterizes the organic chemical space in untargeted LC/HRMS datasets](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00120). *Journal of proteome research*, **2022**, *21(6)*, 1485-1494.
+[1] Fakouri Baygi, S., Kumar, Y. Barupal, D.K. [IDSL. IPA characterizes the organic chemical space in untargeted LC/HRMS datasets](https://pubs.acs.org/doi/10.1021/acs.jproteome.2c00120). *Journal of proteome research*, **2022**, *21(6)*, 1485-1494.
