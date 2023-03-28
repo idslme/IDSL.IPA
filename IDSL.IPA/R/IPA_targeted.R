@@ -4,8 +4,10 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
   ##
   if (!is.null(PARAM_targeted)) {
     ##
-    mzCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_MZ'), 2], ")"))), error = function(e){NULL})
-    rtCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_RT'), 2], ")"))), error = function(e){NULL})
+    mzCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_MZ'), 2], ")"))),
+                            error = function(e){stop(IPA_logRecorder("Problem with 'PARAM_MZ'! This parameter can't make a vector of numbers!"))})
+    rtCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_RT'), 2], ")"))),
+                            error = function(e){stop(IPA_logRecorder("Problem with 'PARAM_RT'! This parameter can't make a vector of numbers!"))})
     ##
     lCandidate <- length(mzCandidate)
     if ((lCandidate == 0) | (lCandidate != length(rtCandidate))) {
@@ -21,11 +23,12 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
     }
     ##
     number_processing_threads <- as.numeric(PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM0006'), 2])
+    ##
     if (number_processing_threads > 1) {
       parallelizationMode <- gsub(" ", "", tolower(PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_PAR'), 2]))
       ##
-      if (parallelizationMode != "samplemode") {
-        parallelizationMode = "peakmode"
+      if (parallelizationMode != "peakmode") {
+        parallelizationMode = "samplemode"
       }
     }
     ##
@@ -145,7 +148,35 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
       osType <- Sys.info()[['sysname']]
       ##
       if (parallelizationMode == "peakmode") {
-        if (osType == "Linux") {
+        if (osType == "Windows") {
+          ##
+          peakPropertiesTable <- do.call(rbind, lapply(1:LHRMS, function(i) {
+            ##
+            outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
+            spectraList <- outputer[["spectraList"]]
+            retentionTime <- outputer[["retentionTime"]]
+            outputer <- NULL
+            LretentionTime <- length(retentionTime)
+            aggregatedSpectraList <- IPA_spectraListAggregator(spectraList)
+            ##
+            on.exit(tryCatch(stopCluster(clust), error = function(e){NULL}, warning = function(w){NULL}))
+            ##
+            clust <- makeCluster(number_processing_threads)
+            clusterExport(clust, c("call_IPA_targeted", "i", "mzCandidate", "rtCandidate", "spectraList", "aggregatedSpectraList",
+                                   "retentionTime", "LretentionTime", "scanTolerance", "ionMassDifference", "massAccuracy", "massAccuracy1.5",
+                                   "outputPathEIC", "file_name_hrms", "smoothingWindow", "peakResolvingPower", "nSpline"), envir = environment())
+            ##
+            do.call(rbind, parLapply(clust, 1:lCandidate, function(j) {
+              ##
+              jMZcandidate <- mzCandidate[j]
+              jRTcandidate <- rtCandidate[j]
+              tryCatch(call_IPA_targeted(j, jMZcandidate, jRTcandidate, spectraList, aggregatedSpectraList, retentionTime,
+                                         LretentionTime, scanTolerance, ionMassDifference, massAccuracy, massAccuracy1.5,
+                                         outputPathEIC, iFileNameHRMS = file_name_hrms[i], smoothingWindow, peakResolvingPower, nSpline),
+                       error = function(e) {IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
+            }))
+          }))
+        } else {
           ##
           peakPropertiesTable <- do.call(rbind, lapply(1:LHRMS, function(i) {
             ##
@@ -165,17 +196,20 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
                                          outputPathEIC, iFileNameHRMS = file_name_hrms[i], smoothingWindow, peakResolvingPower, nSpline),
                        error = function(e) {IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
             }, mc.cores = number_processing_threads))
-            ##
           }))
           ##
           closeAllConnections()
           ##
-        } else if (osType == "Windows") {
+        }
+        ##
+      } else if (parallelizationMode == "samplemode") {
+        ##
+        if (osType == "Windows") {
           ##
           clust <- makeCluster(number_processing_threads)
-          registerDoParallel(clust)
+          clusterExport(clust, setdiff(ls(), c("clust", "LHRMS")), envir = environment())
           ##
-          peakPropertiesTable <- do.call(rbind, lapply(1:LHRMS, function(i) {
+          peakPropertiesTable <- do.call(rbind, parLapply(clust, 1:LHRMS, function(i) {
             ##
             outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
             spectraList <- outputer[["spectraList"]]
@@ -184,7 +218,7 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
             LretentionTime <- length(retentionTime)
             aggregatedSpectraList <- IPA_spectraListAggregator(spectraList)
             ##
-            foreach(j = 1:lCandidate, .combine = 'rbind', .verbose = FALSE) %dopar% {
+            do.call(rbind, lapply(1:lCandidate, function(j) {
               ##
               jMZcandidate <- mzCandidate[j]
               jRTcandidate <- rtCandidate[j]
@@ -192,17 +226,12 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
                                          LretentionTime, scanTolerance, ionMassDifference, massAccuracy, massAccuracy1.5,
                                          outputPathEIC, iFileNameHRMS = file_name_hrms[i], smoothingWindow, peakResolvingPower, nSpline),
                        error = function(e) {IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
-            }
-            ##
+            }))
           }))
           ##
           stopCluster(clust)
           ##
-        }
-        ##
-      } else if (parallelizationMode == "samplemode") {
-        ##
-        if (osType == "Linux") {
+        } else {
           ##
           peakPropertiesTable <- do.call(rbind, mclapply(1:LHRMS, function(i) {
             ##
@@ -226,34 +255,6 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
           }, mc.cores = number_processing_threads))
           ##
           closeAllConnections()
-          ##
-        } else if (osType == "Windows") {
-          ##
-          clust <- makeCluster(number_processing_threads)
-          registerDoParallel(clust)
-          ##
-          peakPropertiesTable <- foreach(i = 1:LHRMS, .combine = 'rbind', .verbose = FALSE) %dopar% {
-            ##
-            outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
-            spectraList <- outputer[["spectraList"]]
-            retentionTime <- outputer[["retentionTime"]]
-            outputer <- NULL
-            LretentionTime <- length(retentionTime)
-            aggregatedSpectraList <- IPA_spectraListAggregator(spectraList)
-            ##
-            do.call(rbind, lapply(1:lCandidate, function(j) {
-              ##
-              jMZcandidate <- mzCandidate[j]
-              jRTcandidate <- rtCandidate[j]
-              tryCatch(call_IPA_targeted(j, jMZcandidate, jRTcandidate, spectraList, aggregatedSpectraList, retentionTime,
-                                         LretentionTime, scanTolerance, ionMassDifference, massAccuracy, massAccuracy1.5,
-                                         outputPathEIC, iFileNameHRMS = file_name_hrms[i], smoothingWindow, peakResolvingPower, nSpline),
-                       error = function(e) {IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
-            }))
-            ##
-          }
-          ##
-          stopCluster(clust)
           ##
         }
       }

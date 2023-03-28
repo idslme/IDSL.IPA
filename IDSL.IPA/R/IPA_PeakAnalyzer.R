@@ -3,7 +3,13 @@ IPA_PeakAnalyzer <- function(PARAM) {
   IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
   peaklistNA24 <- matrix(rep(NA, 24), nrow = 1)
   ##
-  number_processing_threads <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
+  NPT <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
+  ##
+  parallelizationMode <- tryCatch(gsub(" ", "", tolower(PARAM[which(PARAM[, 1] == 'PARAM_PAR'), 2])), error = function(e) {"samplemode"})
+  if (parallelizationMode != "peakmode") {
+    parallelizationMode = "samplemode"
+  }
+  ##
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
   samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]
   if (tolower(samples_string) == "all") {
@@ -97,7 +103,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
     outputer <- NULL
     ## Pending: This is where torch based smoothing, resolution and de-noising can happen. This needs a GPU hardware. How fast a CPU, depends
     ## IPA_IonPairing
-    spectraScan <- IPA_IonPairing(spectraList, minSpectraNoiseLevel, massAccuracy1.5, ionMassDifference)
+    spectraScan <- IPA_IonPairing(spectraList, minSpectraNoiseLevel, massAccuracy1.5, ionMassDifference, number_processing_threads = NPT)
     ## m/z clustering
     indexXIC <- mzClusteringRawXIC(spectraScan123 = spectraScan[, 1:3], massAccuracy, minNIonPair, minPeakHeightXIC)
     ##
@@ -117,7 +123,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
     peaklist <- primaryXICdeconvoluter(spectraScan, scanTolerance, indexXIC, aggregatedSpectraList, retentionTime, massAccuracy,
                                        smoothingWindow, peakResolvingPower, minNIonPair, minPeakHeight, minRatioIonPair,
                                        maxRPW, minSNRbaseline, maxR13CcumulatedIntensity, maxPercentageMissingScans, nSpline1,
-                                       exportEICparameters)
+                                       exportEICparameters, number_processing_threads = NPT)
     indexXIC <- NULL
     ## Recursive analysis
     if (recursiveMZcorrectionCheck) {
@@ -136,7 +142,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
         peaklist <- recursiveMZpeaklistCorrector(peaklist, spectraScan, scanTolerance, aggregatedSpectraList, retentionTime, massAccuracy,
                                                  smoothingWindow, peakResolvingPower, minNIonPair, minPeakHeight, minRatioIonPair,
                                                  maxRPW, minSNRbaseline, maxR13CcumulatedIntensity, maxPercentageMissingScans, nSpline2,
-                                                 exportEICparameters)
+                                                 exportEICparameters, number_processing_threads = NPT)
       }
     }
     aggregatedSpectraList <- NULL
@@ -215,6 +221,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
       nPeaks <- 1
     }
     ##
+    rownames(peaklist) <- NULL
     colnames(peaklist) <- c("ScanNumberStart","ScanNumberEnd","retentionTimeApex","PeakHeight","PeakArea",
                             "NumberDetectedScans(nIsoPair)","RCS(%)","m/z 12C","CumulatedIntensity", "m/z 13C",
                             "Ratio13C CumulatedIntensity","PeakWidthBaseline","RatioPeakWidth @ 50%",
@@ -269,7 +276,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
   ##
   ##############################################################################
   ##
-  if (number_processing_threads == 1) {
+  if (NPT == 1 | parallelizationMode == "peakmode") {
     ##
     progressBARboundaries <- txtProgressBar(min = 0, max = LHRMS, initial = 0, style = 3)
     ##
@@ -286,31 +293,35 @@ IPA_PeakAnalyzer <- function(PARAM) {
     ############################################################################
     ##
   } else {
+    NPT0 <- NPT
+    NPT <- 1
     ## Processing OS
     osType <- Sys.info()[['sysname']]
     ##
-    if (osType == "Linux") {
+    if (osType == "Windows") {
       ##
-      Null_variable <- do.call(rbind, mclapply(1:LHRMS, function(i) {
+      clust <- makeCluster(NPT0)
+      clusterExport(clust, setdiff(ls(), c("clust", "LHRMS")), envir = environment())
+      ##
+      Null_variable <- do.call(c, parLapply(clust, 1:LHRMS, function(i) {
         tryCatch(call_IPA_PeakAnalyzer(i),
                  error = function(e) {save(peaklistNA24, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
                    IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
-      }, mc.cores = number_processing_threads))
+      }))
       ##
-      closeAllConnections()
+      stopCluster(clust)
       ##
       ##########################################################################
       ##
-    } else if (osType == "Windows") {
-      clust <- makeCluster(number_processing_threads)
-      registerDoParallel(clust)
+    } else {
       ##
-      Null_variable <- foreach(i = 1:LHRMS, .combine = 'rbind', .verbose = FALSE) %dopar% {
+      Null_variable <- do.call(c, mclapply(1:LHRMS, function(i) {
         tryCatch(call_IPA_PeakAnalyzer(i),
                  error = function(e) {save(peaklistNA24, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
                    IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
-      }
-      stopCluster(clust)
+      }, mc.cores = NPT0))
+      ##
+      closeAllConnections()
       ##
     }
   }

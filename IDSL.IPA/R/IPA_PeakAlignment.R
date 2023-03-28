@@ -41,7 +41,7 @@ IPA_PeakAlignment <- function(PARAM) {
     dir.create(OutputPath_peak_alignment, recursive = TRUE)
   }
   ##
-  IPA_logRecorder("Peak alignment data are stored in the `peak_alignment` folder!")
+  IPA_logRecorder("Peak alignment datasets are stored in the `peak_alignment` folder!")
   ##
   if (RTcorrectionCheck) {
     reference_samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0030'), 2]
@@ -87,22 +87,23 @@ IPA_PeakAlignment <- function(PARAM) {
       osType <- Sys.info()[['sysname']]
       if (osType == "Windows") {
         ##
-        cl <- makeCluster(number_processing_threads)
-        registerDoParallel(cl)
+        clust <- makeCluster(number_processing_threads)
+        clusterExport(clust, c("referenceMZRTpeaks", "inputPathPeaklist", "massAccuracy", "RTcorrectionMethod", "refPeakTolerance", "degreePolynomial"), envir = environment())
         ##
-        listCorrectedRTsamples <- foreach(i = peaklistFileNameSamples, .verbose = FALSE) %dopar% {
+        listCorrectedRTsamples <- parLapply(clust, peaklistFileNameSamples, function(i) {
           analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
-        }
+        })
         ##
-        stopCluster(cl)
+        stopCluster(clust)
         ##
-      } else if (osType == "Linux") {
+      } else {
         ##
         listCorrectedRTsamples <- mclapply(peaklistFileNameSamples, function(i) {
           analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
         }, mc.cores = number_processing_threads)
         ##
         closeAllConnections()
+        ##
       }
     }
     names(listCorrectedRTsamples) <- peaklistFileNameSamples
@@ -180,28 +181,31 @@ IPA_PeakAlignment <- function(PARAM) {
     ##
     ############################################################################
     ##
-    IPA_logRecorder("Initiated detecting correlating peaks on the peak height table!")
+    if (LHRMS > 2) {
+      IPA_logRecorder("Initiated detecting correlating peaks on the peak height table!")
+      ##
+      correlationMethod <- tolower(PARAM[which(PARAM[, 1] == 'PARAM_ALG1'), 2])
+      minThresholdCorrelation <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG2'), 2])
+      minFreqDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG3'), 2])
+      minRatioDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG4'), 2])/100
+      ##
+      IPA_logRecorder(paste0("Initiated detecting correlating peaks on the aligned peak height table using the `", correlationMethod, "` method with coefficients `>=",
+                             minThresholdCorrelation,"` and minimum number of complete observations `>=", minFreqDetection, "` combined with observation percentage `>=", minRatioDetection*100, "%`!"))
+      ##
+      alignedPeakHeightTableCorrelationList <- alignedPeakPropertyTableCorrelationListCalculator(peakPropertyTable = peak_height, RTtolerance, minFreqDetection, minRatioDetection,
+                                                                                                 method = correlationMethod, minThresholdCorrelation, number_processing_threads)
+      peak_height <- NULL
+      ##
+      save(alignedPeakHeightTableCorrelationList, file = paste0(OutputPath_peak_alignment, "/alignedPeakHeightTableCorrelationList.Rdata"))
+      ##
+      IPA_logRecorder("Stored the correlating peaks on the peak height table as `alignedPeakHeightTableCorrelationList.Rdata` in the `peak_alignement` folder (Only correlating aligned peak IDs are presented)!")
+    }
     ##
-    correlationMethod <- tolower(PARAM[which(PARAM[, 1] == 'PARAM_ALG1'), 2])
-    minThresholdCorrelation <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG2'), 2])
-    minFreqDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG3'), 2])
-    minRatioDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG4'), 2])/100
+    ############################################################################
     ##
-    IPA_logRecorder(paste0("Initiated detecting correlating peaks on the aligned peak height table using the `", correlationMethod, "` method with coefficients `>=",
-                           minThresholdCorrelation,"` and minimum number of complete observation `>=", minFreqDetection, "` combined with observation percentage `>=", minRatioDetection*100, "%`!"))
-    ##
-    alignedPeakHeightTableCorrelationList <- alignedPeakPropertyTableCorrelationListCalculator(peakPropertyTable = peak_height, RTtolerance, minFreqDetection, minRatioDetection,
-                                                                                               method = correlationMethod, minThresholdCorrelation, number_processing_threads)
-    peak_height <- NULL
-    ##
-    save(alignedPeakHeightTableCorrelationList, file = paste0(OutputPath_peak_alignment, "/alignedPeakHeightTableCorrelationList.Rdata"))
-    ##
-    IPA_logRecorder("Stored the correlating peaks on the peak height table as `alignedPeakHeightTableCorrelationList.Rdata` in the `peak_alignement` folder (Only corrolating aligned peak IDs are presented)!")
     IPA_logRecorder("Completed generating data for peak alignment!")
     IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
   }
-  ##
-  ##############################################################################
   ##
   return()
 }

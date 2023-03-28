@@ -34,7 +34,7 @@ alignedPeakPropertyTableCorrelationListCalculator <- function(peakPropertyTable,
                   if ((LxCommonPeak/nSamples) >= minRatioDetection) {
                     xCommonPeak <- 5 + xCommonPeak
                     ##
-                    corRho <- cor(peakPropertyTable[i, xCommonPeak], peakPropertyTable[t, xCommonPeak], method = method)
+                    corRho <- suppressWarnings(cor(peakPropertyTable[i, xCommonPeak], peakPropertyTable[t, xCommonPeak], method = method))
                     if (!is.na(corRho)) {
                       if (corRho >= minThresholdCorrelation) {
                         t
@@ -77,7 +77,32 @@ alignedPeakPropertyTableCorrelationListCalculator <- function(peakPropertyTable,
     ## Processing OS
     osType <- Sys.info()[['sysname']]
     ##
-    if (osType == "Linux") {
+    if (osType == "Windows") {
+      ##
+      clust <- makeCluster(number_processing_threads)
+      clusterExport(clust, c("peakPropertyTable", "LpeakPropertyTable"), envir = environment())
+      xSList <- parLapply(clust, 1:nPeaks, function(i) {
+        which(peakPropertyTable[i, 6:LpeakPropertyTable] > 0)
+      })
+      stopCluster(clust)
+      ##
+      clust <- makeCluster(number_processing_threads)
+      clusterExport(clust, "xSList", envir = environment())
+      xS <- do.call(c, parLapply(clust, 1:nPeaks, function(i) {
+        length(xSList[[i]])
+      }))
+      stopCluster(clust)
+      ##
+      clust <- makeCluster(number_processing_threads)
+      clusterExport(clust, setdiff(ls(), c("clust", "nPeaks")), envir = environment())
+      correlationList <- parLapply(clust, 1:nPeaks, function(i) {
+        tryCatch(call_alignedPeakPropertyTableCorrelationListCalculator(i), error = function(e) {NULL}, warning = function(w) {NULL})
+      })
+      stopCluster(clust)
+      ##
+      ##########################################################################
+      ##
+    } else {
       ##
       xSList <- mclapply(1:nPeaks, function(i) {
         which(peakPropertyTable[i, 6:LpeakPropertyTable] > 0)
@@ -92,25 +117,6 @@ alignedPeakPropertyTableCorrelationListCalculator <- function(peakPropertyTable,
       }, mc.cores = number_processing_threads)
       ##
       closeAllConnections()
-      ##
-    } else if (osType == "Windows") {
-      ##
-      clust <- makeCluster(number_processing_threads)
-      registerDoParallel(clust)
-      ##
-      xSList <- foreach(i = 1:nPeaks, .verbose = FALSE) %dopar% {
-        which(peakPropertyTable[i, 6:LpeakPropertyTable] > 0)
-      }
-      ##
-      xS <- foreach(i = 1:nPeaks, .combine = 'c', .verbose = FALSE) %dopar% {
-        length(xSList[[i]])
-      }
-      ##
-      correlationList <- foreach(i = 1:nPeaks, .verbose = FALSE) %dopar% {
-        tryCatch(call_alignedPeakPropertyTableCorrelationListCalculator(i), error = function(e) {NULL}, warning = function(w) {NULL})
-      }
-      ##
-      stopCluster(clust)
       ##
     }
   }

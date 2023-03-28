@@ -1,1 +1,1 @@
-utils::globalVariables(c("i", "j", ".logIPA"))
+utils::globalVariables(c(".logIPA"))

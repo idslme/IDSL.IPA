@@ -115,23 +115,26 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance,
     ## Processing OS
     osType <- Sys.info()[['sysname']]
     ##
-    if (osType == "Linux") {
+    if (osType == "Windows") {
+      ##
+      clust <- makeCluster(number_processing_threads)
+      clusterExport(clust, setdiff(ls(), c("clust", "Lsamples")), envir = environment())
+      ##
+      chromatography_undetected_list <- parLapply(clust, 1:Lsamples, function(i) {
+        call_gapFillingCore(i)
+      })
+      ##
+      stopCluster(clust)
+      ##
+      #########################################################################
+      ##
+    } else {
       ##
       chromatography_undetected_list <- mclapply(1:Lsamples, function(i) {
         call_gapFillingCore(i)
       }, mc.cores = number_processing_threads)
       ##
       closeAllConnections()
-      ##
-    } else if (osType == "Windows") {
-      ##
-      clust <- makeCluster(number_processing_threads)
-      registerDoParallel(clust)
-      ##
-      chromatography_undetected_list <- foreach(i = 1:Lsamples, .verbose = FALSE) %dopar% {
-        call_gapFillingCore(i)
-      }
-      stopCluster(clust)
       ##
     }
   }

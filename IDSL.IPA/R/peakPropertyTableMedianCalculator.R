@@ -37,25 +37,26 @@ peakPropertyTableMedianCalculator <- function(peakPropertyTable, falggingVector 
     ##
     ############################################################################
     ##
-    if (osType == "Linux") {
+    if (osType == "Windows") {
+      ##
+      clust <- makeCluster(number_processing_threads)
+      clusterExport(clust, setdiff(ls(), c("clust", "nPeaks")), envir = environment())
+      ##
+      medianPeakProperty <- do.call(c, parLapply(clust, 1:nPeaks, function(i) {
+        call_peakPropertyTableMedianCalculator(i)
+      }))
+      ##
+      stopCluster(clust)
+      ##
+      ##########################################################################
+      ##
+    } else {
       ##
       medianPeakProperty <- do.call(c, mclapply(1:nPeaks, function(i) {
         call_peakPropertyTableMedianCalculator(i)
       }, mc.cores = number_processing_threads))
       ##
       closeAllConnections()
-      ##
-      ##########################################################################
-      ##
-    } else if (osType == "Windows") {
-      clust <- makeCluster(number_processing_threads)
-      registerDoParallel(clust)
-      ##
-      medianPeakProperty <- foreach(i = 1:nPeaks, .combine = 'c', .verbose = FALSE) %dopar% {
-        call_peakPropertyTableMedianCalculator(i)
-      }
-      ##
-      stopCluster(clust)
       ##
     }
   }

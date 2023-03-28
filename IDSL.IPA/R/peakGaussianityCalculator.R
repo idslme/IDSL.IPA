@@ -10,7 +10,7 @@ peakGaussianityCalculator <- function(RT, Int, BL, gauge = 0.8) {
     x_g <- which(Int/Int_max >= (1 - gauge))
     Int_g <- Int[x_g]
     G_g <- G[x_g]
-    GM <- cor(Int_g, G_g, method = "pearson")
+    GM <- suppressWarnings(cor(Int_g, G_g, method = "pearson"))
   }
   return(GM)
 }

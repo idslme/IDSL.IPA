@@ -1,13 +1,50 @@
 plot_simple_tic <- function(filelist, filelocation, number_processing_threads = 1, plotTitle = "Total Ion Chromatogram") {
   ##
-  clust <- makeCluster(number_processing_threads)
-  registerDoParallel(clust)
-  dflist.tic <- foreach(i = filelist) %dopar% {
+  call_plot_simple_tic <- function(i) {
     p2l <- IDSL.MXP::peak2list(filelocation, i)
     scanTable <- p2l[["scanTable"]]
-    data.frame(RT = scanTable$retentionTime, Intensity = scanTable$totIonCurrent)
+    df <- data.frame(RT = scanTable$retentionTime, Intensity = scanTable$totIonCurrent)
+    return(df)
   }
-  stopCluster(clust)
+  ##
+  ##############################################################################
+  ##
+  if (number_processing_threads == 1) {
+    ##
+    dflist.tic <- lapply(filelist, function(i) {
+      call_plot_simple_tic(i)
+    })
+    ##
+  } else {
+    osType <- Sys.info()[['sysname']]
+    ##
+    ############################################################################
+    ##
+    if (osType == "Windows") {
+      ##
+      clust <- makeCluster(number_processing_threads)
+      clusterExport(clust, setdiff(ls(), c("clust", "filelist")), envir = environment())
+      ##
+      dflist.tic <- parLapply(clust, filelist, function(i) {
+        call_plot_simple_tic(i)
+      })
+      ##
+      stopCluster(clust)
+      ##
+      ##########################################################################
+      ##
+    } else {
+      ##
+      dflist.tic <- mclapply(filelist, function(i) {
+        call_plot_simple_tic(i)
+      }, mc.cores = number_processing_threads)
+      ##
+      closeAllConnections()
+      ##
+    }
+  }
+  ##
+  ##############################################################################
   ##
   rainbowColors <- rainbow(length(filelist), alpha = 1)
   png(paste0(filelocation, "/_simple_tic.png"), width = 12, height = 8, units = "in", res = 100)

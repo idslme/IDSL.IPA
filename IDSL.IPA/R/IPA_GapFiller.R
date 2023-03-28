@@ -149,38 +149,41 @@ IPA_GapFiller <- function(PARAM) {
   ##############################################################################
   ##############################################################################
   ##
-  correlationMethod <- tryCatch(tolower(PARAM[which(PARAM[, 1] == 'PARAM_ALG1'), 2]), error = function(e) {"pearson"}, warning = function(w) {"pearson"})
-  if (!(correlationMethod == "pearson" | correlationMethod == "spearman")) {
-    correlationMethod <- "pearson"
-  }
-  minThresholdCorrelation <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG2'), 2]), error = function(e) {0.75}, warning = function(w) {0.75})
-  if (minThresholdCorrelation < 0.5 | minThresholdCorrelation > 1) {
-    minThresholdCorrelation <- 0.75
-  }
-  minFreqDetection <- tryCatch(floor(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG3'), 2])), error = function(e) {0.75}, warning = function(w) {0.75})
-  if (minFreqDetection < 3) {
-    minFreqDetection <- 3
-  }
-  minRatioDetection <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG4'), 2])/100, error = function(e) {0.10}, warning = function(w) {0.10})
-  if (minRatioDetection < 0 | minRatioDetection > 1) {
-    minRatioDetection <- 0.1
+  if (LHRMS > 2) {
+    correlationMethod <- tryCatch(tolower(PARAM[which(PARAM[, 1] == 'PARAM_ALG1'), 2]), error = function(e) {"pearson"}, warning = function(w) {"pearson"})
+    if (!(correlationMethod == "pearson" | correlationMethod == "spearman")) {
+      correlationMethod <- "pearson"
+    }
+    minThresholdCorrelation <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG2'), 2]), error = function(e) {0.75}, warning = function(w) {0.75})
+    if (minThresholdCorrelation < 0.5 | minThresholdCorrelation > 1) {
+      minThresholdCorrelation <- 0.75
+    }
+    minFreqDetection <- tryCatch(floor(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG3'), 2])), error = function(e) {0.75}, warning = function(w) {0.75})
+    if (minFreqDetection < 3) {
+      minFreqDetection <- 3
+    }
+    minRatioDetection <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG4'), 2])/100, error = function(e) {0.10}, warning = function(w) {0.10})
+    if (minRatioDetection < 0 | minRatioDetection > 1) {
+      minRatioDetection <- 0.1
+    }
+    ##
+    IPA_logRecorder(paste0("Initiated detecting correlating peaks on the gap-filled aligned peak height table using the `", correlationMethod, "` method with coefficients `>=",
+                           minThresholdCorrelation,"` and minimum number of complete observations `>=", minFreqDetection, "` combined with observation percentage `>=", minRatioDetection*100, "%`!"))
+    ##
+    alignedGapFilledPeakHeightTableCorrelationList <- alignedPeakPropertyTableCorrelationListCalculator(peakPropertyTable = peak_height_gapfilled, RTtolerance, minFreqDetection, minRatioDetection,
+                                                                                                        method = correlationMethod, minThresholdCorrelation, number_processing_threads)
+    peak_height_gapfilled <- NULL
+    ##
+    save(alignedGapFilledPeakHeightTableCorrelationList, file = paste0(OutputPath_peak_alignment, "/alignedGapFilledPeakHeightTableCorrelationList.Rdata"))
+    ##
+    IPA_logRecorder("Stored the correlating peaks on the gap-filled peak height table as `alignedGapFilledPeakHeightTableCorrelationList.Rdata` in the `peak_alignement` folder (Only correlating aligned peak IDs are presented)!")
   }
   ##
-  IPA_logRecorder(paste0("Initiated detecting correlating peaks on the gap-filled aligned peak height table using the `", correlationMethod, "` method with coefficients `>=",
-                         minThresholdCorrelation,"` and minimum number of complete observation `>=", minFreqDetection, "` combined with observation percentage `>=", minRatioDetection*100, "%`!"))
+  ##############################################################################
+  ##############################################################################
   ##
-  alignedGapFilledPeakHeightTableCorrelationList <- alignedPeakPropertyTableCorrelationListCalculator(peakPropertyTable = peak_height_gapfilled, RTtolerance, minFreqDetection, minRatioDetection,
-                                                                                                      method = correlationMethod, minThresholdCorrelation, number_processing_threads)
-  peak_height_gapfilled <- NULL
-  ##
-  save(alignedGapFilledPeakHeightTableCorrelationList, file = paste0(OutputPath_peak_alignment, "/alignedGapFilledPeakHeightTableCorrelationList.Rdata"))
-  ##
-  IPA_logRecorder("Stored the correlating peaks on the gap-filled peak height table as `alignedGapFilledPeakHeightTableCorrelationList.Rdata` in the `peak_alignement` folder (Only corrolating aligned peak IDs are presented)!")
   IPA_logRecorder("Completed gap-filling!")
   IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
-  ##
-  ##############################################################################
-  ##############################################################################
   ##
   return()
 }

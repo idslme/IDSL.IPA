@@ -46,6 +46,8 @@ IPA_PeaklistAnnotation <- function(PARAM) {
         }
         stop()
       }
+    } else {
+      file_name_hrms <- gsub("^peaklist_|.Rdata$", "", peaklistFileNames)
     }
     ##
     annotated_peak_indices <- matrix(rep(0, nCompoundNames*L_PL), nrow = nCompoundNames)

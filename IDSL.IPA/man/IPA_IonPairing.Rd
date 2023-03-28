@@ -8,7 +8,7 @@ This function pairs two ions with a fixed distance in high-resolution mass spect
 }
 \usage{
 IPA_IonPairing(spectraList, minSpectraNoiseLevel, massAccuracyIonPair = 0.015,
-ionMassDifference = 1.003354835336)
+ionMassDifference = 1.003354835336, number_processing_threads = 1)
 }
 \arguments{
   \item{spectraList}{
@@ -22,6 +22,9 @@ mass error to detect pair ions
 }
   \item{ionMassDifference}{
 mass difference to pair ions. (Default = DeltaC = 13C - 12C = 1.003354835336), or DeltaS = 34S - 32S = 1.9957958356, or any numerical value.
+}
+  \item{number_processing_threads}{
+number of processing threads
 }
 }
 \value{

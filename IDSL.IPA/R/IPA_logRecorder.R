@@ -1,6 +1,7 @@
-IPA_logRecorder <- function(messageQuote, printMessage = TRUE) {
-  if (printMessage) {
-    print(messageQuote)
+IPA_logRecorder <- function(messageQuote, allowedPrinting = TRUE) {
+  if (allowedPrinting) {
+    col <- 96
+    message(paste0("\033[0;", col, "m", messageQuote, "\033[0m"))
   }
   ##
   if (exists('.logIPA')) {

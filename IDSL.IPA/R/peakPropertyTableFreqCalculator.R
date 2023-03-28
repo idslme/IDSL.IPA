@@ -25,25 +25,26 @@ peakPropertyTableFreqCalculator <- function(peakPropertyTable, startColumnIndex 
     ##
     ############################################################################
     ##
-    if (osType == "Linux") {
+    if (osType == "Windows") {
+      ##
+      clust <- makeCluster(number_processing_threads)
+      clusterExport(clust, setdiff(ls(), c("clust", "nPeaks")), envir = environment())
+      ##
+      freqPeakProperty <- do.call(c, parLapply(clust, 1:nPeaks, function(i) {
+        length(which(peakPropertyTable[i, startColumnIndex:endColumnIndex] != 0))
+      }))
+      ##
+      stopCluster(clust)
+      ##
+      ##########################################################################
+      ##
+    } else {
       ##
       freqPeakProperty <- do.call(c, mclapply(1:nPeaks, function(i) {
         length(which(peakPropertyTable[i, startColumnIndex:endColumnIndex] != 0))
       }, mc.cores = number_processing_threads))
       ##
       closeAllConnections()
-      ##
-      ##########################################################################
-      ##
-    } else if (osType == "Windows") {
-      clust <- makeCluster(number_processing_threads)
-      registerDoParallel(clust)
-      ##
-      freqPeakProperty <- foreach(i = 1:nPeaks, .combine = 'c', .verbose = FALSE) %dopar% {
-        length(which(peakPropertyTable[i, startColumnIndex:endColumnIndex] != 0))
-      }
-      ##
-      stopCluster(clust)
       ##
     }
   }

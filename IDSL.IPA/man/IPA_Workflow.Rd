@@ -19,9 +19,6 @@ IPA spreadsheet
 \value{
 This function organizes the IPA file processing for a better performance using the template spreadsheet.
 }
-\seealso{
-\url{https://ipa.idsl.me/home}
-}
 \examples{
 \donttest{
 library(IDSL.IPA)
@@ -36,7 +33,7 @@ download.file(paste0("https://github.com/idslme/IDSL.IPA/blob/main/",
 destfile = temp_wd_zip, mode = "wb")
 unzip(temp_wd_zip, exdir = temp_wd)
 spreadsheet[7, 4] <- temp_wd
-spreadsheet[43, 4] <- s_path
+spreadsheet[44, 4] <- s_path
 spreadsheet[10, 4] <- temp_wd
 IPA_workflow(spreadsheet)
 }

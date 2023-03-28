@@ -1,4 +1,4 @@
-IPA_IonPairing <- function(spectraList, minSpectraNoiseLevel, massAccuracyIonPair = 0.015, ionMassDifference = 1.003354835336) {
+IPA_IonPairing <- function(spectraList, minSpectraNoiseLevel, massAccuracyIonPair = 0.015, ionMassDifference = 1.003354835336, number_processing_threads = 1) {
   ##
   if (minSpectraNoiseLevel <= 0) {
     minSpectraNoiseLevel <- 1e-16 # This condition must be here to avoid interference
@@ -6,8 +6,9 @@ IPA_IonPairing <- function(spectraList, minSpectraNoiseLevel, massAccuracyIonPai
   ##
   NumScans <- length(spectraList)
   ##
-  spectraScan <- do.call(rbind, lapply(1:NumScans, function(t) {
-    Spec <- spectraList[[t]]
+  call_IPA_IonPairing <- function(i) {
+    ##
+    Spec <- spectraList[[i]]
     nSpec <- floor(nrow(Spec)/2)
     if (nSpec > 0) {
       ##
@@ -33,7 +34,7 @@ IPA_IonPairing <- function(spectraList, minSpectraNoiseLevel, massAccuracyIonPai
               }
             }
             jCounter <- jCounter + 1
-            jSpectraScan[jCounter, ] <- c(Spec[j, 1], Spec[j, 2], t, Spec[x13C, 1], Spec[x13C, 2])
+            jSpectraScan[jCounter, ] <- c(Spec[j, 1], Spec[j, 2], i, Spec[x13C, 1], Spec[x13C, 2])
             Spec[x13C, ] <- 0
             Spec13C[x13C] <- 0
           }
@@ -46,9 +47,52 @@ IPA_IonPairing <- function(spectraList, minSpectraNoiseLevel, massAccuracyIonPai
         jSpectraScan <- jSpectraScan[1:jCounter, ]
       }
     }
-  }))
+  }
+  ##
+  ##############################################################################
+  ##############################################################################
+  ##
+  if (number_processing_threads == 1) {
+    ##
+    spectraScan <- do.call(rbind, lapply(1:NumScans, function(i) {
+      call_IPA_IonPairing(i)
+    }))
+    ##
+  } else {
+    ## Processing OS
+    osType <- Sys.info()[['sysname']]
+    ##
+    ############################################################################
+    ##
+    if (osType == "Windows") {
+      ##
+      clust <- makeCluster(number_processing_threads)
+      clusterExport(clust, setdiff(ls(), c("clust", "NumScans")), envir = environment())
+      ##
+      spectraScan <- do.call(rbind, parLapply(clust, 1:NumScans, function(i) {
+        call_IPA_IonPairing(i)
+      }))
+      ##
+      stopCluster(clust)
+      ##
+      ##########################################################################
+      ##
+    } else {
+      ##
+      spectraScan <- do.call(rbind, mclapply(1:NumScans, function(i) {
+        call_IPA_IonPairing(i)
+      }, mc.cores = number_processing_threads))
+      ##
+      closeAllConnections()
+      ##
+    }
+  }
+  ##
+  ##############################################################################
+  ##############################################################################
   ##
   rownames(spectraScan) <- NULL
   spectraScan <- spectraScan[order(spectraScan[, 2], decreasing = TRUE), ]   # To sort spectraScan by intensity
+  ##
   return(spectraScan)
 }

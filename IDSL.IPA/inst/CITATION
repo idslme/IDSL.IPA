@@ -1,8 +1,5 @@
-citHeader("To cite IDSL.IPA in publications, please use:")
-citFooter("We appreciate citing our manuscript to gain visibility in the scientific community!")
-
-citEntry("Article",
-         author = personList(as.person("Sadjad Fakouri Baygi"),
+bibentry(bibtype = "Article",
+         author = c(as.person("Sadjad Fakouri Baygi"),
                          as.person("Yashwant Kumar"), as.person("Dinesh Kumar Barupal")),
          title  = "IDSL.IPA characterizes the organic chemical space in untargeted LC/HRMS datasets",
          journal = "Journal of Proteome Research",
@@ -10,10 +7,11 @@ citEntry("Article",
          volume = "21",
          number  = "6",
          pages = "1485-1494",
-         PubMedID = "35579321",
          url      = "https://pubs.acs.org/doi/full/10.1021/acs.jproteome.2c00120",
          textVersion =
          paste0("Fakouri Baygi et. al.,\n",
                "IDSL.IPA characterizes the organic chemical space in untargeted LC/HRMS datasets\n",
-               "Journal of Proteome Research, 2022, 21(6), 1485-1494, doi:10.1021/acs.jproteome.2c00120\n")
+               "Journal of Proteome Research, 2022, 21(6), 1485-1494, doi:10.1021/acs.jproteome.2c00120\n"),
+         header = "To cite IDSL.IPA in publications, please use:",
+         footer = "We appreciate citing our manuscript to gain visibility in the scientific community!"
         )

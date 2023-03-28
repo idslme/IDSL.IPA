@@ -7,13 +7,16 @@ IPA_logRecorder
 IPA_logRecorder
 }
 \usage{
-IPA_logRecorder(messageQuote, printMessage = TRUE)
+IPA_logRecorder(messageQuote, allowedPrinting = TRUE)
 }
 \arguments{
   \item{messageQuote}{
 messageQuote
 }
-  \item{printMessage}{
-printMessage
+  \item{allowedPrinting}{
+allowedPrinting
 }
+}
+\value{
+a line of communication messages is exported to the console and the log .txt file.
 }

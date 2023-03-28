@@ -352,7 +352,7 @@ chromatographicPeakAnalysis <- function(spectraScanXIC, aggregatedSpectraList, r
                  pch = c(NA, NA, NA, NA, 18),
                  pt.cex = c(NA, NA, NA, NA, 2),
                  cex = 1.5, bty = "n", seg.len = 2, x.intersp = 0.4, y.intersp = 0.9)
-          mtext(exportEICparameters[2], side = 3, adj = 0, line = 0.25, cex = 1.25)
+          mtext(exportEICparameters[2], side = 3, adj = 0, line = 0.25, cex = 1.0)
           mtext("Retention Time (min)", side = 1, adj = 0.5, line = 2, cex = 1.35)
           mtext("Intensity", side = 2, adj = 0.5, line = 2, cex = 1.35)
           mtext(text = paste0("Seed m/z = ", round(mzTarget, digits = 5), " +/- ", massAccuracy, " Da"), side = 3, adj = 1, line = 0.25, cex = 1.0)
@@ -392,7 +392,7 @@ chromatographicPeakAnalysis <- function(spectraScanXIC, aggregatedSpectraList, r
             plot(retentionTime, rep(0, LretentionTime), type = "l", lwd = 1, col = "black",
                  ylim = c(0, 1),
                  xlab = "", ylab = "", xaxs = "i")
-            mtext(exportEICparameters[2], side = 3, adj = 0, line = 0.25, cex = 1.25)
+            mtext(exportEICparameters[2], side = 3, adj = 0, line = 0.25, cex = 1.0)
             mtext("Retention Time (min)", side = 1, adj = 0.5, line = 2, cex = 1.35)
             mtext("Intensity", side = 2, adj = 0.5, line = 2, cex = 1.35)
             mtext(text = paste0("Seed m/z = ", round(mzTarget, digits = 5), " +/- ", massAccuracy, " Da"), side = 3, adj = 1, line = 0.25, cex = 1.0)
