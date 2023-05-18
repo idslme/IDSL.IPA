@@ -28,7 +28,6 @@ IPA_PeakAnalyzer <- function(PARAM) {
   if (!dir.exists(output_path_peaklist)) {
     dir.create(output_path_peaklist, recursive = TRUE)
   }
-  opendir(output_path_peaklist)
   ##
   exportEICcheck <- if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]) == "yes") {TRUE} else {FALSE}
   if (exportEICcheck) {
@@ -328,14 +327,10 @@ IPA_PeakAnalyzer <- function(PARAM) {
   ##
   ##############################################################################
   ##
-  if (exportEICcheck) {
-    opendir(outputPathEICs)
-  }
-  ##
   IPA_logRecorder("Completed HRMS peak detection!")
   IPA_logRecorder(paste0(rep("", 100), collapse = "-"))
   ##
   ##############################################################################
   ##
-  return()
+  return(NULL)
 }

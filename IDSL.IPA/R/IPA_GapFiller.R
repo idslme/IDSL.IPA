@@ -144,8 +144,6 @@ IPA_GapFiller <- function(PARAM) {
   ##
   IPA_logRecorder("Completed flagging suspicious gap-filled aligned peaks, calculating median peak properties and saving aligned gap-filled peak tables!")
   ##
-  opendir(OutputPath_peak_alignment)
-  ##
   ##############################################################################
   ##############################################################################
   ##

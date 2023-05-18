@@ -159,7 +159,6 @@ IPA_PeakAlignment <- function(PARAM) {
     ##
     peak_height <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_height"]], falggingVector, number_processing_threads)
     colnames(peak_height)[c(3, 4, 5)] <- c("freqPeakHeight", "medianPeakHeight", "Flag")
-    opendir(OutputPath_peak_alignment)
     save(peak_height, file = paste0(OutputPath_peak_alignment, "/peak_height.Rdata"))
     write.csv(peak_height, file = paste0(OutputPath_peak_alignment, "/peak_height.csv"), row.names = TRUE)
     ##

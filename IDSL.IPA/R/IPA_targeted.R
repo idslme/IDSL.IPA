@@ -61,7 +61,6 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
         dir.create(outputPathEIC, recursive = TRUE)
       }
       if (allowedVerbose) {IPA_logRecorder("Extracted ion chromatograms (EICs) from targted workflow are stored in the `Targeted_EICs` folder!")}
-      opendir(outputPathEIC)
       ##
       dev.offCheck <- TRUE
       while (dev.offCheck) {

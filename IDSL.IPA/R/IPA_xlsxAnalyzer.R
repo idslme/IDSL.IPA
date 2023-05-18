@@ -1,6 +1,6 @@
 IPA_xlsxAnalyzer <- function(spreadsheet) {
   ##
-  IPA_message("Initiated testing the IPA spreadsheet consistency!", failedMessage = FALSE)
+  IPA_message("Initiated testing the `IPA` spreadsheet tab consistency!", failedMessage = FALSE)
   ##
   RT_correction_check <- function(checkpoint_parameter, PARAM) {
     ##
@@ -795,7 +795,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     ##
     PARAM <- NULL
   } else {
-    IPA_message("The spreadsheet is consistent with the IDSL.IPA workflow!", failedMessage = FALSE)
+    IPA_message("Completed testing the `IPA` spreadsheet tab consistency!", failedMessage = FALSE)
   }
   ##
   return(PARAM)

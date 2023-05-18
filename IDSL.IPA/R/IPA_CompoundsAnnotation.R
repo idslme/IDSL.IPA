@@ -100,7 +100,6 @@ IPA_CompoundsAnnotation <- function(PARAM) {
       exportEICcheck <- FALSE
     }
     ##
-    opendir(OutputCSV)
     progressBARboundaries <- txtProgressBar(min = 1, max = nCompoundNames, initial = 1, style = 3)
     ##
     for (i in 1:nCompoundNames) {

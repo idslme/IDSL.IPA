@@ -92,7 +92,6 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     if (!dir.exists(Output_Xcol)) {
       dir.create(Output_Xcol, recursive = TRUE)
     }
-    opendir(Output_Xcol)
     ##
     save(annotated_peak_indices, file = paste0(Output_Xcol, "/annotated_peak_indices.Rdata"))
     IPA_logRecorder("Aligned indexed table from individual peaklists were stored as `annotated_peak_indices.Rdata` in the `sample_centric_annotation` folder!")
