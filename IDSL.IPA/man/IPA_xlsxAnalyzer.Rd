@@ -24,13 +24,19 @@ SSh1 <- paste0(s_path, "/IPA_parameters.xlsx")
 temp_wd <- tempdir()
 temp_wd_zip <- paste0(temp_wd,"/idsl_ipa_test_files.zip")
 spreadsheet <- readxl::read_xlsx(SSh1)
-download.file(paste0("https://github.com/idslme/IDSL.IPA/blob/main/",
-"IPA_educational_files/idsl_ipa_test_files.zip?raw=true"),
-destfile = temp_wd_zip)
+PARAM = cbind(spreadsheet[, 2], spreadsheet[, 4])
+tryCatch({download.file(paste0("https://github.com/idslme/IDSL.IPA/blob/main/",
+                     "IPA_educational_files/idsl_ipa_test_files.zip?raw=true"),
+              destfile = temp_wd_zip)
 unzip(temp_wd_zip, exdir = temp_wd)
-spreadsheet[7, 4] <- temp_wd
-spreadsheet[40, 4] <- s_path # reference file location
-spreadsheet[10, 4] <- temp_wd # output data location
-PARAM <- IDSL.IPA::IPA_xlsxAnalyzer(spreadsheet)
+pass_download <- TRUE},
+error = function(e) {pass_download <- FALSE},
+warning = function(w) {pass_download <- FALSE})
+if (pass_download) {
+  PARAM[7, 2] <- temp_wd
+  PARAM[10, 2] <- temp_wd # output data location
+  PARAM[44, 2] <- s_path # reference file location
+  PARAM <- IDSL.IPA::IPA_xlsxAnalyzer(PARAM)
+}
 }
 }
