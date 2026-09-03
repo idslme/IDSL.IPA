@@ -1,31 +1,72 @@
-analyteRetentionTimeCorrector <- function(referenceMZRTpeaks, inputPathPeaklist, peaklistFileName, massAccuracy,
-                                          RTcorrectionMethod, refPeakTolerance = 1, degreePolynomial = 3) {
+analyteRetentionTimeCorrector <- function(referenceMZRTpeaks, inputPathMZML, inputPathPeaklist, peaklistFileName, massAccuracy,
+                                          RTtolerance, RTcorrectionIonSource, refPeakTolerance = 1, degreePolynomial = 3) {
   ##
   listCorrectedRTpeaklists <- NULL
   ##
+  RTtoleranceCorrection <- RTtolerance + 1
+  ##
   peaklist <- loadRdata(paste0(inputPathPeaklist, "/", peaklistFileName))
   ##
-  sample_referenceMZRTpeaks <- do.call(rbind, lapply(1:nrow(referenceMZRTpeaks), function(i) {
-    x_peak <- which(abs(referenceMZRTpeaks[i, 1] - peaklist[, 8]) <= massAccuracy)
-    if (length(x_peak) > 0) {
-      if (length(x_peak) > 1) {
-        x_min <- which.min(abs(referenceMZRTpeaks[i, 1] - peaklist[x_peak, 8]))
-        x_peak <- x_peak[x_min[1]]
-      }
-      c(peaklist[x_peak, 8], peaklist[x_peak, 3], referenceMZRTpeaks[i, 2])
-    }
-  }))
+  ####################### Polynomial Regression ################################
   ##
-  if (!is.null(sample_referenceMZRTpeaks)) {
-    sample_referenceMZRTpeaks <- matrix(sample_referenceMZRTpeaks[order(sample_referenceMZRTpeaks[, 2]), ], ncol = 3)
-    rtdf1 <- abs(sample_referenceMZRTpeaks[, 2] - sample_referenceMZRTpeaks[, 3])
-    res <- boxplot(rtdf1, plot = FALSE)
-    res3 <- res$out
-    if (length(res3) > 2) {
-      sample_referenceMZRTpeaks <- matrix(sample_referenceMZRTpeaks[!rtdf1 %in% res3, ], ncol = 3)
-      nROW_sample_referenceMZRTpeaks <- nrow(sample_referenceMZRTpeaks)
-      ##################### Retention Time Index ###############################
-      if (gsub(" ", "", tolower(RTcorrectionMethod)) == "retentionindex") {
+  if (gsub(" ", "", tolower(RTcorrectionIonSource)) == "ms2") {
+    ##
+    mzMLFileName <- gsub("^peaklist_|.Rdata$", "", peaklistFileName)
+    ##
+    scanTable <- IDSL.MXP::peak2list(paste0(inputPathMZML, "/", mzMLFileName), onlyScanTable = TRUE)
+    msLevel2 <- which(scanTable[["msLevel"]] == 2)
+    retentionTimeMS2 <- scanTable[msLevel2, "retentionTime"]
+    precursorMZMS2 <- scanTable[msLevel2, "precursorMZ"]
+    ##
+    sample_referenceMZRTpeaks <- do.call(rbind, lapply(1:nrow(referenceMZRTpeaks), function(i) {
+      x_peak <- which((abs(referenceMZRTpeaks[i, 1] - precursorMZMS2) <= massAccuracy) &
+                      (abs(referenceMZRTpeaks[i, 2] - retentionTimeMS2) <= RTtoleranceCorrection))
+      if (length(x_peak) > 0) {
+        if (length(x_peak) > 1) {
+          x_min <- which.min(abs(referenceMZRTpeaks[i, 1] - precursorMZMS2[x_peak]))
+          x_peak <- x_peak[x_min[1]]
+        }
+        c(precursorMZMS2[x_peak], retentionTimeMS2[x_peak], referenceMZRTpeaks[i, 2])
+      }
+    }))
+    ##
+    nROW_sample_referenceMZRTpeaks <- nrow(sample_referenceMZRTpeaks)
+    ##
+    if (degreePolynomial > nROW_sample_referenceMZRTpeaks) {
+      degreePolynomial <- nROW_sample_referenceMZRTpeaks - 1
+      ##
+      IPA_logRecorder(paste0("Polynomial degree for 'Polynomial' regression [PARAM0034] was reduced to ",
+                             degreePolynomial, " for `", peaklistFileName, "` due to lack of sufficient reference peaks!"))
+    }
+    ##
+    idf <- data.frame(oRT = sample_referenceMZRTpeaks[, 2], eRT = sample_referenceMZRTpeaks[, 3])
+    rtmodel <- lm(eRT ~ poly(oRT, degreePolynomial), idf)
+    uncorrectedRT.df <- data.frame(oRT = peaklist[, 3]) ## the df of uncorrected RTs should have the same column header
+    listCorrectedRTpeaklists <- predict(rtmodel, uncorrectedRT.df) # predict new RTs
+    ##
+    ###################### Retention Time Index ################################
+    ##
+  } else {
+    sample_referenceMZRTpeaks <- do.call(rbind, lapply(1:nrow(referenceMZRTpeaks), function(i) {
+      x_peak <- which((abs(referenceMZRTpeaks[i, 1] - peaklist[, 8]) <= massAccuracy) &
+                      (abs(referenceMZRTpeaks[i, 2] - peaklist[, 3]) <= RTtoleranceCorrection))
+      if (length(x_peak) > 0) {
+        if (length(x_peak) > 1) {
+          x_min <- which.min(abs(referenceMZRTpeaks[i, 1] - peaklist[x_peak, 8]))
+          x_peak <- x_peak[x_min[1]]
+        }
+        c(peaklist[x_peak, 8], peaklist[x_peak, 3], referenceMZRTpeaks[i, 2])
+      }
+    }))
+    ##
+    if (!is.null(sample_referenceMZRTpeaks)) {
+      sample_referenceMZRTpeaks <- matrix(sample_referenceMZRTpeaks[order(sample_referenceMZRTpeaks[, 2]), ], ncol = 3)
+      rtdf1 <- abs(sample_referenceMZRTpeaks[, 2] - sample_referenceMZRTpeaks[, 3])
+      res <- boxplot(rtdf1, plot = FALSE)
+      res3 <- res$out
+      if (length(res3) > 2) {
+        sample_referenceMZRTpeaks <- matrix(sample_referenceMZRTpeaks[!rtdf1 %in% res3, ], ncol = 3)
+        nROW_sample_referenceMZRTpeaks <- nrow(sample_referenceMZRTpeaks)
         ##
         if (refPeakTolerance > nROW_sample_referenceMZRTpeaks) {
           refPeakTolerance <- nROW_sample_referenceMZRTpeaks
@@ -69,7 +110,7 @@ analyteRetentionTimeCorrector <- function(referenceMZRTpeaks, inputPathPeaklist,
             L_x_sample_following <- length(x_sample_following)
           }
           #
-          if (L_x_sample_preceding > 0 & L_x_sample_following > 0) {
+          if ((L_x_sample_preceding > 0) & (L_x_sample_following > 0)) {
             #
             rt_intermediate_vector <- do.call(c, lapply(x_sample_preceding, function(j) {
               #
@@ -96,28 +137,19 @@ analyteRetentionTimeCorrector <- function(referenceMZRTpeaks, inputPathPeaklist,
           rt_intermediate
         }))
       }
-      ##################### Polynomial Regression ##############################
-      if (gsub(" ", "", tolower(RTcorrectionMethod)) == "polynomial") {
-        ##
-        if (degreePolynomial > nROW_sample_referenceMZRTpeaks) {
-          degreePolynomial <- nROW_sample_referenceMZRTpeaks - 1
-          ##
-          IPA_logRecorder(paste0("Polynomial degree for 'Polynomial' regression [PARAM0034] was reduced to ",
-                                 degreePolynomial, " for `", peaklistFileName, "` due to lack of sufficient reference peaks!"))
-        }
-        ##
-        idf <- data.frame(oRT = sample_referenceMZRTpeaks[, 2], eRT = sample_referenceMZRTpeaks[, 3])
-        rtmodel <- lm(eRT ~ poly(oRT, degreePolynomial), idf)
-        new.df <- data.frame(oRT = peaklist[, 3]) # predict new RTs
-        listCorrectedRTpeaklists <- predict(rtmodel, new.df)
-      }
-      ##########################################################################
     }
   }
+  ##
+  ##############################################################################
+  ##############################################################################
   ##
   if (is.null(listCorrectedRTpeaklists)) {
     listCorrectedRTpeaklists <- peaklist[, 3]
     IPA_logRecorder(paste0("Problem with retention time correction with `", peaklistFileName, "`!"))
+  }
+  ##
+  if (is.character(listCorrectedRTpeaklists)) {
+    IPA_logRecorder(paste0("Problem with retention time correction with `", peaklistFileName, "`! A potential cause is incorrect retention time correction parameters."))
   }
   ##
   listCorrectedRTpeaklists <- as.numeric(listCorrectedRTpeaklists)

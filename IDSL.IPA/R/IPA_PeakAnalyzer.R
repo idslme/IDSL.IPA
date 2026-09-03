@@ -216,6 +216,8 @@ IPA_PeakAnalyzer <- function(PARAM) {
       ##
     } else {
       ##
+      IPA_logRecorder(paste0("No chromatographic peak was detected for `", file_name_hrms[i],"` using the current peak deconvolution parameters. You may want to revisit the screening parameters if this message appears for multiple files."))
+      ##
       peaklist <- peaklistNA24
       nPeaks <- 1
     }
@@ -302,7 +304,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
       clust <- makeCluster(NPT0)
       clusterExport(clust, setdiff(ls(), c("clust", "LHRMS")), envir = environment())
       ##
-      Null_variable <- do.call(c, parLapply(clust, 1:LHRMS, function(i) {
+      Null_variable <- do.call(c, parLapplyLB(clust, 1:LHRMS, function(i) {
         tryCatch(call_IPA_PeakAnalyzer(i),
                  error = function(e) {save(peaklistNA24, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
                    IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
@@ -318,7 +320,7 @@ IPA_PeakAnalyzer <- function(PARAM) {
         tryCatch(call_IPA_PeakAnalyzer(i),
                  error = function(e) {save(peaklistNA24, file = paste0(output_path_peaklist, "/peaklist_", file_name_hrms[i], ".Rdata"))
                    IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
-      }, mc.cores = NPT0))
+      }, mc.cores = NPT0, mc.preschedule = FALSE))
       ##
       closeAllConnections()
       ##

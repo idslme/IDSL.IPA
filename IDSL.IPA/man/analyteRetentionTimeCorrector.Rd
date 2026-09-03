@@ -7,24 +7,31 @@ analyte retention time corrector
 This function calculates corrected retention times for the peaklists.
 }
 \usage{
-analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathPeaklist, peaklistFileName,
-massAccuracy, RTcorrectionMethod, refPeakTolerance = 1, degreePolynomial = 3)
+analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathMZML,
+inputPathPeaklist, peaklistFileName, massAccuracy, RTtolerance,
+RTcorrectionIonSource, refPeakTolerance = 1, degreePolynomial = 3)
 }
 \arguments{
   \item{referenceMZRTpeaks}{
 a matrix of reference peaks for retention time correction.
 }
+  \item{inputPathMZML}{
+input path to the raw mass spectrometry data files (e.g., mzML, mzXML, or CDF).
+}
   \item{inputPathPeaklist}{
-input path to peaklist
+input path to peaklist.
 }
   \item{peaklistFileName}{
-file name peaklist
+file name of the peaklist.
 }
   \item{massAccuracy}{
 mass error to detect common reference peaks.
 }
-  \item{RTcorrectionMethod}{
-c('RetentionIndex','Polynomial')
+  \item{RTtolerance}{
+retention time tolerance for matching reference peaks.
+}
+  \item{RTcorrectionIonSource}{
+method for retention time correction, e.g., c('RetentionIndex','Polynomial').
 }
   \item{refPeakTolerance}{
 number of reference peaks for retention time correction using the 'RetentionIndex' method.

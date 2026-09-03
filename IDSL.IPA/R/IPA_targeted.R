@@ -60,7 +60,7 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
       if (!dir.exists(outputPathEIC)) {
         dir.create(outputPathEIC, recursive = TRUE)
       }
-      if (allowedVerbose) {IPA_logRecorder("Extracted ion chromatograms (EICs) from targted workflow are stored in the `Targeted_EICs` folder!")}
+      if (allowedVerbose) {IPA_logRecorder("Extracted ion chromatograms (EICs) from targeted workflow are stored in the `Targeted_EICs` folder!")}
       ##
       dev.offCheck <- TRUE
       while (dev.offCheck) {
@@ -113,6 +113,10 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
                                                      mzTarget = jMZcandidate, rtTarget = jRTcandidate, scanNumberStart, scanNumberEnd, smoothingWindow,
                                                      peakResolvingPower, minNIonPair = 0, minPeakHeight = 0, minRatioIonPair = 0, maxRPW = 1, minSNRbaseline = 0,
                                                      maxR13CcumulatedIntensity = Inf, maxPercentageMissingScans = Inf, nSpline, exportEICparameters)
+        ##
+        if (is.null(peak_property)) {
+          peak_property <- rep(NA, 24)
+        }
         ##
         c(iFileNameHRMS, jMZcandidate, jRTcandidate, peak_property)
       }
@@ -208,7 +212,7 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
           clust <- makeCluster(number_processing_threads)
           clusterExport(clust, setdiff(ls(), c("clust", "LHRMS")), envir = environment())
           ##
-          peakPropertiesTable <- do.call(rbind, parLapply(clust, 1:LHRMS, function(i) {
+          peakPropertiesTable <- do.call(rbind, parLapplyLB(clust, 1:LHRMS, function(i) {
             ##
             outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
             spectraList <- outputer[["spectraList"]]
@@ -251,7 +255,7 @@ IPA_targeted <- function(PARAM_targeted, allowedVerbose = TRUE) {
                        error = function(e) {IPA_logRecorder(paste0("Problem with `", file_name_hrms[i],"`!"))})
             }))
             ##
-          }, mc.cores = number_processing_threads))
+          }, mc.cores = number_processing_threads, mc.preschedule = FALSE))
           ##
           closeAllConnections()
           ##

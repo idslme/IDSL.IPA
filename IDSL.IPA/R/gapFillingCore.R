@@ -132,7 +132,7 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance,
       ##
       chromatography_undetected_list <- mclapply(1:Lsamples, function(i) {
         call_gapFillingCore(i)
-      }, mc.cores = number_processing_threads)
+      }, mc.cores = number_processing_threads, mc.preschedule = FALSE)
       ##
       closeAllConnections()
       ##

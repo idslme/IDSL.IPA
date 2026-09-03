@@ -1,5 +1,5 @@
 IPA_MSdeconvoluter <- function(inputHRMSfolderPath, MSfileName, MSlevel = 1) {
-  p2l <- IDSL.MXP::peak2list(inputHRMSfolderPath, MSfileName)
+  p2l <- IDSL.MXP::peak2list(inputHRMSfolderPath, MSfileName, onlyScanTable = FALSE)
   scanTable <- p2l[["scanTable"]]
   spectraList <- p2l[["spectraList"]]
   x_MS <- which(scanTable$peaksCount > 0 & scanTable$msLevel == MSlevel) ## some files may not have data in calibration scan acquisitions.

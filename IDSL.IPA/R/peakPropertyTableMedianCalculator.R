@@ -18,8 +18,10 @@ peakPropertyTableMedianCalculator <- function(peakPropertyTable, falggingVector 
   ##
   ##############################################################################
   ##############################################################################
+  ## Processing OS
+  osType <- Sys.info()[['sysname']]
   ##
-  if (number_processing_threads == 1) {
+  if ((number_processing_threads == 1) | (osType == "Windows")){
     ##
     if (allowedVerbose) {progressBARboundaries <- txtProgressBar(min = 0, max = nPeaks, initial = 0, style = 3)}
     ##
@@ -32,33 +34,33 @@ peakPropertyTableMedianCalculator <- function(peakPropertyTable, falggingVector 
     if (allowedVerbose) {close(progressBARboundaries)}
     ##
   } else {
-    ## Processing OS
-    osType <- Sys.info()[['sysname']]
-    ##
-    ############################################################################
-    ##
-    if (osType == "Windows") {
-      ##
-      clust <- makeCluster(number_processing_threads)
-      clusterExport(clust, setdiff(ls(), c("clust", "nPeaks")), envir = environment())
-      ##
-      medianPeakProperty <- do.call(c, parLapply(clust, 1:nPeaks, function(i) {
-        call_peakPropertyTableMedianCalculator(i)
-      }))
-      ##
-      stopCluster(clust)
-      ##
-      ##########################################################################
-      ##
-    } else {
-      ##
+    # ## Processing OS
+    # osType <- Sys.info()[['sysname']]
+    # ##
+    # ############################################################################
+    # ##
+    # if (osType == "Windows") {
+    #   ##
+    #   clust <- makeCluster(number_processing_threads)
+    #   clusterExport(clust, setdiff(ls(), c("clust", "nPeaks")), envir = environment())
+    #   ##
+    #   medianPeakProperty <- do.call(c, parLapply(clust, 1:nPeaks, function(i) {
+    #     call_peakPropertyTableMedianCalculator(i)
+    #   }))
+    #   ##
+    #   stopCluster(clust)
+    #   ##
+    #   ##########################################################################
+    #   ##
+    # } else {
+    #   ##
       medianPeakProperty <- do.call(c, mclapply(1:nPeaks, function(i) {
         call_peakPropertyTableMedianCalculator(i)
       }, mc.cores = number_processing_threads))
       ##
       closeAllConnections()
       ##
-    }
+    # }
   }
   ##
   ##############################################################################

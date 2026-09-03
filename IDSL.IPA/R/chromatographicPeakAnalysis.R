@@ -1,7 +1,7 @@
 chromatographicPeakAnalysis <- function(spectraScanXIC, aggregatedSpectraList, retentionTime, LretentionTime, massAccuracy, mzTarget,
                                         rtTarget = NULL, scanNumberStart, scanNumberEnd, smoothingWindow, peakResolvingPower, minNIonPair,
                                         minPeakHeight, minRatioIonPair, maxRPW, minSNRbaseline, maxR13CcumulatedIntensity,
-                                        maxPercentageMissingScans, nSpline, exportEICparameters  = NULL) {
+                                        maxPercentageMissingScans, nSpline, exportEICparameters = NULL) {
   ##
   chromatographyCharacteristics <- NULL
   ##
@@ -43,14 +43,18 @@ chromatographicPeakAnalysis <- function(spectraScanXIC, aggregatedSpectraList, r
     LspectraScanXIC <- nrow(spectraScanXIC)
     ##
     index12C <- which(chromatogramMatrix[, 1] %in% spectraScanXIC[, 3])
-    xSpectraScanXIC <- do.call(c, lapply(1:LspectraScanXIC, function(i) {
-      if (abs(mz12C[index12C[i]] - spectraScanXIC[i, 1]) <= 1e-10 ) {
-        i
-      }
-    }))
+    if (length(index12C) > 0) {
+      xSpectraScanXIC <- do.call(c, lapply(1:LspectraScanXIC, function(i) {
+        if (abs(mz12C[index12C[i]] - spectraScanXIC[i, 1]) <= 1e-10 ) {
+          i
+        }
+      }))
+    } else {
+      xSpectraScanXIC <- NULL
+    }
     ##
     LxSpectraScanXIC <- length(xSpectraScanXIC)
-    if ((LxSpectraScanXIC >= minNIonPair) & (LxSpectraScanXIC > 0)) {
+    if (((LxSpectraScanXIC >= minNIonPair) & (LxSpectraScanXIC > 0)) | rtTargetedCheck) {
       chromatogramMatrix[index12C[xSpectraScanXIC], 4] <- spectraScanXIC[xSpectraScanXIC, 2]
       if (LxSpectraScanXIC == 1) {
         spectraScanXIC <- matrix(spectraScanXIC[xSpectraScanXIC, ], ncol = 5)

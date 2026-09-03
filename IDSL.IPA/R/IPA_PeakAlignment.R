@@ -21,16 +21,46 @@ IPA_PeakAlignment <- function(PARAM) {
   peaklistFileNames <- peaklistFileNames[grep("^peaklist_", peaklistFileNames)]
   L_PL <- length(peaklistFileNames)
   ##
-  if (LHRMS > L_PL) {
-    peaklistHRMSfileNames <- paste0("peaklist_", file_name_hrms, ".Rdata")
-    ndPeaklists <- setdiff(peaklistHRMSfileNames, peaklistFileNames)
+  ##############################################################################
+  ##
+  IPA_logRecorder("Started sanity check on the IDSL.IPA peaklists before peak alignment.")
+  peaklistHRMSfileNames <- paste0("peaklist_", file_name_hrms, ".Rdata")
+  ndPeaklists <- setdiff(peaklistHRMSfileNames, peaklistFileNames)
+  ##
+  if (length(ndPeaklists) > 0) {
     ndPeaklists <- gsub("^peaklist_|.Rdata$", "", ndPeaklists)
-    IPA_logRecorder("Error!!! peaklist files are not available for the following HRMS file(s):")
+    IPA_logRecorder("Warning!!! peaklist files are not available for the following HRMS file(s):")
     for (i in ndPeaklists) {
       IPA_logRecorder(i)
     }
-    stop()
   }
+  ##
+  ##############################################################################\
+  ##
+  max_size_empty_peaklist <- 10 * 1024 # 10 KB
+  ##
+  empty_pkl <- do.call(c, lapply(peaklistFileNames, function(pl) {
+    pl_path <- paste0(output_path, pl)
+    file_size <- file.info(pl_path)$size
+    ##
+    if (!is.na(file_size) && file_size < max_size_empty_peaklist) {
+      ##
+      peaklist <- loadRdata(pl_path)
+      if (nrow(peaklist) == 1 && all(is.na(peaklist))) {
+        IPA_logRecorder(paste0("Warning!!!'", pl, "' was empty and removed from peak alignment calculations!"))
+        return(pl)
+      }
+    }
+    return(NULL)
+  }))
+  ##
+  if (length(empty_pkl) > 0) {
+    peaklistFileNames <- setdiff(peaklistFileNames, empty_pkl)
+  }
+  ##
+  IPA_logRecorder("Completed sanity check on the IDSL.IPA peaklists before peak alignment.")
+  ##
+  ##############################################################################
   ##
   RTcorrectionCheck <- if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0029'), 2]) == "yes") {TRUE} else {FALSE}
   massAccuracy <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0035'), 2])
@@ -50,9 +80,10 @@ IPA_PeakAlignment <- function(PARAM) {
     ## To find common peaks in the reference samples
     IPA_logRecorder("Initiated detecting reference peaks for RT correction!")
     minFrequencyRefPeaks <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0031'), 2])
+    RTcorrectionIonSource <- PARAM[which(PARAM[, 1] == 'PARAM0032'), 2]
     ##
-    listReferencePeaks <- referenceRetentionTimeDetector(inputPathPeaklist, refPeaklistFileNames, minFrequencyRefPeaks,
-                                                         massAccuracy, RTtolerance, number_processing_threads)
+    listReferencePeaks <- referenceRetentionTimeDetector(inputPathPeaklist, input_path_hrms, refPeaklistFileNames, minFrequencyRefPeaks,
+                                                         massAccuracy, RTtolerance, RTcorrectionIonSource, number_processing_threads)
     referenceMZRTpeaks <- listReferencePeaks[["referenceMZRTpeaks"]]
     listRefRT <- listReferencePeaks[["listRefRT"]]
     ##
@@ -72,26 +103,41 @@ IPA_PeakAlignment <- function(PARAM) {
     ##
     IPA_logRecorder("Initiated retention time correction!")
     ##
-    RTcorrectionMethod <- PARAM[which(PARAM[, 1] == 'PARAM0032'), 2]
     refPeakTolerance <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0033'), 2]), error = function(e) {5}, warning = function(w) {5})
     degreePolynomial <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0034'), 2]), error = function(e) {3}, warning = function(w) {3})
     ##
     peaklistFileNameSamples <- setdiff(peaklistFileNames, refPeaklistFileNames)
+    ##
     ############################################################################
+    ############################################################################
+    ##
     if (number_processing_threads == 1) {
-      listCorrectedRTsamples <- lapply(peaklistFileNameSamples, function(i) {
-        analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
+      ##
+      progressBARboundaries <- txtProgressBar(min = 0, max = length(peaklistFileNameSamples), initial = 0, style = 3)
+      ##
+      listCorrectedRTsamples <- lapply(1:length(peaklistFileNameSamples), function(i) {
+        ##
+        setTxtProgressBar(progressBARboundaries, i)
+        ##
+        analyteRetentionTimeCorrector(referenceMZRTpeaks, input_path_hrms, inputPathPeaklist, peaklistFileNameSamples[i], massAccuracy,
+                                      RTtolerance, RTcorrectionIonSource, refPeakTolerance, degreePolynomial)
       })
+      ##
+      close(progressBARboundaries)
+      ##
+      ############################################################################
+      ##
     } else {
       ## Processing OS
       osType <- Sys.info()[['sysname']]
       if (osType == "Windows") {
         ##
         clust <- makeCluster(number_processing_threads)
-        clusterExport(clust, c("referenceMZRTpeaks", "inputPathPeaklist", "massAccuracy", "RTcorrectionMethod", "refPeakTolerance", "degreePolynomial"), envir = environment())
+        clusterExport(clust, c("referenceMZRTpeaks", "inputPathPeaklist", "massAccuracy", "RTcorrectionIonSource", "refPeakTolerance", "degreePolynomial"), envir = environment())
         ##
-        listCorrectedRTsamples <- parLapply(clust, peaklistFileNameSamples, function(i) {
-          analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
+        listCorrectedRTsamples <- parLapplyLB(clust, peaklistFileNameSamples, function(i) {
+          analyteRetentionTimeCorrector(referenceMZRTpeaks, input_path_hrms, inputPathPeaklist, i, massAccuracy,
+                                        RTtolerance, RTcorrectionIonSource, refPeakTolerance, degreePolynomial)
         })
         ##
         stopCluster(clust)
@@ -99,8 +145,9 @@ IPA_PeakAlignment <- function(PARAM) {
       } else {
         ##
         listCorrectedRTsamples <- mclapply(peaklistFileNameSamples, function(i) {
-          analyteRetentionTimeCorrector(referenceMZRTpeaks, inputPathPeaklist, i, massAccuracy, RTcorrectionMethod, refPeakTolerance, degreePolynomial)
-        }, mc.cores = number_processing_threads)
+          analyteRetentionTimeCorrector(referenceMZRTpeaks, input_path_hrms, inputPathPeaklist, i, massAccuracy,
+                                        RTtolerance, RTcorrectionIonSource, refPeakTolerance, degreePolynomial)
+        }, mc.cores = number_processing_threads, mc.preschedule = FALSE)
         ##
         closeAllConnections()
         ##
@@ -108,6 +155,7 @@ IPA_PeakAlignment <- function(PARAM) {
     }
     names(listCorrectedRTsamples) <- peaklistFileNameSamples
     ##
+    ############################################################################
     ############################################################################
     ##
     listCorrectedRTpeaklists <- lapply(peaklistFileNames, function(i) {
@@ -181,15 +229,14 @@ IPA_PeakAlignment <- function(PARAM) {
     ############################################################################
     ##
     if (LHRMS > 2) {
-      IPA_logRecorder("Initiated detecting correlating peaks on the peak height table!")
+      IPA_logRecorder("Initiated correlating aligned peaks on the aligned peak height table!")
       ##
       correlationMethod <- tolower(PARAM[which(PARAM[, 1] == 'PARAM_ALG1'), 2])
       minThresholdCorrelation <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG2'), 2])
       minFreqDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG3'), 2])
       minRatioDetection <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM_ALG4'), 2])/100
       ##
-      IPA_logRecorder(paste0("Initiated detecting correlating peaks on the aligned peak height table using the `", correlationMethod, "` method with coefficients `>=",
-                             minThresholdCorrelation,"` and minimum number of complete observations `>=", minFreqDetection, "` combined with observation percentage `>=", minRatioDetection*100, "%`!"))
+      IPA_logRecorder(paste0("Started correlating peaks on the aligned peak height table using a `", correlationMethod, "` correlation method (correlation coefficient >= `", minThresholdCorrelation, "`), requiring at least `", minFreqDetection, "` observations across all samples and `", minRatioDetection * 100, "%` mutual pairwise observations."))
       ##
       alignedPeakHeightTableCorrelationList <- alignedPeakPropertyTableCorrelationListCalculator(peakPropertyTable = peak_height, RTtolerance, minFreqDetection, minRatioDetection,
                                                                                                  method = correlationMethod, minThresholdCorrelation, number_processing_threads)
@@ -197,7 +244,7 @@ IPA_PeakAlignment <- function(PARAM) {
       ##
       save(alignedPeakHeightTableCorrelationList, file = paste0(OutputPath_peak_alignment, "/alignedPeakHeightTableCorrelationList.Rdata"))
       ##
-      IPA_logRecorder("Stored the correlating peaks on the peak height table as `alignedPeakHeightTableCorrelationList.Rdata` in the `peak_alignement` folder (Only correlating aligned peak IDs are presented)!")
+      IPA_logRecorder("Saved the correlating aligned peak IDs from the aligned peak height table as `alignedPeakHeightTableCorrelationList.Rdata` in the `peak_alignment` folder (Only correlating aligned peak IDs are presented).")
     }
     ##
     ############################################################################

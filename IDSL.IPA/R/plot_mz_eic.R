@@ -40,7 +40,7 @@ plot_mz_eic <- function(filelist, filelocation, mzTarget, massAccuracy, number_p
       ##
       dflist <- mclapply(filelist, function(i) {
         call_plot_mz_eic(i)
-      }, mc.cores = number_processing_threads)
+      }, mc.cores = number_processing_threads, mc.preschedule = FALSE)
       ##
       closeAllConnections()
       ##

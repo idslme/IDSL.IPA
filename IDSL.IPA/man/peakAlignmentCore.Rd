@@ -27,7 +27,7 @@ mass error to detect common peaks.
 retention time tolerance to detect common peaks.
 }
   \item{number_processing_threads}{
-number of processing threads
+number of processing threads.
 }
 }
 \value{

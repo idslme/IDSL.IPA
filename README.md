@@ -5,7 +5,7 @@
 [![CRAN status](https://www.r-pkg.org/badges/version/IDSL.IPA)](https://cran.r-project.org/package=IDSL.IPA)
 ![](http://cranlogs.r-pkg.org/badges/IDSL.IPA?color=orange)
 ![](http://cranlogs.r-pkg.org/badges/grand-total/IDSL.IPA?color=brightgreen)
-[![Dependencies](https://tinyverse.netlify.com/badge/IDSL.IPA)](https://cran.r-project.org/package=IDSL.IPA)
+[![Dependencies](<https://tinyverse.netlify.app/badge/IDSL.IPA>)](<https://cran.r-project.org/package=IDSL.IPA>)
 <!-- badges: end -->
 
 **Intrinsic Peak Analysis (IPA)** by the [**Integrated Data Science Laboratory for Metabolomics and Exposomics (IDSL.ME)**](https://www.idsl.me) is a light-weight R package that extracts peaks for organic small molecules from untargeted liquid chromatography high resolution mass spectrometry (LC/HRMS) data in population scale projects. IDSL.IPA is a suite of new algorithms covering extracted ion chromatogram (EIC) candidate generation, peak detection, peak property evaluation, recursive mass correction, retention time correction across multiple batches and peak annotation. IDSL.IPA generates comprehensive and high-quality datasets from untargeted analysis of organic small molecules for population-size studies. We have shown in our [publication](https://github.com/idslme/IDSL.IPA#citation) that IDSL.IPA is able to outperform similar peak picking tools such as MZmine 2, *xcms*, and MS-DIAL in terms of sensitivity, specificity and speed.

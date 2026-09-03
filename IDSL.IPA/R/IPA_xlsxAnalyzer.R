@@ -64,17 +64,22 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         IPA_message("ERROR!!! Problem with PARAM0032!")
         checkpoint_parameter <- FALSE
       } else {
-        RTcorrectionMethod <- tolower(gsub(" ", "", PARAM[x0032, 2]))
-        if (!((RTcorrectionMethod == "polynomial") | (RTcorrectionMethod == "retentionindex"))) {
+        RTcorrectionIonSource <- tolower(gsub(" ", "", PARAM[x0032, 2]))
+        ## For backward compatibility
+        if ((RTcorrectionIonSource == "retentionindex") | (RTcorrectionIonSource == "polynomial")) {
+          RTcorrectionIonSource <- "ms1"
+        }
+        ##
+        if (!((RTcorrectionIonSource == "ms1") | (RTcorrectionIonSource == "ms2"))) {
           IPA_message("ERROR!!! Problem with PARAM0032!")
           checkpoint_parameter <- FALSE
         } else {
-          PARAM[x0032, 2] <- RTcorrectionMethod
+          PARAM[x0032, 2] <- RTcorrectionIonSource
         }
       }
       ##
       if (!is.na(x0032)) {
-        if (gsub(" ", "", tolower(x0032)) == "retentionindex") {
+        if (gsub(" ", "", tolower(x0032)) == "ms1") {
           ##
           x0033 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0033'), 2])
           if (is.na(x0033)) {
@@ -97,7 +102,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
           ##
         }
         ##
-        if (gsub(" ", "", tolower(x0032)) == "polynomial") {
+        if (gsub(" ", "", tolower(x0032)) == "ms2") {
           ##
           x0034 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0034'), 2])
           if (is.na(x0034)) {

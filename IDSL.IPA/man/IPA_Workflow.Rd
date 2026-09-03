@@ -28,13 +28,23 @@ temp_wd <- tempdir()
 temp_wd_zip <- paste0(temp_wd, "/idsl_ipa_test_files.zip")
 spreadsheet <- readxl::read_xlsx(SSh1)
 PARAM = cbind(spreadsheet[, 2], spreadsheet[, 4])
-tryCatch({download.file(paste0("https://github.com/idslme/IDSL.IPA/blob/main/",
-                               "IPA_educational_files/idsl_ipa_test_files.zip?raw=true"),
-                        destfile = temp_wd_zip)
-  unzip(temp_wd_zip, exdir = temp_wd)
-  pass_download <- TRUE},
-  error = function(e) {pass_download <- FALSE},
-  warning = function(w) {pass_download <- FALSE})
+pass_download <- TRUE
+tryCatch(
+  {
+    download.file(
+      url = paste0("https://github.com/idslme/IDSL.IPA/blob/main/",
+      "IPA_educational_files/idsl_ipa_test_files.zip?raw=true"),
+      destfile = temp_wd_zip,
+      mode = "wb",
+      quiet = TRUE
+    )
+    unzip(temp_wd_zip, exdir = temp_wd)
+    pass_download <- TRUE
+  },
+  error = function(e) {
+    pass_download <- FALSE
+  }
+)
 if (pass_download) {
   PARAM[7, 2] <- temp_wd
   PARAM[44, 2] <- s_path

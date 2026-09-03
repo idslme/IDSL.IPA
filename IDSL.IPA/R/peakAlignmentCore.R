@@ -5,14 +5,32 @@ peakAlignmentCore <- function(peaklistInputFolderPath, peaklistFileNames, listCo
   ##
   ##############################################################################
   ##
+  progressBARboundaries <- txtProgressBar(min = 0, max = nSamples, initial = 0, style = 3)
+  ##
   mainImzRTXcol <- do.call(rbind, lapply(1:nSamples, function(i) {
+    ##
+    setTxtProgressBar(progressBARboundaries, i)
+    ##
     iPeaklistFileName <- paste0(peaklistInputFolderPath, "/", peaklistFileNames[i])
     peaklist <- loadRdata(iPeaklistFileName)
     nrowPL <- nrow(peaklist)
     cbind(rep((i + 2), nrowPL), peaklist[, 8], listCorrectedRTpeaklists[[peaklistFileNames[i]]], peaklist[, 4], seq(1, nrowPL, 1))
   }))
   ##
+  close(progressBARboundaries)
+  ##
   listCorrectedRTpeaklists <- NULL
+  ##
+  mainImzRTXcol[, 2] <- as.numeric(mainImzRTXcol[, 2])
+  if (any(is.na(mainImzRTXcol[, 2]))) {
+    IPA_logRecorder("There is a problem with the m/z of some peaklists for this batch of peak alignment. Please remove faulty peaklists and their corresponding HRMS files.")
+    stop()
+  }
+  ##
+  if (is.character(mainImzRTXcol[, 3])) {
+    IPA_logRecorder("There is a problem with the retention time correction for this batch of peak alignment. Please visit `listCorrectedRTpeaklists.Rdata` in the `peak_alignment` folder for the faulty peaklists.")
+    stop()
+  }
   ##
   mainImzRTXcol <- mainImzRTXcol[!is.na(mainImzRTXcol[, 3]), ]
   mainImzRTXcol <- mainImzRTXcol[order(mainImzRTXcol[, 2], decreasing = FALSE), ]
@@ -22,7 +40,12 @@ peakAlignmentCore <- function(peaklistInputFolderPath, peaklistFileNames, listCo
   ##
   ##############################################################################
   ##
-  call_peakAlignmentCore <- function(q) {
+  progressBARboundaries <- txtProgressBar(min = 0, max = LxDiffMZ, initial = 0, style = 3)
+  ##
+  mainPeakTable <- do.call(rbind, lapply(1:LxDiffMZ, function(q) {
+    ##
+    setTxtProgressBar(progressBARboundaries, q)
+    ##
     nImzRTXcol <- xDiffMZ[q + 1] - xDiffMZ[q]
     xQ <- seq((xDiffMZ[q] + 1), xDiffMZ[q + 1], 1)
     imzRTXcol <- mainImzRTXcol[xQ, ]
@@ -66,46 +89,11 @@ peakAlignmentCore <- function(peaklistInputFolderPath, peaklistFileNames, listCo
     FeatureTable <- FeatureTable[1:counter, ]
     ##
     return(FeatureTable)
-  }
-  ##
-  ##############################################################################
-  ##
-  if (number_processing_threads == 1) {
-    ##
-    mainPeakTable <- do.call(rbind, lapply(1:LxDiffMZ, function(q) {
-      call_peakAlignmentCore(q)
-    }))
-    ##
-  } else {
-    osType <- Sys.info()[['sysname']]
-    ##
-    ############################################################################
-    ##
-    if (osType == "Windows") {
-      ##
-      clust <- makeCluster(number_processing_threads)
-      clusterExport(clust, setdiff(ls(), c("clust", "LxDiffMZ")), envir = environment())
-      ##
-      mainPeakTable <- do.call(rbind, parLapply(clust, 1:LxDiffMZ, function(q) {
-        call_peakAlignmentCore(q)
-      }))
-      ##
-      stopCluster(clust)
-      ##
-      ##########################################################################
-      ##
-    } else {
-      ##
-      mainPeakTable <- do.call(rbind, mclapply(1:LxDiffMZ, function(q) {
-        call_peakAlignmentCore(q)
-      }, mc.cores = number_processing_threads))
-      ##
-      closeAllConnections()
-      ##
-    }
-  }
+  }))
   ##
   mainImzRTXcol <- NULL
+  ##
+  close(progressBARboundaries)
   ##
   ##############################################################################
   ## To resolve redundant peaks in the peak matrix table

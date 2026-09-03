@@ -37,7 +37,7 @@ plot_simple_tic <- function(filelist, filelocation, number_processing_threads = 
       ##
       dflist.tic <- mclapply(filelist, function(i) {
         call_plot_simple_tic(i)
-      }, mc.cores = number_processing_threads)
+      }, mc.cores = number_processing_threads, mc.preschedule = FALSE)
       ##
       closeAllConnections()
       ##

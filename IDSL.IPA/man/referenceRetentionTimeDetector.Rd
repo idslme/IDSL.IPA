@@ -7,12 +7,16 @@ Reference retention time detector
 This module detects recurring reference peaks (m/z-RT) for retention time correction.
 }
 \usage{
-referenceRetentionTimeDetector(inputPathPeaklist, refPeaklistFileNames,
-minFrequencyRefPeaks, massAccuracy, RTtolerance, number_processing_threads = 1)
+referenceRetentionTimeDetector(inputPathPeaklist, inputPathMZML,
+refPeaklistFileNames, minFrequencyRefPeaks, massAccuracy, RTtolerance,
+RTcorrectionIonSource, number_processing_threads = 1)
 }
 \arguments{
   \item{inputPathPeaklist}{
 path to directory of peaklists.
+}
+  \item{inputPathMZML}{
+path to the directory containing raw mass spectrometry data files (e.g., mzML, mzXML, or CDF).
 }
   \item{refPeaklistFileNames}{
 name of peaklists files to detect recurring reference peaks (m/z-RT).
@@ -27,8 +31,11 @@ mass error to detect common peaks.
   \item{RTtolerance}{
 retention time tolerance to detect common peaks.
 }
+  \item{RTcorrectionIonSource}{
+method or ion source mode used for retention time correction.
+}
   \item{number_processing_threads}{
-number of processing threads
+number of processing threads.
 }
 }
 \value{
