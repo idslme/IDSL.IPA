@@ -65,6 +65,7 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, smoothingWin
             } else {
               boundary_right <- length_chrom
             }
+            ##
             chrom <- cbind(retentionTime[chromatogramMatrix[boundary_left:boundary_right, 1]], chromatogramMatrix[boundary_left:boundary_right, 3])
             RT_detected <- chrom[which.min(abs(chrom[, 1] - rtCandidate)), 1]
             if (abs(RT_detected - rtCandidate) <= RTtolerance) {
@@ -80,7 +81,12 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, smoothingWin
                                                            maxR13CcumulatedIntensity = Inf, maxPercentageMissingScans = Inf, nSpline, exportEICparameters = NULL)
               ##
               if (!is.null(peak_property)) {
-                c(x0[j], peak_property)
+                ##
+                RT_detected = peak_property[3]
+                if (abs(RT_detected - rtCandidate) <= RTtolerance) {
+                  ##
+                  c(x0[j], peak_property)
+                }
               }
             }
           }
