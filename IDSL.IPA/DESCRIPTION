@@ -8,7 +8,7 @@ Authors@R: c(
     person(family = "Barupal", given = "Dinesh", email = "dinesh.barupal@mssm.edu", role = c("cre","aut"),
            comment = c(ORCID = "0000-0002-9954-8628")))
 Depends: R (>= 4.0)
-Imports: IDSL.MXP, readxl
+Imports: IDSL.MXP (>= 2.1), readxl
 Author: Sadjad Fakouri-Baygi [aut] (<https://orcid.org/0000-0002-6864-6911>),
     Dinesh Barupal [cre, aut] (<https://orcid.org/0000-0002-9954-8628>)
 Maintainer: Dinesh Barupal <dinesh.barupal@mssm.edu>

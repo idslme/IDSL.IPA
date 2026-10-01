@@ -4,6 +4,7 @@ peakXcolFiller <- function(peakXcol, inputPathPeaklist) {
   peak_height[, 4:L3] <- 0
   peak_area <- peak_height
   peak_R13C <- peak_height
+  peak_sn <- peak_height
   ##
   colnamesPeakXcol <- colnames(peakXcol)
   ##
@@ -18,10 +19,11 @@ peakXcolFiller <- function(peakXcol, inputPathPeaklist) {
       peak_height[j, i] <- peaklist[x_peak, 4]
       peak_area[j, i] <- peaklist[x_peak, 5]
       peak_R13C[j, i] <- peaklist[x_peak, 11]
+      peak_sn[j, i] <- peaklist[x_peak, 21]
     }
   }
   close(progressBARboundaries)
-  listHeightAreaR13C <- list(peak_height, peak_area, peak_R13C)
-  names(listHeightAreaR13C) <- c("peak_height", "peak_area", "peak_R13C")
-  return(listHeightAreaR13C)
+  listHeightAreaR13CSN <- list(peak_height, peak_area, peak_R13C, peak_sn)
+  names(listHeightAreaR13CSN) <- c("peak_height", "peak_area", "peak_R13C", "peak_sn")
+  return(listHeightAreaR13CSN)
 }

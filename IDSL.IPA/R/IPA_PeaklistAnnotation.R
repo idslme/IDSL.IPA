@@ -96,22 +96,27 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     save(annotated_peak_indices, file = paste0(Output_Xcol, "/annotated_peak_indices.Rdata"))
     IPA_logRecorder("Aligned indexed table from individual peaklists were stored as `annotated_peak_indices.Rdata` in the `sample_centric_annotation` folder!")
     ##
-    listHeightAreaR13C <- peakXcolFiller(annotated_peak_indices, inputPathPeaklist)
-    annotated_peak_height <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_height"]], falggingVector = NULL, number_processing_threads)
+    listHeightAreaR13CSN <- peakXcolFiller(annotated_peak_indices, inputPathPeaklist)
+    annotated_peak_height <- peakPropertyTableMedianCalculator(listHeightAreaR13CSN[["peak_height"]], falggingVector = NULL, number_processing_threads)
     annotated_peak_height <- cbind(compoundNames, annotated_peak_height)
     colnames(annotated_peak_height) <- c("name", "m/z", "RT", "freqPeakHeight", "medianPeakHeight", file_name_hrms)
     ##
-    annotated_peak_area <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_area"]], falggingVector = NULL, number_processing_threads)
+    annotated_peak_area <- peakPropertyTableMedianCalculator(listHeightAreaR13CSN[["peak_area"]], falggingVector = NULL, number_processing_threads)
     annotated_peak_area <- cbind(compoundNames, annotated_peak_area)
     colnames(annotated_peak_area) <- c("name", "m/z", "RT", "freqPeakArea", "medianPeakArea", file_name_hrms)
     ##
-    annotated_peak_R13C <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_R13C"]], falggingVector = NULL, number_processing_threads)
+    annotated_peak_R13C <- peakPropertyTableMedianCalculator(listHeightAreaR13CSN[["peak_R13C"]], falggingVector = NULL, number_processing_threads)
     annotated_peak_R13C <- cbind(compoundNames, annotated_peak_R13C)
     colnames(annotated_peak_R13C) <- c("name", "m/z", "RT", "freqR13C", "medianR13C", file_name_hrms)
+    ##
+    annotated_peak_sn <- peakPropertyTableMedianCalculator(listHeightAreaR13CSN[["peak_sn"]], falggingVector = NULL, number_processing_threads)
+    annotated_peak_sn <- cbind(compoundNames, annotated_peak_sn)
+    colnames(annotated_peak_sn) <- c("name", "m/z", "RT", "freqSN", "medianSN", file_name_hrms)
     ##
     write.csv(annotated_peak_height, file = paste0(Output_Xcol, "/annotated_peak_height.csv"), row.names = TRUE)
     write.csv(annotated_peak_area, file = paste0(Output_Xcol, "/annotated_peak_area.csv"), row.names = TRUE)
     write.csv(annotated_peak_R13C, file = paste0(Output_Xcol, "/annotated_peak_R13C.csv"), row.names = TRUE)
+    write.csv(annotated_peak_sn, file = paste0(Output_Xcol, "/annotated_peak_sn.csv"), row.names = TRUE)
     ##
     IPA_logRecorder("Annotated peak height, peak area, and R13C tables were stored in `.Rdata` and `.csv` formats in the `sample_centric_annotation` folder!")
     IPA_logRecorder("Completed sample-centric peak annotations for peak height, peak area, and R13C tables!")
@@ -120,13 +125,19 @@ IPA_PeaklistAnnotation <- function(PARAM) {
       IPA_logRecorder("Initiated gap-filling for sample-centric peak annotation!")
       ##
       ionMassDifference <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
-      massAccuracy <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0038'), 2])   # Mass accuracy to cluster m/z in consecutive scans
-      RTtolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0039'), 2])
-      scanTolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0040'), 2])
       ##
-      chromatography_undetected_list <- gapFillingCore(input_path_hrms, peakXcol = annotated_peak_indices, massAccuracy, RTtolerance,
-                                                       scanTolerance, retentionTimeCorrectionCheck, listCorrectedRTpeaklists,
-                                                       inputPathPeaklist, ionMassDifference, number_processing_threads)
+      massAccuracy <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])   # Mass accuracy to cluster m/z in consecutive scans
+      smoothingWindow <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0015'), 2])
+      peakResolvingPower <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0017'), 2])
+      scanTolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0020'), 2])
+      nSpline <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0028'), 2])
+      ##
+      retentionTimeCorrectionCheck = if (gsub(" ", "", tolower(PARAM[which(PARAM[, 1] == 'PARAM0029'), 2])) == "yes") { TRUE } else { FALSE }
+      RTtolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0036'), 2])
+      ##
+      chromatography_undetected_list <- gapFillingCore(input_path_hrms, peakXcol = annotated_peak_indices, massAccuracy, smoothingWindow, peakResolvingPower,
+                                                       RTtolerance, scanTolerance, nSpline, retentionTimeCorrectionCheck, listCorrectedRTpeaklists,
+                                                       inputPathPeaklist, ionMassDifference, output_path = NA, number_processing_threads)
       ##
       annotated_peak_height_gapfilled <- matrix(as.numeric(annotated_peak_height[, c(-1, -5)]), nrow = nCompoundNames)
       annotated_peak_height <- NULL
@@ -134,6 +145,8 @@ IPA_PeaklistAnnotation <- function(PARAM) {
       annotated_peak_area <- NULL
       annotated_peak_R13C_gapfilled <- matrix(as.numeric(annotated_peak_R13C[, c(-1, -5)]), nrow = nCompoundNames)
       annotated_peak_R13C <- NULL
+      annotated_peak_sn_gapfilled <- matrix(as.numeric(annotated_peak_sn[, c(-1, -5)]), nrow = nCompoundNames)
+      annotated_peak_sn <- NULL
       ##
       progressBARboundaries <- txtProgressBar(min = 1, max = L_PL, initial = 1, style = 3)
       for (i in 1:L_PL) {
@@ -147,6 +160,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
             annotated_peak_height_gapfilled[j, (i + 3)] <- iSample[jCounter, 2]
             annotated_peak_area_gapfilled[j, (i + 3)] <- iSample[jCounter, 3]
             annotated_peak_R13C_gapfilled[j, (i + 3)] <- iSample[jCounter, 4]
+            annotated_peak_sn_gapfilled[j, (i + 3)] <- iSample[jCounter, 5]
           }
         }
       }
@@ -180,6 +194,15 @@ IPA_PeaklistAnnotation <- function(PARAM) {
       colnames(annotated_peak_R13C_gapfilled) <- c("name", "m/z", "RT", "freqGapFilledR13C", "medianGapfilledR13C", file_name_hrms)
       write.csv(annotated_peak_R13C_gapfilled, file = paste0(Output_Xcol, "/annotated_peak_R13C_gapfilled.csv"), row.names = TRUE)
       annotated_peak_R13C_gapfilled <- NULL
+      ##
+      ##########################################################################
+      ##
+      annotated_peak_sn_gapfilled[, 3] <- peakPropertyTableFreqCalculator(annotated_peak_sn_gapfilled, startColumnIndex = 4, number_processing_threads)
+      annotated_peak_sn_gapfilled <- peakPropertyTableMedianCalculator(annotated_peak_sn_gapfilled, falggingVector = NULL, number_processing_threads)
+      annotated_peak_sn_gapfilled <- cbind(compoundNames, annotated_peak_sn_gapfilled)
+      colnames(annotated_peak_sn_gapfilled) <- c("name", "m/z", "RT", "freqGapFilledsn", "medianGapfilledsn", file_name_hrms)
+      write.csv(annotated_peak_sn_gapfilled, file = paste0(Output_Xcol, "/annotated_peak_sn_gapfilled.csv"), row.names = TRUE)
+      annotated_peak_sn_gapfilled <- NULL
       ##
       ##########################################################################
       ##

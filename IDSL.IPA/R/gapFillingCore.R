@@ -1,10 +1,11 @@
-gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance, scanTolerance,
-                           retentionTimeCorrectionCheck = FALSE, listCorrectedRTpeaklists = NULL,
-                           inputPathPeaklist = NULL, ionMassDifference = 1.003354835336, number_processing_threads = 1) {
+gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, smoothingWindow, peakResolvingPower,
+                           RTtolerance, scanTolerance, nSpline, retentionTimeCorrectionCheck = FALSE, listCorrectedRTpeaklists = NULL,
+                           inputPathPeaklist = NULL, ionMassDifference = 1.003354835336, output_path = NA, number_processing_threads = 1) {
   ##
   call_gapFillingCore <- function(i) {
     ##
-    chromatography_undetected <- NULL
+    alignedTableParameters <- NULL
+    gapFilledPeaklist <- rep(NA, 25)
     x0 <- which(peakXcol[, (i + 3)] == 0)
     Lx0 <- length(x0)
     if (Lx0 > 0) {
@@ -38,7 +39,7 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance,
         outputer <- NULL
         aggregatedSpectraList <- IPA_spectraListAggregator(spectraList)
         ##
-        chromatography_undetected <- do.call(rbind, lapply(1:Lx0, function(j) {
+        gapFilledPeaklist <- do.call(rbind, lapply(1:Lx0, function(j) {
           ##
           peakArea <- 0
           R13C <- 0
@@ -49,7 +50,7 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance,
           scanNumberEnd <- min(c(LretentionTime, (scanNumberApex + scanTolerance)))
           chromatogramMatrix <- XIC(aggregatedSpectraList, scanNumberStart, scanNumberEnd, mzCandidate, massAccuracy)
           if (!is.null(chromatogramMatrix)) {
-            length_chrom <- dim(chromatogramMatrix)[1]
+            length_chrom <- nrow(chromatogramMatrix)
             x_apex <- which(chromatogramMatrix[, 1] == scanNumberApex)
             rt_loc_min <- islocalminimum(chromatogramMatrix[, 3])
             boundary_left <- which(rt_loc_min[1:x_apex] == -1)
@@ -67,29 +68,48 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance,
             chrom <- cbind(retentionTime[chromatogramMatrix[boundary_left:boundary_right, 1]], chromatogramMatrix[boundary_left:boundary_right, 3])
             RT_detected <- chrom[which.min(abs(chrom[, 1] - rtCandidate)), 1]
             if (abs(RT_detected - rtCandidate) <= RTtolerance) {
-              height <- max(chrom[, 2])
-              ## R13C
+              ##
               t1 <- boundary_left + scanNumberStart - 1
               t2 <- boundary_right + scanNumberStart - 1
               ##
-              chromatogram_segment <- targetedIonPairing(spectraList, t1, t2, mzCandidate, massAccuracy, ionMassDifference, massAccuracy1.5)
+              chromatogramSegment <- targetedIonPairing(spectraList, t1, t2, mzCandidate, massAccuracy, ionMassDifference, massAccuracy1.5)
               ##
-              if (length(chromatogram_segment) > 0) {
-                Int12C <- sum(chromatogram_segment[, 2])
-                Int13C <- sum(chromatogram_segment[, 5])
-                R13C <- Int13C/Int12C*100
-              }
-              if (boundary_left < boundary_right) {
-                peakArea <- peakAreaCalculator(chrom[, 1], chrom[, 2])
-              }
+              peak_property <- chromatographicPeakAnalysis(chromatogramSegment, aggregatedSpectraList, retentionTime, LretentionTime, massAccuracy,
+                                                           mzTarget = mzCandidate, rtTarget = rtCandidate, scanNumberStart, scanNumberEnd, smoothingWindow,
+                                                           peakResolvingPower, minNIonPair = 0, minPeakHeight = 0, minRatioIonPair = 0, maxRPW = 1, minSNRbaseline = 0,
+                                                           maxR13CcumulatedIntensity = Inf, maxPercentageMissingScans = Inf, nSpline, exportEICparameters = NULL)
               ##
-              c(x0[j], round(height, 0), round(peakArea, 0), round(R13C, 3))
+              if (!is.null(peak_property)) {
+                c(x0[j], peak_property)
+              }
             }
           }
         }))
       }
     }
-    return(chromatography_undetected)
+    ##
+    if (updatePeaklists) {
+      rownames(gapFilledPeaklist) <- NULL
+      colnames(gapFilledPeaklist) <- c("peakXcol_id", "ScanNumberStart","ScanNumberEnd","retentionTimeApex","PeakHeight","PeakArea",
+                                       "NumberDetectedScans(nIsoPair)","RCS(%)","m/z 12C","CumulatedIntensity", "m/z 13C",
+                                       "Ratio13C CumulatedIntensity","PeakWidthBaseline","RatioPeakWidth @ 50%",
+                                       "SeparationTray","peakAsymmetryFactor @ 10%","peakUSPtailingFactor @ 5%",
+                                       "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
+                                       "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
+      ##
+      save(gapFilledPeaklist, file = paste0(outputPathGFpeaklist, "/gapfilled_peaklist_", iHRMSfileName, ".Rdata"))
+      write.csv(gapFilledPeaklist, file = paste0(outputPathGFpeaklist, "/gapfilled_peaklist_", iHRMSfileName, ".csv"))
+    }
+    ##
+    if (!is.na(gapFilledPeaklist[1, 1])) {
+      alignedTableParameters <- cbind(gapFilledPeaklist[, 1],
+                                      round(gapFilledPeaklist[, 5], 0),
+                                      round(gapFilledPeaklist[, 6], 0),
+                                      round(gapFilledPeaklist[, 12], 3),
+                                      round(gapFilledPeaklist[, 22], 3))
+    }
+    ##
+    return(alignedTableParameters)
   }
   ##
   ##############################################################################
@@ -98,12 +118,20 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance,
   Lsamples3 <- dim(peakXcol)[2]
   Lsamples <- Lsamples3 - 3
   colnamesPeakXcol <- colnames(peakXcol)[4:Lsamples3]
+  updatePeaklists = if (!is.na(output_path)) { TRUE } else { FALSE }
+  ##
+  if (updatePeaklists) {
+    outputPathGFpeaklist <- paste0(output_path, "/gapfilled_peaklists")
+    if (!dir.exists(outputPathGFpeaklist)) {
+      dir.create(outputPathGFpeaklist, recursive = TRUE)
+    }
+  }
   ##
   if (number_processing_threads == 1) {
     ##
     progressBARboundaries <- txtProgressBar(min = 0, max = Lsamples, initial = 0, style = 3)
     ##
-    chromatography_undetected_list <- lapply(1:Lsamples, function(i) {
+    gapFilledPeaklist_list <- lapply(1:Lsamples, function(i) {
       setTxtProgressBar(progressBARboundaries, i)
       ##
       call_gapFillingCore(i)
@@ -120,7 +148,7 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance,
       clust <- makeCluster(number_processing_threads)
       clusterExport(clust, setdiff(ls(), c("clust", "Lsamples")), envir = environment())
       ##
-      chromatography_undetected_list <- parLapply(clust, 1:Lsamples, function(i) {
+      gapFilledPeaklist_list <- parLapply(clust, 1:Lsamples, function(i) {
         call_gapFillingCore(i)
       })
       ##
@@ -130,7 +158,7 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance,
       ##
     } else {
       ##
-      chromatography_undetected_list <- mclapply(1:Lsamples, function(i) {
+      gapFilledPeaklist_list <- mclapply(1:Lsamples, function(i) {
         call_gapFillingCore(i)
       }, mc.cores = number_processing_threads, mc.preschedule = FALSE)
       ##
@@ -139,7 +167,7 @@ gapFillingCore <- function(input_path_hrms, peakXcol, massAccuracy, RTtolerance,
     }
   }
   ##
-  names(chromatography_undetected_list) <- colnamesPeakXcol
+  names(gapFilledPeaklist_list) <- colnamesPeakXcol
   ##
-  return(chromatography_undetected_list)
+  return(gapFilledPeaklist_list)
 }

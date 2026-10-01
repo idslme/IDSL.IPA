@@ -202,27 +202,33 @@ IPA_PeakAlignment <- function(PARAM) {
     ##
     IPA_logRecorder("Initiated generating and saving aligned peak tables for the peak height, peak area, and R13C values!")
     ##
-    listHeightAreaR13C <- peakXcolFiller(peakXcol, inputPathPeaklist)
+    listHeightAreaR13CSN <- peakXcolFiller(peakXcol, inputPathPeaklist)
     peakXcol <- NULL
     ##
-    peak_height <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_height"]], falggingVector, number_processing_threads)
+    peak_height <- peakPropertyTableMedianCalculator(listHeightAreaR13CSN[["peak_height"]], falggingVector, number_processing_threads)
     colnames(peak_height)[c(3, 4, 5)] <- c("freqPeakHeight", "medianPeakHeight", "Flag")
     save(peak_height, file = paste0(OutputPath_peak_alignment, "/peak_height.Rdata"))
     write.csv(peak_height, file = paste0(OutputPath_peak_alignment, "/peak_height.csv"), row.names = TRUE)
     ##
-    peak_area <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_area"]], falggingVector, number_processing_threads)
+    peak_area <- peakPropertyTableMedianCalculator(listHeightAreaR13CSN[["peak_area"]], falggingVector, number_processing_threads)
     colnames(peak_area)[c(3, 4, 5)] <- c("freqPeakArea", "medianPeakArea", "Flag")
     save(peak_area, file = paste0(OutputPath_peak_alignment, "/peak_area.Rdata"))
     write.csv(peak_area, file = paste0(OutputPath_peak_alignment, "/peak_area.csv"), row.names = TRUE)
     peak_area <- NULL
     ##
-    peak_R13C <- peakPropertyTableMedianCalculator(listHeightAreaR13C[["peak_R13C"]], falggingVector, number_processing_threads)
+    peak_R13C <- peakPropertyTableMedianCalculator(listHeightAreaR13CSN[["peak_R13C"]], falggingVector, number_processing_threads)
     colnames(peak_R13C)[c(3, 4, 5)] <- c("freqR13C", "medianR13C", "Flag")
     save(peak_R13C, file = paste0(OutputPath_peak_alignment, "/peak_R13C.Rdata"))
     write.csv(peak_R13C, file = paste0(OutputPath_peak_alignment, "/peak_R13C.csv"), row.names = TRUE)
     peak_R13C <- NULL
     ##
-    listHeightAreaR13C <- NULL
+    peak_sn <- peakPropertyTableMedianCalculator(listHeightAreaR13CSN[["peak_sn"]], falggingVector, number_processing_threads)
+    colnames(peak_sn)[c(3, 4, 5)] <- c("freqSN", "medianSN", "Flag")
+    save(peak_sn, file = paste0(OutputPath_peak_alignment, "/peak_sn.Rdata"))
+    write.csv(peak_sn, file = paste0(OutputPath_peak_alignment, "/peak_sn.csv"), row.names = TRUE)
+    peak_sn <- NULL
+    ##
+    listHeightAreaR13CSN <- NULL
     ##
     IPA_logRecorder("Aligned peak height, peak area, and R13C tables were stored in `.Rdata` and `.csv` formats in the `peak_alignment` folder!")
     ##

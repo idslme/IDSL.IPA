@@ -53,13 +53,18 @@ IPA_GapFiller <- function(PARAM) {
     IPA_logRecorder(paste0("Mass difference to pair ions is '", ionMassDifference, " Da' in the gap-filling step!"))
   }
   ##
-  massAccuracy <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0038'), 2])   # Mass accuracy to cluster m/z in consecutive scans
-  RTtolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0039'), 2])
-  scanTolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0040'), 2])
+  massAccuracy <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])   # Mass accuracy to cluster m/z in consecutive scans
+  smoothingWindow <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0015'), 2])
+  peakResolvingPower <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0017'), 2])
+  scanTolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0020'), 2])
+  nSpline <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0028'), 2])
   ##
-  chromatography_undetected_list <- gapFillingCore(input_path_hrms, peakXcol, massAccuracy, RTtolerance, scanTolerance,
-                                                   retentionTimeCorrectionCheck = TRUE, listCorrectedRTpeaklists,
-                                                   inputPathPeaklist, ionMassDifference, number_processing_threads)
+  retentionTimeCorrectionCheck = if (gsub(" ", "", tolower(PARAM[which(PARAM[, 1] == 'PARAM0029'), 2])) == "yes") { TRUE } else { FALSE }
+  RTtolerance <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0036'), 2])
+  ##
+  chromatography_undetected_list <- gapFillingCore(input_path_hrms, peakXcol, massAccuracy, smoothingWindow, peakResolvingPower,
+                                                   RTtolerance, scanTolerance, nSpline, retentionTimeCorrectionCheck, listCorrectedRTpeaklists,
+                                                   inputPathPeaklist, ionMassDifference, output_path, number_processing_threads)
   peakXcol <- NULL
   listCorrectedRTpeaklists <- NULL
   ##
@@ -71,6 +76,8 @@ IPA_GapFiller <- function(PARAM) {
   peak_area_gapfilled <- peak_area_gapfilled[, -c(4, 5)]
   peak_R13C_gapfilled <- loadRdata(paste0(OutputPath_peak_alignment, "/peak_R13C.Rdata"))
   peak_R13C_gapfilled <- peak_R13C_gapfilled[, -c(4, 5)]
+  peak_sn_gapfilled <- loadRdata(paste0(OutputPath_peak_alignment, "/peak_sn.Rdata"))
+  peak_sn_gapfilled <- peak_sn_gapfilled[, -c(4, 5)]
   ##
   progressBARboundaries <- txtProgressBar(min = 0, max = LHRMS, initial = 0, style = 3)
   for (i in 1:LHRMS) {
@@ -84,6 +91,7 @@ IPA_GapFiller <- function(PARAM) {
         peak_height_gapfilled[j, (i + 3)] <- iSample[jCounter, 2]
         peak_area_gapfilled[j, (i + 3)] <- iSample[jCounter, 3]
         peak_R13C_gapfilled[j, (i + 3)] <- iSample[jCounter, 4]
+        peak_sn_gapfilled[j, (i + 3)] <- iSample[jCounter, 5]
       }
     }
   }
@@ -138,6 +146,20 @@ IPA_GapFiller <- function(PARAM) {
   save(peak_R13C_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_R13C_gapfilled.Rdata"))
   write.csv(peak_R13C_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_R13C_gapfilled.csv"), row.names = TRUE)
   peak_R13C_gapfilled <- NULL
+  ##
+  ##############################################################################
+  ##
+  peak_sn_gapfilled[, 3] <- peakPropertyTableFreqCalculator(peak_sn_gapfilled, startColumnIndex = 4, number_processing_threads)
+  ##
+  falggingVector <- peakXcolFlagger(peak_sn_gapfilled[, 1], peak_sn_gapfilled[, 2], peak_sn_gapfilled[, 3],
+                                    massAccuracy, 3*RTtolerance, maxRedundantPeakFlagging)
+  ##
+  peak_sn_gapfilled <- peakPropertyTableMedianCalculator(peak_sn_gapfilled, falggingVector, number_processing_threads)
+  colnames(peak_sn_gapfilled)[c(3, 4, 5)] <- c("freqGapFilledSN", "medianGapFilledSN", "Flag")
+  ##
+  save(peak_sn_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_sn_gapfilled.Rdata"))
+  write.csv(peak_sn_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_sn_gapfilled.csv"), row.names = TRUE)
+  peak_sn_gapfilled <- NULL
   ##
   ##############################################################################
   ##############################################################################

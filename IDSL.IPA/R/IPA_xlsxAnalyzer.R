@@ -621,50 +621,6 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         }
       }
     }
-    ############################# Gap-filling ##################################
-    gapfilling_check <- function(checkpoint_parameter, PARAM) {
-      x0038 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0038'), 2])
-      if (is.na(x0038)) {
-        IPA_message("ERROR!!! Problem with PARAM0038! This parameter should be greater than 0 !")
-        checkpoint_parameter <- FALSE
-      } else {
-        if (x0038 <= 0) {
-          IPA_message("ERROR!!! Problem with PARAM0038! This parameter should be greater than 0 !")
-          checkpoint_parameter <- FALSE
-        }
-      }
-      ##
-      x0039 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0039'), 2])
-      if (is.na(x0039)) {
-        IPA_message("ERROR!!! Problem with PARAM0039! This parameter should be greater than 0 !")
-        checkpoint_parameter <- FALSE
-      } else {
-        if (x0039 <= 0) {
-          IPA_message("ERROR!!! Problem with PARAM0039! This parameter should be greater than 0 !")
-          checkpoint_parameter <- FALSE
-        }
-      }
-      ##
-      x0040 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0040'), 2])
-      if (is.na(x0040)) {
-        IPA_message("ERROR!!! Problem with PARAM0040! This parameter should be a positive integer!")
-        checkpoint_parameter <- FALSE
-      } else {
-        if (x0040 < 0) {
-          IPA_message("ERROR!!! Problem with PARAM0040! This parameter should be a positive integer!")
-          checkpoint_parameter <- FALSE
-        } else {
-          if ((x0040 %% 1) != 0) {
-            IPA_message("ERROR!!! Problem with PARAM0040! This parameter should be a positive integer!")
-            checkpoint_parameter <- FALSE
-          }
-        }
-      }
-      return(checkpoint_parameter)
-    }
-    if (tolower(x0003) == "yes") {
-      checkpoint_parameter <- gapfilling_check(checkpoint_parameter, PARAM)
-    }
     ############################################################################
     if (tolower(x0004) == "yes") {
       address_ref <- PARAM[which(PARAM[, 1] == 'PARAM0041'), 2] ## x0041
@@ -781,13 +737,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         IPA_message("ERROR!!! Problem with PARAM0048!")
         checkpoint_parameter <- FALSE
       } else {
-        if (tolower(x0048) == "yes" | tolower(x0048) == "no") {
-          if (tolower(x0048) == "yes") {
-            if (tolower(x0003) == "no") {
-              checkpoint_parameter <- gapfilling_check(checkpoint_parameter, PARAM)
-            }
-          }
-        } else {
+        if (!(tolower(x0048) == "yes" | tolower(x0048) == "no")) {
           IPA_message("ERROR!!! Problem with PARAM0048!")
           checkpoint_parameter <- FALSE
         }

@@ -27,4 +27,7 @@ peak table for area values
   \item{peak_R13C}{
 peak table for R13C values
 }
+  \item{peak_sn}{
+peak table for S/N values
+}
 }
